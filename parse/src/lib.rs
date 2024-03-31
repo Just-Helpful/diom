@@ -1,2 +1,3 @@
 //! Parsing to produce an AST for the Diom language
-pub mod traits;
+pub mod common;
+pub mod values;
