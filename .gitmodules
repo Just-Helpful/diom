@@ -1,0 +1,3 @@
+[submodule "diom-docs"]
+	path = diom-docs
+	url = https://github.com/Mr-Helpful/diom-docs
