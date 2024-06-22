@@ -2,6 +2,8 @@ mod chars;
 pub use chars::Char;
 mod floats;
 pub use floats::Float;
+mod functions;
+pub use functions::{Argument, Function, FunctionArm};
 
 mod access;
 pub use access::{Call, Field, Index};
@@ -29,4 +31,6 @@ pub enum Expression<I> {
   Call(Call<I>),
   Field(Field<I>),
   Index(Index<I>),
+  /* function construction */
+  Function(Function<I>),
 }

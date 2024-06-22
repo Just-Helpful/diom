@@ -1,4 +1,4 @@
-use crate::patterns::Pattern;
+use crate::{patterns::Pattern, types::Type};
 
 use super::Expression;
 
@@ -24,6 +24,7 @@ use super::Expression;
 /// return value is not used, it'll throw an compiler error.
 pub struct Declare<I> {
   pub pattern: Pattern<I>,
+  pub annotation: Option<Type<I>>,
   pub value: Box<Expression<I>>,
   pub info: I,
 }
