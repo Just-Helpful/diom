@@ -6,7 +6,7 @@ mod functions;
 pub use functions::{Argument, Function, FunctionArm};
 
 mod access;
-pub use access::{Call, Field, Index};
+pub use access::{Ambiguous, Call, Field, Index};
 mod blocks;
 pub use blocks::{Assign, Block, Declare, MonadThen, Return};
 mod compound;
@@ -31,6 +31,7 @@ pub enum Expression<I> {
   Call(Call<I>),
   Field(Field<I>),
   Index(Index<I>),
+  Ambiguous(Ambiguous<I>),
   /* function construction */
   Function(Function<I>),
 }
