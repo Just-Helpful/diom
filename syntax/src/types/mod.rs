@@ -7,7 +7,7 @@ pub use enums::Enum;
 mod floats;
 pub use floats::Float;
 mod functions;
-pub use functions::Function;
+pub use functions::{Argument, Function};
 mod structs;
 pub use structs::Struct;
 mod tuples;

@@ -2,6 +2,12 @@ use crate::ident::Ident;
 
 use super::Type;
 
+pub struct Argument<I> {
+  pub name: Ident<I>,
+  pub annotation: Type<I>,
+  pub info: I,
+}
+
 /// The type for a callable function
 ///
 /// ```ignore
@@ -14,7 +20,7 @@ use super::Type;
 /// let add: Binary = (x) {(y) {x + y}};
 /// ```
 pub struct Function<I> {
-  pub arguments: Vec<(Ident<I>, Type<I>)>,
+  pub arguments: Vec<Argument<I>>,
   pub returned: Box<Type<I>>,
   pub info: I,
 }
