@@ -1,4 +1,4 @@
-use crate::{expressions::Expression, ident::Ident};
+use crate::{expressions::Expression, ident::Ident, InfoSource};
 
 /// A node to represent a syntax that could be either a
 /// method call or field access.
@@ -16,6 +16,7 @@ use crate::{expressions::Expression, ident::Ident};
 ///
 /// This ambiguity **should** be resolved by typechecking, i.e. this node<br>
 /// **shouldn't** exist in the syntax tree after the typechecking stage.
+#[derive(InfoSource)]
 pub struct Ambiguous<I> {
   pub value: Box<Expression<I>>,
   pub name: Ident<I>,

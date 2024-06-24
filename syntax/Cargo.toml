@@ -5,3 +5,4 @@ description = "Provides the syntax tree for the Diom language"
 edition = "2021"
 
 [dependencies]
+diom-syntax-macros = { version = "0.1.0", path = "../syntax-macros" }

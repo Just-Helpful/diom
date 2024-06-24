@@ -1,4 +1,5 @@
 use super::Type;
+use crate::InfoSource;
 
 /// A type for arrays of items.
 ///
@@ -6,6 +7,7 @@ use super::Type;
 /// let String: [Char];
 /// let xs: [Float] = [1, 2, 3];
 /// ```
+#[derive(InfoSource)]
 pub struct Array<I> {
   pub item: Box<Type<I>>,
   pub info: I,

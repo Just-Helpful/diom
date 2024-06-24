@@ -3,13 +3,6 @@
 version = 3
 
 [[package]]
-name = "diom-syntax"
-version = "0.1.0"
-dependencies = [
- "diom-syntax-macros",
-]
-
-[[package]]
 name = "diom-syntax-macros"
 version = "0.1.0"
 dependencies = [

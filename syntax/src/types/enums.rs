@@ -1,4 +1,4 @@
-use crate::ident::Ident;
+use crate::{ident::Ident, InfoSource};
 
 use super::Type;
 
@@ -21,6 +21,7 @@ use super::Type;
 /// let bool = Boolean.True;
 /// let bool = Boolean.False;
 /// ```
+#[derive(InfoSource)]
 pub struct Enum<I> {
   pub name: Option<Ident<I>>,
   pub variants: Vec<(Ident<I>, Type<I>)>,

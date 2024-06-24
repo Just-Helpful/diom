@@ -1,4 +1,4 @@
-use crate::ident::Ident;
+use crate::{ident::Ident, InfoSource};
 
 /// A pattern that captures the remaining contents of a structure.
 /// For example:
@@ -21,6 +21,7 @@ use crate::ident::Ident;
 /// // gives a compiler error (whilst type checking)
 /// // that `sx` cannot be bound to an empty structure
 /// ```
+#[derive(InfoSource)]
 pub struct Rest<I> {
   pub name: Option<Ident<I>>,
   pub info: I,

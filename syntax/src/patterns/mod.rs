@@ -8,9 +8,10 @@ pub mod structs;
 use structs::Struct;
 use tuples::Tuple;
 
-use crate::ident::Ident;
+use crate::{ident::Ident, InfoSource};
 pub mod tuples;
 
+#[derive(InfoSource)]
 pub enum Pattern<I> {
   Array(Array<I>),
   Enum(Enum<I>),

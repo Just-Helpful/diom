@@ -1,7 +1,8 @@
-use crate::ident::Ident;
+use crate::{ident::Ident, InfoSource};
 
 use super::Type;
 
+#[derive(InfoSource)]
 pub struct Argument<I> {
   pub name: Ident<I>,
   pub annotation: Type<I>,
@@ -19,6 +20,7 @@ pub struct Argument<I> {
 /// let add: Binary = (x)(y) x + y;
 /// let add: Binary = (x) {(y) {x + y}};
 /// ```
+#[derive(InfoSource)]
 pub struct Function<I> {
   pub arguments: Vec<Argument<I>>,
   pub returned: Box<Type<I>>,

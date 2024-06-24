@@ -1,5 +1,8 @@
 use std::ops::Deref;
 
+use crate::InfoSource;
+
+#[derive(InfoSource)]
 pub struct Ident<I> {
   pub name: Box<str>,
   pub info: I,

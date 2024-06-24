@@ -1,6 +1,7 @@
 mod chars;
 pub use chars::Char;
 mod floats;
+use crate::InfoSource;
 pub use floats::Float;
 mod functions;
 pub use functions::{Argument, Function, FunctionArm};
@@ -12,6 +13,7 @@ pub use blocks::{Assign, Block, Declare, MonadThen, Return};
 mod compound;
 pub use compound::{Array, Enum, Struct, Tuple};
 
+#[derive(InfoSource)]
 pub enum Expression<I> {
   /* fundamental values to the language */
   Char(Char<I>),

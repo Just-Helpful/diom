@@ -13,8 +13,9 @@ pub use structs::Struct;
 mod tuples;
 pub use tuples::Tuple;
 
-use crate::ident::Ident;
+use crate::{ident::Ident, InfoSource};
 
+#[derive(InfoSource)]
 pub enum Type<I> {
   /* base types */
   Float(Float<I>),

@@ -1,11 +1,10 @@
-use std::collections::HashMap;
-
-use crate::ident::Ident;
+use crate::{ident::Ident, InfoSource};
 
 use super::Expression;
 
+#[derive(InfoSource)]
 pub struct Struct<I> {
   pub name: Option<Ident<I>>,
-  pub fields: HashMap<Ident<I>, Expression<I>>,
+  pub fields: Vec<(Ident<I>, Expression<I>)>,
   pub info: I,
 }
