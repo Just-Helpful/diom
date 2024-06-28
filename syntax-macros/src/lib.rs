@@ -24,6 +24,7 @@ pub fn derive_info_source(input: TokenStream) -> TokenStream {
     #[automatically_derived]
     impl #impl_gens InfoSource for #name #ty_gens #where_clause {
       type Info = #info_ty;
+      #[inline(always)]
       fn info(&self) -> &Self::Info {
         #info_body
       }
