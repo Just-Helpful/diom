@@ -1,4 +1,4 @@
-use crate::InfoSource;
+use crate::{ident::Ident, InfoSource};
 
 use super::{Pattern, Rest};
 
@@ -10,6 +10,7 @@ pub enum ArrayItem<I> {
 
 #[derive(InfoSource)]
 pub struct Array<I> {
+  pub name: Option<Ident<I>>,
   pub items: Vec<ArrayItem<I>>,
   pub info: I,
 }

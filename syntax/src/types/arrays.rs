@@ -1,5 +1,5 @@
 use super::Type;
-use crate::InfoSource;
+use crate::{ident::Ident, InfoSource};
 
 /// A type for arrays of items.
 ///
@@ -9,6 +9,7 @@ use crate::InfoSource;
 /// ```
 #[derive(InfoSource)]
 pub struct Array<I> {
+  pub name: Option<Ident<I>>,
   pub item: Box<Type<I>>,
   pub info: I,
 }
