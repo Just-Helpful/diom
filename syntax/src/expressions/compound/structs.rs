@@ -1,10 +1,10 @@
-use crate::{ident::Ident, InfoSource};
+use crate::{ident::Ident, path::Path, InfoSource};
 
 use super::Expression;
 
 #[derive(InfoSource)]
 pub struct Struct<I> {
-  pub name: Option<Ident<I>>,
+  pub name: Option<Path<I>>,
   pub fields: Vec<(Ident<I>, Expression<I>)>,
   pub info: I,
 }

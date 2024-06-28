@@ -1,4 +1,4 @@
-use crate::{ident::Ident, InfoSource};
+use crate::{path::Path, InfoSource};
 
 use super::{Struct, Tuple};
 
@@ -11,7 +11,7 @@ pub enum Variant<I> {
 
 #[derive(InfoSource)]
 pub struct Enum<I> {
-  pub variant: Ident<I>,
+  pub variant: Path<I>,
   pub value: Box<Variant<I>>,
   pub info: I,
 }
