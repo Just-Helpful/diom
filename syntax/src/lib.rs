@@ -8,6 +8,7 @@ use diom_syntax_macros::InfoSource;
 
 pub mod expressions;
 pub mod ident;
+pub mod path;
 pub mod patterns;
 pub mod traits;
 pub mod types;
