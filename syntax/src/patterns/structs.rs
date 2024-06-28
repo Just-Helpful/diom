@@ -17,6 +17,7 @@ pub enum StructItem<I> {
 
 #[derive(InfoSource)]
 pub struct Struct<I> {
+  pub name: Ident<I>,
   pub fields: Vec<StructField<I>>,
   pub info: I,
 }
