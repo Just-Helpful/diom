@@ -18,6 +18,6 @@ pub enum StructItem<I> {
 #[derive(InfoSource, Clone)]
 pub struct Struct<I> {
   pub name: Option<Path<I>>,
-  pub fields: Vec<StructField<I>>,
+  pub fields: Vec<StructItem<I>>,
   pub info: I,
 }
