@@ -43,7 +43,7 @@ use super::Expression;
 /// };
 /// assert optn_x == None;
 /// ```
-#[derive(InfoSource)]
+#[derive(InfoSource, Clone)]
 pub struct MonadThen<I> {
   pub value: Box<Expression<I>>,
   pub info: I,

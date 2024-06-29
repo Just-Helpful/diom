@@ -9,7 +9,7 @@ use crate::InfoSource;
 /// let x: Float = 1.0e1;
 /// let x: Float = -1e-1;
 /// ```
-#[derive(InfoSource)]
+#[derive(InfoSource, Clone)]
 pub struct Float<I> {
   pub info: I,
 }

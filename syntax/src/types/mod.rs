@@ -15,7 +15,7 @@ pub use tuples::Tuple;
 
 use crate::{ident::Ident, InfoSource};
 
-#[derive(InfoSource)]
+#[derive(InfoSource, Clone)]
 pub enum Type<I> {
   /* base types */
   Float(Float<I>),

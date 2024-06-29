@@ -1,7 +1,7 @@
 use crate::{ident::Ident, InfoSource};
 
-#[derive(InfoSource)]
+#[derive(InfoSource, Clone)]
 pub struct Path<I> {
-  pub names: Vec<Ident<I>>,
+  pub segments: Vec<Ident<I>>,
   pub info: I,
 }

@@ -2,7 +2,7 @@ use std::ops::Deref;
 
 use crate::InfoSource;
 
-#[derive(InfoSource)]
+#[derive(InfoSource, Clone)]
 pub struct Ident<I> {
   pub name: Box<str>,
   pub info: I,

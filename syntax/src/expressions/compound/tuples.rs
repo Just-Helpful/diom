@@ -2,7 +2,7 @@ use crate::{path::Path, InfoSource};
 
 use super::Expression;
 
-#[derive(InfoSource)]
+#[derive(InfoSource, Clone)]
 pub struct Tuple<I> {
   pub name: Option<Path<I>>,
   pub fields: Vec<Expression<I>>,

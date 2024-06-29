@@ -16,7 +16,7 @@ use crate::{expressions::Expression, ident::Ident, InfoSource};
 ///
 /// This ambiguity **should** be resolved by typechecking, i.e. this node<br>
 /// **shouldn't** exist in the syntax tree after the typechecking stage.
-#[derive(InfoSource)]
+#[derive(InfoSource, Clone)]
 pub struct Ambiguous<I> {
   pub value: Box<Expression<I>>,
   pub name: Ident<I>,

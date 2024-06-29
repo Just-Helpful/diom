@@ -5,7 +5,7 @@ use crate::InfoSource;
 /// let SingleString: Char;
 /// let c: Char = 'v';
 /// ```
-#[derive(InfoSource)]
+#[derive(InfoSource, Clone)]
 pub struct Char<I> {
   pub info: I,
 }

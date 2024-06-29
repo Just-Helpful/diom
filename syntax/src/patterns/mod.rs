@@ -11,7 +11,7 @@ use tuples::Tuple;
 
 use crate::{ident::Ident, InfoSource};
 
-#[derive(InfoSource)]
+#[derive(InfoSource, Clone)]
 pub enum Pattern<I> {
   Array(Array<I>),
   Struct(Struct<I>),

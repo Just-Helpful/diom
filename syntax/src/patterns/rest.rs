@@ -21,7 +21,7 @@ use crate::{ident::Ident, InfoSource};
 /// // gives a compiler error (whilst type checking)
 /// // that `sx` cannot be bound to an empty structure
 /// ```
-#[derive(InfoSource)]
+#[derive(InfoSource, Clone)]
 pub struct Rest<I> {
   pub name: Option<Ident<I>>,
   pub info: I,

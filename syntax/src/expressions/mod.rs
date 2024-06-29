@@ -13,7 +13,7 @@ pub use blocks::{Assign, Block, Declare, MonadThen, Return};
 mod compound;
 pub use compound::{Array, Enum, Struct, Tuple};
 
-#[derive(InfoSource)]
+#[derive(InfoSource, Clone)]
 pub enum Expression<I> {
   /* fundamental values to the language */
   Char(Char<I>),
