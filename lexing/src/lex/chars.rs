@@ -1,6 +1,6 @@
 //! Character parsers, mostly written from the [nom string example](https://github.com/rust-bakery/nom/blob/main/examples/string.rs)
-use super::{token::span_wrap, SResult, Span};
-use crate::token::{SpanToken, Token};
+use super::{helpers::span_wrap, SResult, Span};
+use crate::tokens::{SpanToken, Token};
 use nom::{
   branch::alt,
   bytes::complete::{tag, take_while_m_n},

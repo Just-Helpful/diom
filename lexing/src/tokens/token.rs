@@ -36,7 +36,7 @@ pub enum Token {
   Char(char),
   Comment(Box<str>),
   // Value-like
-  Float(Box<str>, f64),
+  Float(f64),
 }
 
 impl Token {
@@ -73,7 +73,7 @@ impl Token {
         | (Ident(_), Ident(_))
         | (Char(_), Char(_))
         | (Comment(_), Comment(_))
-        | (Float(_, _), Float(_, _))
+        | (Float(_), Float(_))
     )
   }
 }
