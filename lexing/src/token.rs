@@ -1,8 +1,6 @@
-use std::ops::Range;
+use std::ops::{Deref, Range};
 
-use derivative::Derivative;
-
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Token {
   // Brackets
   LParen,
@@ -12,12 +10,12 @@ pub enum Token {
   LSquare,
   RSquare,
   // Punctuation
-  Eof,
   Dot,
   Semi,
   Colon,
   Comma,
   Assign,
+  Ellipses,
   // Reserved keywords
   Let,
   Return,
@@ -35,16 +33,16 @@ pub enum Token {
   GtEq,
   // String-like
   Ident(Box<str>),
-  String(Box<str>),
+  Char(char),
   Comment(Box<str>),
   // Value-like
   Float(Box<str>, f64),
 }
 
-impl PartialEq<Token> for Token {
-  /// We only care about the type of the Token, not about the internal data.
+impl Token {
+  /// We often only care about the Token type, not about the internal data.
   /// Therefore we implement a custom PartialEq type for equality.
-  fn eq(&self, other: &Token) -> bool {
+  pub fn matches(&self, other: &Token) -> bool {
     use Token::*;
     matches!(
       (self, other),
@@ -54,12 +52,12 @@ impl PartialEq<Token> for Token {
         | (RCurly, RCurly)
         | (LSquare, LSquare)
         | (RSquare, RSquare)
-        | (Eof, Eof)
         | (Dot, Dot)
         | (Semi, Semi)
         | (Colon, Colon)
         | (Comma, Comma)
         | (Assign, Assign)
+        | (Ellipses, Ellipses)
         | (Let, Let)
         | (Not, Not)
         | (Plus, Plus)
@@ -73,24 +71,43 @@ impl PartialEq<Token> for Token {
         | (LtEq, LtEq)
         | (GtEq, GtEq)
         | (Ident(_), Ident(_))
-        | (String(_), String(_))
+        | (Char(_), Char(_))
         | (Comment(_), Comment(_))
         | (Float(_, _), Float(_, _))
     )
   }
 }
-impl Eq for Token {}
 
-#[derive(Debug, Clone, Derivative)]
-#[derivative(PartialEq, Eq)]
+impl AsRef<Token> for Token {
+  fn as_ref(&self) -> &Token {
+    self
+  }
+}
+
+#[derive(Debug, Clone)]
 pub struct SpanToken {
   pub token: Token,
-  #[derivative(PartialEq = "ignore")]
   pub span: Range<usize>,
+}
+
+impl SpanToken {
+  pub fn with_token(&self, token: Token) -> Self {
+    Self {
+      token,
+      span: self.span.clone(),
+    }
+  }
 }
 
 impl From<Token> for SpanToken {
   fn from(token: Token) -> Self {
     SpanToken { token, span: 0..0 }
+  }
+}
+
+impl Deref for SpanToken {
+  type Target = Token;
+  fn deref(&self) -> &Self::Target {
+    &self.token
   }
 }

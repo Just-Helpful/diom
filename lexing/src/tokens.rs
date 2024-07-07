@@ -1,45 +1,25 @@
-use nom::{Compare, CompareResult, InputIter, InputLength, InputTake, Slice};
+use nom::{FindSubstring, InputIter, InputLength, InputTake, Slice};
 use std::{
   iter::Enumerate,
   ops::{Deref, RangeFrom},
   slice,
 };
 
-use super::token::SpanToken;
+use super::token::{SpanToken, Token};
 
 #[derive(Clone, Copy)]
 pub struct SpanTokens<'a>(&'a [SpanToken]);
+
+impl<'a, T: AsRef<[SpanToken]>> From<&'a T> for SpanTokens<'a> {
+  fn from(value: &'a T) -> Self {
+    SpanTokens(value.as_ref())
+  }
+}
 
 impl<'a> Deref for SpanTokens<'a> {
   type Target = [SpanToken];
   fn deref(&self) -> &Self::Target {
     self.0
-  }
-}
-
-// impl<'a> AsBytes for Tokens<'a> {
-//   fn as_bytes(&self) -> &[u8] {
-//     todo!()
-//   }
-// }
-
-impl<'a, 'b> Compare<SpanTokens<'b>> for SpanTokens<'a> {
-  fn compare(&self, t: SpanTokens<'b>) -> nom::CompareResult {
-    // pretty much the same as from nom's implementation on &[u8]
-    let any_diff = self.0.iter().zip(t.0.iter()).any(|(s, t)| s != t);
-
-    if any_diff {
-      return CompareResult::Error;
-    }
-    if self.len() < t.len() {
-      return CompareResult::Incomplete;
-    }
-
-    CompareResult::Ok
-  }
-
-  fn compare_no_case(&self, t: SpanTokens<'b>) -> CompareResult {
-    self.compare(t)
   }
 }
 
@@ -96,5 +76,27 @@ impl<'a> InputIter for SpanTokens<'a> {
     } else {
       Err(nom::Needed::Unknown)
     }
+  }
+}
+
+impl<'a> FindSubstring<SpanToken> for SpanTokens<'a> {
+  fn find_substring(&self, substr: SpanToken) -> Option<usize> {
+    for (i, tok) in self.0.iter().enumerate() {
+      if tok.matches(&substr) {
+        return Some(i);
+      }
+    }
+    None
+  }
+}
+
+impl<'a> FindSubstring<&Token> for SpanTokens<'a> {
+  fn find_substring(&self, substr: &Token) -> Option<usize> {
+    for (i, tok) in self.0.iter().enumerate() {
+      if tok.as_ref().matches(substr) {
+        return Some(i);
+      }
+    }
+    None
   }
 }
