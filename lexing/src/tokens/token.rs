@@ -1,5 +1,3 @@
-use std::ops::{Deref, Range};
-
 #[derive(Debug, Clone, PartialEq)]
 pub enum Token {
   // Brackets
@@ -81,33 +79,5 @@ impl Token {
 impl AsRef<Token> for Token {
   fn as_ref(&self) -> &Token {
     self
-  }
-}
-
-#[derive(Debug, Clone)]
-pub struct SpanToken {
-  pub token: Token,
-  pub span: Range<usize>,
-}
-
-impl SpanToken {
-  pub fn with_token(&self, token: Token) -> Self {
-    Self {
-      token,
-      span: self.span.clone(),
-    }
-  }
-}
-
-impl From<Token> for SpanToken {
-  fn from(token: Token) -> Self {
-    SpanToken { token, span: 0..0 }
-  }
-}
-
-impl Deref for SpanToken {
-  type Target = Token;
-  fn deref(&self) -> &Self::Target {
-    &self.token
   }
 }

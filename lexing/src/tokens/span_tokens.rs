@@ -5,7 +5,7 @@ use std::{
   slice,
 };
 
-use super::token::{SpanToken, Token};
+use super::{SpanToken, Token};
 
 #[derive(Clone, Copy)]
 pub struct SpanTokens<'a>(&'a [SpanToken]);
