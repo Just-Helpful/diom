@@ -38,8 +38,16 @@ pub enum Token {
 }
 
 impl Token {
-  /// We often only care about the Token type, not about the internal data.
-  /// Therefore we implement a custom PartialEq type for equality.
+  /// We often only care about the Token type, not about the internal data.<br>
+  /// Therefore we implement a custom `matches` method for light equality.
+  ///
+  /// ```
+  /// # use diom_lexing::Token::*;
+  /// assert!(Dot.matches(&Dot));
+  /// assert!(Char('a').matches(&Char('b')));
+  /// assert!(Float(2.5).matches(&Float(3e-4)));
+  /// assert!(Ident("foo".into()).matches(&Ident("bar".into())));
+  /// ```
   pub fn matches(&self, other: &Token) -> bool {
     use Token::*;
     matches!(

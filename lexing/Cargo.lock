@@ -16,7 +16,7 @@ checksum = "fcc3dd5e9e9c0b295d6e1e4d811fb6f157d5ffd784b8d202fc62eac8035a770b"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn",
+ "syn 1.0.109",
 ]
 
 [[package]]
@@ -26,6 +26,7 @@ dependencies = [
  "derivative",
  "nom",
  "nom_locate",
+ "visibility",
 ]
 
 [[package]]
@@ -91,7 +92,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "syn"
+version = "2.0.69"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "201fcda3845c23e8212cd466bfebf0bd20694490fc0356ae8e428e0824a915a6"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "unicode-ident",
+]
+
+[[package]]
 name = "unicode-ident"
 version = "1.0.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3354b9ac3fae1ff6755cb6db53683adb661634f67557942dea4facebec0fee4b"
+
+[[package]]
+name = "visibility"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b3fd98999db9227cf28e59d83e1f120f42bc233d4b152e8fab9bc87d5bb1e0f8"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.69",
+]
