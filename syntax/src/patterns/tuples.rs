@@ -3,7 +3,7 @@ use crate::{path::Path, InfoSource};
 use super::{Pattern, Rest};
 
 #[derive(InfoSource, Clone)]
-pub enum TupleField<I> {
+pub enum TupleItem<I> {
   Field(Pattern<I>),
   Rest(Rest<I>),
 }
@@ -11,6 +11,6 @@ pub enum TupleField<I> {
 #[derive(InfoSource, Clone)]
 pub struct Tuple<I> {
   pub name: Option<Path<I>>,
-  pub fields: Vec<TupleField<I>>,
+  pub fields: Vec<TupleItem<I>>,
   pub info: I,
 }

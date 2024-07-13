@@ -12,6 +12,8 @@ mod structs;
 pub use structs::Struct;
 mod tuples;
 pub use tuples::Tuple;
+mod typedef;
+pub use typedef::TypeDef;
 
 use crate::{ident::Ident, InfoSource};
 
