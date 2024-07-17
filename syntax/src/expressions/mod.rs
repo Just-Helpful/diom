@@ -3,15 +3,13 @@ pub use chars::Char;
 mod floats;
 use crate::InfoSource;
 pub use floats::Float;
-mod functions;
-pub use functions::{Argument, Function, FunctionArm};
 
 mod access;
 pub use access::{Ambiguous, Call, Field, Index};
 mod blocks;
 pub use blocks::{Assign, Block, Declare, MonadThen, Return};
 mod compound;
-pub use compound::{Array, Enum, Struct, Tuple};
+pub use compound::{Argument, Array, Enum, Function, FunctionArm, Struct, Tuple};
 
 #[derive(InfoSource, Clone)]
 pub enum Expression<I> {
