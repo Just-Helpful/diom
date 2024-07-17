@@ -19,9 +19,6 @@ use crate::{ident::Ident, InfoSource};
 
 #[derive(InfoSource, Clone)]
 pub enum Type<I> {
-  /* base types */
-  Float(Float<I>),
-  Char(Char<I>),
   /* type variables */
   Var(Ident<I>),
   /* structural types for composition */
