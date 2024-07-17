@@ -2,8 +2,6 @@ use super::Expression;
 
 pub mod arrays;
 pub use arrays::Array;
-pub mod enums;
-pub use enums::Enum;
 pub mod functions;
 pub use functions::{Argument, Function, FunctionArm};
 pub mod structs;
