@@ -9,7 +9,7 @@ pub use access::{Ambiguous, Call, Field, Index};
 mod blocks;
 pub use blocks::{Assign, Block, Declare, MonadThen, Return};
 mod compound;
-pub use compound::{Argument, Array, Enum, Function, FunctionArm, Struct, Tuple};
+pub use compound::{Argument, Array, Function, FunctionArm, Struct, Tuple};
 
 #[derive(InfoSource, Clone)]
 pub enum Expression<I> {
@@ -26,7 +26,6 @@ pub enum Expression<I> {
   Array(Array<I>),
   Struct(Struct<I>),
   Tuple(Tuple<I>),
-  Enum(Enum<I>),
   /* accessing values in the language */
   Call(Call<I>),
   Field(Field<I>),
