@@ -7,7 +7,7 @@ pub use floats::Float;
 mod access;
 pub use access::{Ambiguous, Call, Field, Index};
 mod blocks;
-pub use blocks::{Assign, Block, Declare, MonadThen, Return};
+pub use blocks::{Assign, Block, Declare, MonadThen, Return, Statement};
 mod compound;
 pub use compound::{Argument, Array, Function, FunctionArm, Struct, Tuple};
 

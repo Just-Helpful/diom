@@ -3,7 +3,7 @@ use super::Expression;
 pub mod assign;
 pub use assign::Assign;
 pub mod block;
-pub use block::Block;
+pub use block::{Block, Statement};
 pub mod declare;
 pub use declare::Declare;
 pub mod monads;
