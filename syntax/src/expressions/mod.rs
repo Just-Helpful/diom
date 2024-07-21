@@ -5,7 +5,7 @@ use crate::InfoSource;
 pub use floats::Float;
 
 mod access;
-pub use access::{Ambiguous, Call, Field, Index};
+pub use access::{Call, Field, Index};
 mod blocks;
 pub use blocks::{Assign, Block, Declare, MonadThen, Return, Statement};
 mod compound;
@@ -24,13 +24,11 @@ pub enum Expression<I> {
   Return(Return<I>),
   /* compound values in the language */
   Array(Array<I>),
+  Function(Function<I>),
   Struct(Struct<I>),
   Tuple(Tuple<I>),
   /* accessing values in the language */
   Call(Call<I>),
   Field(Field<I>),
   Index(Index<I>),
-  Ambiguous(Ambiguous<I>),
-  /* function construction */
-  Function(Function<I>),
 }
