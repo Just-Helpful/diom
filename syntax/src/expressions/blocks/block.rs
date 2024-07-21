@@ -9,6 +9,6 @@ pub enum Statement<I> {
 
 #[derive(InfoSource, Clone)]
 pub struct Block<I> {
-  pub content: Vec<Statement<I>>,
+  pub statements: Vec<Statement<I>>,
   pub info: I,
 }
