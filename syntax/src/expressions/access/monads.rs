@@ -1,6 +1,5 @@
-use crate::InfoSource;
-
 use super::Expression;
+use crate::InfoSource;
 
 /// The syntax for applying a monad inline, looks like `?`.
 ///
@@ -46,5 +45,5 @@ use super::Expression;
 #[derive(InfoSource, Clone)]
 pub struct MonadThen<I> {
   pub value: Box<Expression<I>>,
-  pub info: I,
+  info: I,
 }
