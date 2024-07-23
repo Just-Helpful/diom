@@ -1,16 +1,23 @@
-use std::ops::Deref;
-
 use crate::InfoSource;
+
+#[derive(Clone)]
+pub enum Name {
+  Literal(Box<str>),
+  Not,
+  Plus,
+  Minus,
+  Times,
+  Divide,
+  Eq,
+  Ne,
+  Lt,
+  Gt,
+  LtEq,
+  GtEq,
+}
 
 #[derive(InfoSource, Clone)]
 pub struct Ident<I> {
-  pub name: Box<str>,
+  pub name: Name,
   pub info: I,
-}
-
-impl<I> Deref for Ident<I> {
-  type Target = str;
-  fn deref(&self) -> &Self::Target {
-    &self.name
-  }
 }
