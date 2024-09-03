@@ -36,6 +36,30 @@ impl From<Token> for SpanToken {
   }
 }
 
+impl TryFrom<Token> for char {
+  type Error = String;
+  fn try_from(value: Token) -> Result<Self, Self::Error> {
+    match value {
+      Token::Char(c) => Ok(c),
+      _ => Err(format!(
+        "{value:?} is not a `Token::Char` and cannot be converted to a `char`"
+      )),
+    }
+  }
+}
+
+impl TryFrom<Token> for f64 {
+  type Error = String;
+  fn try_from(value: Token) -> Result<Self, Self::Error> {
+    match value {
+      Token::Float(v) => Ok(v),
+      _ => Err(format!(
+        "{value:?} is not a `Token::Float` and cannot be converted to a `f64`"
+      )),
+    }
+  }
+}
+
 /// Simple unwrapping of span tokens
 /// ```
 /// # use diom_lexing::{Token, Token::*, SpanToken};

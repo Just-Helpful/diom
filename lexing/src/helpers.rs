@@ -1,8 +1,6 @@
 use super::{SResult, Span};
-use crate::tokens::SpanToken;
-use crate::tokens::Token;
-use nom::error::Error;
-use nom::Parser;
+use diom_tokens::{SpanToken, Token};
+use nom::{error::Error, Parser};
 use nom_locate::position;
 
 pub(crate) fn span_wrap<'a, F: Parser<Span<'a>, Token, Error<Span<'a>>>>(

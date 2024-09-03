@@ -29,6 +29,7 @@ pub enum Token {
   Gt,
   LtEq,
   GtEq,
+  Monad,
   // String-like
   Ident(Box<str>),
   Char(char),
@@ -76,6 +77,7 @@ impl Token {
         | (Gt, Gt)
         | (LtEq, LtEq)
         | (GtEq, GtEq)
+        | (Monad, Monad)
         | (Ident(_), Ident(_))
         | (Char(_), Char(_))
         | (Comment(_), Comment(_))

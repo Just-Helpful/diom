@@ -1,7 +1,7 @@
-use nom::{FindSubstring, InputIter, InputLength, InputTake, Slice};
+use nom::{FindSubstring, InputIter, InputLength, InputTake, Slice, UnspecializedInput};
 use std::{
   iter::Enumerate,
-  ops::{Deref, RangeFrom},
+  ops::{Deref, Range, RangeFrom, RangeTo},
   slice,
 };
 
@@ -9,6 +9,20 @@ use super::{SpanToken, Token};
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub struct SpanTokens<'a>(&'a [SpanToken]);
+
+impl<'a> SpanTokens<'a> {
+  /// Splits off the first token, returning the remaining section of the tokens
+  pub fn split_first(&self) -> Option<(&SpanToken, SpanTokens)> {
+    let (first, rest) = self.0.split_first()?;
+    Some((first, SpanTokens(rest)))
+  }
+
+  /// Splits off the last token, returning the starting section of the tokens
+  pub fn split_last(&self) -> Option<(&SpanToken, SpanTokens)> {
+    let (last, initial) = self.0.split_last()?;
+    Some((last, SpanTokens(initial)))
+  }
+}
 
 /// Allows conversion from containers of `SpanToken`s
 ///
@@ -38,6 +52,32 @@ impl<'a> Deref for SpanTokens<'a> {
   type Target = [SpanToken];
   fn deref(&self) -> &Self::Target {
     self.0
+  }
+}
+
+impl<'a> Slice<Range<usize>> for SpanTokens<'a> {
+  fn slice(&self, range: Range<usize>) -> Self {
+    Self(self.0.slice(range))
+  }
+}
+
+impl<'a> Slice<RangeFrom<isize>> for SpanTokens<'a> {
+  fn slice(&self, range: RangeFrom<isize>) -> Self {
+    let mut s = range.start;
+    if s < 0 {
+      s += self.len() as isize;
+    }
+    Self(self.0.slice((s as usize)..))
+  }
+}
+
+impl<'a> Slice<RangeTo<isize>> for SpanTokens<'a> {
+  fn slice(&self, range: RangeTo<isize>) -> Self {
+    let mut e = range.end;
+    if e < 0 {
+      e += self.len() as isize;
+    }
+    Self(self.0.slice(..(e as usize)))
   }
 }
 
@@ -71,6 +111,11 @@ impl<'a> InputTake for SpanTokens<'a> {
     (Self(init), Self(tail))
   }
 }
+
+/// Allows for the `take_till1` parser
+/// We can't really do anything special for searching,
+/// so just use the default, linear search
+impl<'a> UnspecializedInput for SpanTokens<'a> {}
 
 /// Allows for use of `many0`, `many1`, `separated_list0` and other parsers
 impl<'a> InputLength for SpanTokens<'a> {

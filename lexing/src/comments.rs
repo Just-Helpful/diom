@@ -1,4 +1,5 @@
-use super::{SResult, Span, Token};
+use super::{SResult, Span};
+use diom_tokens::Token;
 use nom::{
   branch::alt,
   bytes::complete::{is_not, tag, take_until},

@@ -1,6 +1,6 @@
 //! Character parsers, mostly written from the [nom string example](https://github.com/rust-bakery/nom/blob/main/examples/string.rs)
 use super::{helpers::span_wrap, SResult, Span};
-use crate::tokens::{SpanToken, Token};
+use diom_tokens::{SpanToken, Token};
 use nom::{
   branch::alt,
   bytes::complete::{tag, take_while_m_n},
@@ -117,7 +117,7 @@ pub fn parse_string(input: Span) -> SResult<Vec<SpanToken>> {
 #[cfg(test)]
 mod test {
   use super::{parse_char, parse_string};
-  use crate::{lex::tests::complete_parse, Token, Token::*};
+  use crate::{tests::complete_parse, Token, Token::*};
 
   mod char {
     use super::*;

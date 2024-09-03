@@ -1,12 +1,13 @@
 use super::{SResult, Span};
-use crate::tokens::Token;
-use nom::branch::alt;
-use nom::bytes::complete::tag;
-use nom::character::complete::alpha1;
-use nom::character::complete::alphanumeric1;
-use nom::combinator::recognize;
-use nom::multi::many0;
-use nom::sequence::pair;
+use diom_tokens::Token;
+use nom::{
+  branch::alt,
+  bytes::complete::tag,
+  character::complete::{alpha1, alphanumeric1},
+  combinator::recognize,
+  multi::many0,
+  sequence::pair,
+};
 
 /// Parses an identifier, used for variable and type creation
 pub fn parse_ident(input: Span) -> SResult<Token> {

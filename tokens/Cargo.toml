@@ -1,5 +1,5 @@
 [package]
-name = "diom-lexing"
+name = "diom-tokens"
 version = "0.1.0"
 
 rust-version.workspace = true
@@ -11,7 +11,4 @@ repository.workspace = true
 documentation.workspace = true
 
 [dependencies]
-derivative = "2.2.0"
 nom = "7.1.3"
-nom_locate = "4.2.0"
-diom-tokens = { version = "0.1.0", path = "../tokens" }
