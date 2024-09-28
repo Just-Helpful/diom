@@ -1,7 +1,7 @@
 use super::Expression;
-use crate::{ident::Ident, InfoSource};
+use diom_info::{InfoMap, InfoRef, InfoSource};
 
-#[derive(InfoSource, Clone)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap)]
 pub struct Assign<I> {
   pub name: Ident<I>,
   pub value: Box<Expression<I>>,

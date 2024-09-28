@@ -1,5 +1,6 @@
 use super::Type;
-use crate::{ident::Ident, InfoSource};
+use crate::ident::Ident;
+use diom_info::{InfoMap, InfoRef, InfoSource};
 
 /// A type for arrays of items.
 ///
@@ -7,7 +8,7 @@ use crate::{ident::Ident, InfoSource};
 /// let String: [Char];
 /// let xs: [Float] = [1, 2, 3];
 /// ```
-#[derive(InfoSource, Clone)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap)]
 pub struct Array<I> {
   pub name: Option<Ident<I>>,
   pub item: Box<Type<I>>,

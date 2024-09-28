@@ -230,10 +230,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "diom-info"
+version = "0.1.0"
+dependencies = [
+ "diom-info-derive",
+]
+
+[[package]]
+name = "diom-info-derive"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.70",
+]
+
+[[package]]
 name = "diom-lexing"
 version = "0.1.0"
 dependencies = [
  "derivative",
+ "diom-tokens",
  "nom",
  "nom_locate",
 ]
@@ -244,8 +261,8 @@ version = "0.1.0"
 dependencies = [
  "cached",
  "cargo-readme",
- "diom-lexing",
  "diom-syntax",
+ "diom-tokens",
  "nom",
  "nom_locate",
 ]
@@ -254,16 +271,15 @@ dependencies = [
 name = "diom-syntax"
 version = "0.1.0"
 dependencies = [
- "diom-syntax-macros",
+ "diom-info",
+ "diom-info-derive",
 ]
 
 [[package]]
-name = "diom-syntax-macros"
+name = "diom-tokens"
 version = "0.1.0"
 dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.70",
+ "nom",
 ]
 
 [[package]]

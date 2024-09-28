@@ -1,8 +1,9 @@
-use crate::{ident::Ident, InfoSource};
+use crate::ident::Ident;
+use diom_info::{InfoMap, InfoRef, InfoSource};
 
 use super::Type;
 
-#[derive(InfoSource, Clone)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap)]
 pub struct Argument<I> {
   pub name: Ident<I>,
   pub annotation: Type<I>,
@@ -20,7 +21,7 @@ pub struct Argument<I> {
 /// let add: Binary = (x)(y) x + y;
 /// let add: Binary = (x) {(y) {x + y}};
 /// ```
-#[derive(InfoSource, Clone)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap)]
 pub struct Function<I> {
   pub arguments: Vec<Argument<I>>,
   pub returned: Box<Type<I>>,

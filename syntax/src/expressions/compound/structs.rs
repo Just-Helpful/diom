@@ -1,8 +1,8 @@
-use crate::{ident::Ident, path::Path, InfoSource};
-
 use super::Expression;
+use crate::{ident::Ident, path::Path};
+use diom_info::{InfoMap, InfoRef, InfoSource};
 
-#[derive(InfoSource, Clone)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap)]
 pub struct Struct<I> {
   pub name: Option<Path<I>>,
   pub fields: Vec<(Ident<I>, Expression<I>)>,

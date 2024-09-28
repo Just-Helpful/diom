@@ -1,3 +1,6 @@
+use crate::ident::Ident;
+use diom_info::{InfoMap, InfoRef, InfoSource};
+
 mod arrays;
 pub use arrays::Array;
 mod chars;
@@ -15,9 +18,7 @@ pub use tuples::Tuple;
 mod typedef;
 pub use typedef::TypeDef;
 
-use crate::{ident::Ident, InfoSource};
-
-#[derive(InfoSource, Clone)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap)]
 pub enum Type<I> {
   /* type variables */
   Var(Ident<I>),

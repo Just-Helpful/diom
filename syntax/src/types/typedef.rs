@@ -1,6 +1,6 @@
-use crate::{ident::Ident, InfoSource};
-
 use super::Type;
+use crate::ident::Ident;
+use diom_info::{InfoMap, InfoRef, InfoSource};
 
 /// The definition for a type alias
 ///
@@ -17,7 +17,7 @@ use super::Type;
 /// let VecN_0: [Float];
 /// let VecN_1[Float];
 /// ```
-#[derive(InfoSource, Clone)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap)]
 pub struct TypeDef<I> {
   pub name: Ident<I>,
   pub value: Box<Type<I>>,

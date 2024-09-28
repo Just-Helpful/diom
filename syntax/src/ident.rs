@@ -1,4 +1,4 @@
-use crate::InfoSource;
+use diom_info::{InfoMap, InfoRef, InfoSource};
 
 #[derive(Clone)]
 pub enum Name {
@@ -16,8 +16,9 @@ pub enum Name {
   GtEq,
 }
 
-#[derive(InfoSource, Clone)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap)]
 pub struct Ident<I> {
+  #[map_ignore]
   pub name: Name,
   pub info: I,
 }

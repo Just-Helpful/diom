@@ -1,7 +1,8 @@
-use crate::InfoSource;
+use diom_info::{InfoMap, InfoRef, InfoSource};
 
-#[derive(InfoSource, Clone)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap)]
 pub struct Float<I> {
+  #[map_ignore]
   pub value: f64,
   pub info: I,
 }

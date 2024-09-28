@@ -1,4 +1,4 @@
-use crate::InfoSource;
+use diom_info::{InfoMap, InfoRef, InfoSource};
 
 /// The type for floating point numbers
 ///
@@ -9,7 +9,7 @@ use crate::InfoSource;
 /// let x: Float = 1.0e1;
 /// let x: Float = -1e-1;
 /// ```
-#[derive(InfoSource, Clone)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap)]
 pub struct Float<I> {
   pub info: I,
 }

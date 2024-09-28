@@ -1,4 +1,5 @@
-use crate::{ident::Ident, InfoSource};
+use crate::ident::Ident;
+use diom_info::{InfoMap, InfoRef, InfoSource};
 
 /// A pattern that captures the remaining contents of a structure.
 /// For example:
@@ -21,7 +22,7 @@ use crate::{ident::Ident, InfoSource};
 /// // gives a compiler error (whilst type checking)
 /// // that `sx` cannot be bound to an empty structure
 /// ```
-#[derive(InfoSource, Clone)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap)]
 pub struct Rest<I> {
   pub name: Option<Ident<I>>,
   pub info: I,

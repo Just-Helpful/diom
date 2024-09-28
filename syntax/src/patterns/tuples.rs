@@ -1,14 +1,15 @@
-use crate::{path::Path, InfoSource};
+use crate::path::Path;
+use diom_info::{InfoMap, InfoRef, InfoSource};
 
 use super::{Pattern, Rest};
 
-#[derive(InfoSource, Clone)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap)]
 pub enum TupleItem<I> {
   Field(Pattern<I>),
   Rest(Rest<I>),
 }
 
-#[derive(InfoSource, Clone)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap)]
 pub struct Tuple<I> {
   pub name: Option<Path<I>>,
   pub fields: Vec<TupleItem<I>>,

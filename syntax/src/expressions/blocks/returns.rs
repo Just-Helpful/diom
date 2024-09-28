@@ -1,8 +1,7 @@
-use crate::InfoSource;
-
 use super::Expression;
+use diom_info::{InfoMap, InfoRef, InfoSource};
 
-#[derive(InfoSource, Clone)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap)]
 pub struct Return<I> {
   pub value: Box<Expression<I>>,
   pub info: I,

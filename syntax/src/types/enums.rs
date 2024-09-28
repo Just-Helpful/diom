@@ -1,4 +1,5 @@
-use crate::{ident::Ident, InfoSource};
+use crate::ident::Ident;
+use diom_info::{InfoMap, InfoRef, InfoSource};
 
 use super::Type;
 
@@ -21,7 +22,7 @@ use super::Type;
 /// let bool = Boolean.True;
 /// let bool = Boolean.False;
 /// ```
-#[derive(InfoSource, Clone)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap)]
 pub struct Enum<I> {
   pub name: Option<Ident<I>>,
   pub variants: Vec<(Ident<I>, Type<I>)>,

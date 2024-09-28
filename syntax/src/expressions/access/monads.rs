@@ -1,5 +1,5 @@
 use super::Expression;
-use crate::InfoSource;
+use diom_info::{InfoMap, InfoRef, InfoSource};
 
 /// The syntax for applying a monad inline, looks like `?`.
 ///
@@ -42,8 +42,8 @@ use crate::InfoSource;
 /// };
 /// assert optn_x == None;
 /// ```
-#[derive(InfoSource, Clone)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap)]
 pub struct MonadThen<I> {
   pub value: Box<Expression<I>>,
-  info: I,
+  pub info: I,
 }

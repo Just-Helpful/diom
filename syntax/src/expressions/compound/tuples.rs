@@ -1,8 +1,8 @@
-use crate::{path::Path, InfoSource};
-
 use super::Expression;
+use crate::path::Path;
+use diom_info::{InfoMap, InfoRef, InfoSource};
 
-#[derive(InfoSource, Clone)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap)]
 pub struct Tuple<I> {
   pub name: Option<Path<I>>,
   pub fields: Vec<Expression<I>>,

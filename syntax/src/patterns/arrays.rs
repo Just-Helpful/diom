@@ -1,14 +1,15 @@
-use crate::{path::Path, InfoSource};
+use crate::path::Path;
+use diom_info::{InfoMap, InfoRef, InfoSource};
 
 use super::{Pattern, Rest};
 
-#[derive(InfoSource, Clone)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap)]
 pub enum ArrayItem<I> {
   Item(Pattern<I>),
   Rest(Rest<I>),
 }
 
-#[derive(InfoSource, Clone)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap)]
 pub struct Array<I> {
   pub name: Option<Path<I>>,
   pub items: Vec<ArrayItem<I>>,

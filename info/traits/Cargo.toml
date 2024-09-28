@@ -1,0 +1,17 @@
+[package]
+name = "diom-info"
+rust-version.workspace = true
+version.workspace = true
+edition.workspace = true
+description.workspace = true
+authors.workspace = true
+keywords.workspace = true
+categories.workspace = true
+homepage.workspace = true
+repository.workspace = true
+documentation.workspace = true
+license.workspace = true
+readme.workspace = true
+
+[dependencies]
+diom-info-derive = { version = "0.1.0", path = "../derive" }

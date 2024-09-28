@@ -1,5 +1,14 @@
 [workspace]
-members = ["lexing", "parsing", "syntax", "syntax-macros", "typing"]
+members = [
+  "info/derive",
+  "info/traits",
+  "lexing",
+  "parsing",
+  "syntax",
+  "tokens",
+  "typing",
+]
+resolver = "2"
 
 [workspace.package]
 rust-version = "1.78.0"

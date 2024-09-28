@@ -1,11 +1,12 @@
-use crate::InfoSource;
+use diom_info::{InfoMap, InfoRef, InfoSource};
+
 /// The type for single characters
 ///
 /// ```ignore
 /// let SingleString: Char;
 /// let c: Char = 'v';
 /// ```
-#[derive(InfoSource, Clone)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap)]
 pub struct Char<I> {
   pub info: I,
 }

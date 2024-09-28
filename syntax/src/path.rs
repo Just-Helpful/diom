@@ -1,6 +1,7 @@
-use crate::{ident::Ident, InfoSource};
+use crate::ident::Ident;
+use diom_info::{InfoMap, InfoSource};
 
-#[derive(InfoSource, Clone)]
+#[derive(Clone, InfoSource, InfoMap)]
 pub struct Path<I> {
   pub segments: Vec<Ident<I>>,
   pub info: I,

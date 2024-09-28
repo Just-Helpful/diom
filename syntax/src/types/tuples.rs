@@ -1,4 +1,5 @@
-use crate::{ident::Ident, InfoSource};
+use crate::ident::Ident;
+use diom_info::{InfoMap, InfoRef, InfoSource};
 
 use super::Type;
 
@@ -11,7 +12,7 @@ use super::Type;
 /// let vec2: Vec2 = Vec2(1.2, 3.0);
 /// let bobs_email: Email = ("bob.jones", "hotmail.com");
 /// ```
-#[derive(InfoSource, Clone)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap)]
 pub struct Tuple<I> {
   pub name: Option<Ident<I>>,
   pub fields: Vec<Type<I>>,
