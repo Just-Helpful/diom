@@ -19,6 +19,8 @@ pub enum Token {
   Return,
   // Operators
   Not,
+  And,
+  Or,
   Plus,
   Minus,
   Times,
@@ -67,6 +69,8 @@ impl Token {
         | (Ellipses, Ellipses)
         | (Let, Let)
         | (Not, Not)
+        | (And, And)
+        | (Or, Or)
         | (Plus, Plus)
         | (Minus, Minus)
         | (Times, Times)

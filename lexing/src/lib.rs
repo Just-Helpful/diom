@@ -52,6 +52,8 @@ pub fn parse_token(input: Span) -> SResult<Token> {
       char('<').map(|_| Token::Lt),
       char('>').map(|_| Token::Gt),
       char('!').map(|_| Token::Not),
+      char('&').map(|_| Token::And),
+      char('|').map(|_| Token::Or),
       char('+').map(|_| Token::Plus),
       char('-').map(|_| Token::Minus),
       char('*').map(|_| Token::Times),

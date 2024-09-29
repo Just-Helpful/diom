@@ -261,6 +261,7 @@ version = "0.1.0"
 dependencies = [
  "cached",
  "cargo-readme",
+ "diom-info",
  "diom-syntax",
  "diom-tokens",
  "nom",

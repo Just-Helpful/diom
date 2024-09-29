@@ -1,9 +1,11 @@
 use diom_info::{InfoMap, InfoRef, InfoSource};
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub enum Name {
   Literal(Box<str>),
   Not,
+  And,
+  Or,
   Plus,
   Minus,
   Times,
