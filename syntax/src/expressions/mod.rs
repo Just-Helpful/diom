@@ -6,7 +6,7 @@ mod floats;
 pub use floats::Float;
 
 mod access;
-pub use access::{Call, Field, Index, MonadThen};
+pub use access::{Call, Field, Index, Infix, MonadThen};
 mod blocks;
 pub use blocks::{Assign, Block, Declare, Group, Return, Statement};
 mod compound;
@@ -33,5 +33,6 @@ pub enum Expression<I> {
   Call(Call<I>),
   Field(Field<I>),
   Index(Index<I>),
+  Infix(Infix<I>),
   Monad(MonadThen<I>),
 }
