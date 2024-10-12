@@ -39,21 +39,23 @@ pub fn parse_comment(input: Span) -> SResult<Token> {
 
 #[cfg(test)]
 mod test {
-  use super::{parse_comment, Span, Token::*};
+  use super::{parse_comment, Token::*};
+  use crate::tests::TResult;
 
   #[test]
-  fn line() {
+  fn line() -> TResult<()> {
     let input = "\
     # initialise loop index to 0\n\
     let i = 0;\
     ";
-    let (rest, comment) = parse_comment(Span::new(input)).unwrap();
+    let (rest, comment) = parse_comment(input.into())?;
     assert_eq!(rest.into_fragment(), "let i = 0;");
     assert_eq!(comment, Comment(" initialise loop index to 0".into()));
+    Ok(())
   }
 
   #[test]
-  fn block() {
+  fn block() -> TResult<()> {
     let input = "\
     #(\n\
     The loop index starts at 0\n\
@@ -62,7 +64,7 @@ mod test {
     )#\n\
     let i = 0;\
     ";
-    let (rest, comment) = parse_comment(Span::new(input)).unwrap();
+    let (rest, comment) = parse_comment(input.into())?;
     assert_eq!(
       rest.into_fragment(),
       "\n\
@@ -79,11 +81,12 @@ mod test {
         "
         .into()
       )
-    )
+    );
+    Ok(())
   }
 
   #[test]
-  fn block_close() {
+  fn block_close() -> TResult<()> {
     // attempt a few character combinations to break the block comment
     let input = "\
     #(\n\
@@ -94,7 +97,7 @@ mod test {
     )#\n\
     log.info(\"end of comment\")\
     ";
-    let (rest, comment) = parse_comment(Span::new(input)).unwrap();
+    let (rest, comment) = parse_comment(input.into())?;
     assert_eq!(
       rest.into_fragment(),
       "\n\
@@ -112,6 +115,7 @@ mod test {
         "
         .into()
       )
-    )
+    );
+    Ok(())
   }
 }

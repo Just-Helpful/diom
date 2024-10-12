@@ -117,50 +117,60 @@ pub fn parse_string(input: Span) -> SResult<Vec<SpanToken>> {
 #[cfg(test)]
 mod test {
   use super::{parse_char, parse_string};
-  use crate::{tests::complete_parse, Token, Token::*};
+  use crate::{
+    tests::{complete_parse, TResult},
+    Token::{self, *},
+  };
 
   mod char {
     use super::*;
 
     #[test]
-    fn simple() {
-      assert_eq!(complete_parse(parse_char, "'a'"), Char('a'))
+    fn simple() -> TResult<()> {
+      assert_eq!(complete_parse(parse_char, "'a'")?, Char('a'));
+      Ok(())
     }
 
     #[test]
-    fn escaped_eol() {
+    fn escaped_eol() -> TResult<()> {
       let input = r"'\
       a'";
-      assert_eq!(complete_parse(parse_char, input), Char('a'))
+      assert_eq!(complete_parse(parse_char, input)?, Char('a'));
+      Ok(())
     }
 
     #[test]
-    fn escaped_multi() {
+    fn escaped_multi() -> TResult<()> {
       let input = r"'\
       \
       a\
       '";
-      assert_eq!(complete_parse(parse_char, input), Char('a'))
+      assert_eq!(complete_parse(parse_char, input)?, Char('a'));
+      Ok(())
     }
 
     #[test]
-    fn tab() {
-      assert_eq!(complete_parse(parse_char, r"'\t'"), Char('\t'))
+    fn tab() -> TResult<()> {
+      assert_eq!(complete_parse(parse_char, r"'\t'")?, Char('\t'));
+      Ok(())
     }
 
     #[test]
-    fn escaped_quote() {
-      assert_eq!(complete_parse(parse_char, r"'\''"), Char('\''))
+    fn escaped_quote() -> TResult<()> {
+      assert_eq!(complete_parse(parse_char, r"'\''")?, Char('\''));
+      Ok(())
     }
 
     #[test]
-    fn newline() {
-      assert_eq!(complete_parse(parse_char, r"'\n'"), Char('\n'))
+    fn newline() -> TResult<()> {
+      assert_eq!(complete_parse(parse_char, r"'\n'")?, Char('\n'));
+      Ok(())
     }
 
     #[test]
-    fn unicode() {
-      assert_eq!(complete_parse(parse_char, r"'\u{fe0e}'"), Char('\u{fe0e}'))
+    fn unicode() -> TResult<()> {
+      assert_eq!(complete_parse(parse_char, r"'\u{fe0e}'")?, Char('\u{fe0e}'));
+      Ok(())
     }
   }
 
@@ -168,35 +178,43 @@ mod test {
     use super::*;
 
     #[test]
-    fn empty() {
-      let res = complete_parse(parse_string, r#""""#);
-      let res = Vec::from_iter(res.into_iter().map(Token::from));
-      assert_eq!(res, vec![LSquare, RSquare])
+    fn empty() -> TResult<()> {
+      let res = complete_parse(parse_string, r#""""#)?;
+      assert_eq!(
+        Vec::from_iter(res.into_iter().map(Token::from)),
+        vec![LSquare, RSquare]
+      );
+      Ok(())
     }
 
     #[test]
-    fn only_escaped_eols() {
+    fn only_escaped_eols() -> TResult<()> {
       let input = r#""\
       \
       ""#;
-      let res = complete_parse(parse_string, input);
-      let res = Vec::from_iter(res.into_iter().map(Token::from));
-      assert_eq!(res, vec![LSquare, RSquare])
-    }
-
-    #[test]
-    fn single() {
-      let res = complete_parse(parse_string, r#""a""#);
-      let res = Vec::from_iter(res.into_iter().map(Token::from));
-      assert_eq!(res, vec![LSquare, Char('a'), Comma, RSquare])
-    }
-
-    #[test]
-    fn multi() {
-      let res = complete_parse(parse_string, r#""hello world""#);
-      let res = Vec::from_iter(res.into_iter().map(Token::from));
+      let res = complete_parse(parse_string, input)?;
       assert_eq!(
-        res,
+        Vec::from_iter(res.into_iter().map(Token::from)),
+        vec![LSquare, RSquare]
+      );
+      Ok(())
+    }
+
+    #[test]
+    fn single() -> TResult<()> {
+      let res = complete_parse(parse_string, r#""a""#)?;
+      assert_eq!(
+        Vec::from_iter(res.into_iter().map(Token::from)),
+        vec![LSquare, Char('a'), Comma, RSquare]
+      );
+      Ok(())
+    }
+
+    #[test]
+    fn multi() -> TResult<()> {
+      let res = complete_parse(parse_string, r#""hello world""#)?;
+      assert_eq!(
+        Vec::from_iter(res.into_iter().map(Token::from)),
         vec![
           LSquare,
           Char('h'),
@@ -223,15 +241,15 @@ mod test {
           Comma,
           RSquare
         ]
-      )
+      );
+      Ok(())
     }
 
     #[test]
-    fn eols() {
-      let res = complete_parse(parse_string, "\"foo\n bar\n\"");
-      let res = Vec::from_iter(res.into_iter().map(Token::from));
+    fn eols() -> TResult<()> {
+      let res = complete_parse(parse_string, "\"foo\n bar\n\"")?;
       assert_eq!(
-        res,
+        Vec::from_iter(res.into_iter().map(Token::from)),
         vec![
           LSquare,
           Char('f'),
@@ -254,19 +272,19 @@ mod test {
           Comma,
           RSquare
         ]
-      )
+      );
+      Ok(())
     }
 
     #[test]
-    fn escaped_eols() {
+    fn escaped_eols() -> TResult<()> {
       let input = r#""\
       foo\
       bar\
       ""#;
-      let res = complete_parse(parse_string, input);
-      let res = Vec::from_iter(res.into_iter().map(Token::from));
+      let res = complete_parse(parse_string, input)?;
       assert_eq!(
-        res,
+        Vec::from_iter(res.into_iter().map(Token::from)),
         vec![
           LSquare,
           Char('f'),
@@ -283,15 +301,15 @@ mod test {
           Comma,
           RSquare,
         ]
-      )
+      );
+      Ok(())
     }
 
     #[test]
-    fn tabs() {
-      let res = complete_parse(parse_string, r#""\tfoo\tbar""#);
-      let res = Vec::from_iter(res.into_iter().map(Token::from));
+    fn tabs() -> TResult<()> {
+      let res = complete_parse(parse_string, r#""\tfoo\tbar""#)?;
       assert_eq!(
-        res,
+        Vec::from_iter(res.into_iter().map(Token::from)),
         vec![
           LSquare,
           Char('\t'),
@@ -312,15 +330,15 @@ mod test {
           Comma,
           RSquare
         ]
-      )
+      );
+      Ok(())
     }
 
     #[test]
-    fn quotes() {
-      let res = complete_parse(parse_string, r#""\"hi\" \"hey\"""#);
-      let res = Vec::from_iter(res.into_iter().map(Token::from));
+    fn quotes() -> TResult<()> {
+      let res = complete_parse(parse_string, r#""\"hi\" \"hey\"""#)?;
       assert_eq!(
-        res,
+        Vec::from_iter(res.into_iter().map(Token::from)),
         vec![
           LSquare,
           Char('"'),
@@ -345,15 +363,15 @@ mod test {
           Comma,
           RSquare,
         ]
-      )
+      );
+      Ok(())
     }
 
     #[test]
-    fn unicode() {
-      let res = complete_parse(parse_string, r#""snowman:\u{fe0e}""#);
-      let res = Vec::from_iter(res.into_iter().map(Token::from));
+    fn unicode() -> TResult<()> {
+      let res = complete_parse(parse_string, r#""snowman:\u{fe0e}""#)?;
       assert_eq!(
-        res,
+        Vec::from_iter(res.into_iter().map(Token::from)),
         vec![
           LSquare,
           Char('s'),
@@ -376,7 +394,8 @@ mod test {
           Comma,
           RSquare,
         ]
-      )
+      );
+      Ok(())
     }
   }
 }

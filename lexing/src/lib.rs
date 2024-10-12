@@ -119,60 +119,62 @@ impl FromStr for TokensWrapper {
 #[cfg(test)]
 mod test {
   use super::{Token::*, *};
+  use nom::error::Error;
+
+  pub type TResult = Result<(), nom::Err<Error<Span<'static>>>>;
 
   #[test]
-  fn assignment() {
+  fn assignment() -> TResult {
     let input = "\
     let x = 0;\n\
     x = x + 1;\n\
     x = 2 * x;\n\
     x\n\
     ";
-    let (rest, tokens) = parse_tokens(Span::new(input)).unwrap();
-    let tokens: Vec<_> = tokens.into_iter().map(Token::from).collect();
+    let (rest, tokens) = parse_tokens(Span::new(input))?;
     assert_eq!(rest.into_fragment(), "");
     assert_eq!(
-      tokens,
+      Vec::from_iter(tokens.into_iter().map(Token::from)),
       vec![
         Let,
-        Ident("x".into()),
+        StringIdent("x".into()),
         Assign,
         Float(0.0),
         Semi,
-        Ident("x".into()),
+        StringIdent("x".into()),
         Assign,
-        Ident("x".into()),
+        StringIdent("x".into()),
         Plus,
         Float(1.0),
         Semi,
-        Ident("x".into()),
+        StringIdent("x".into()),
         Assign,
         Float(2.0),
         Times,
-        Ident("x".into()),
+        StringIdent("x".into()),
         Semi,
-        Ident("x".into())
+        StringIdent("x".into())
       ]
-    )
+    );
+    Ok(())
   }
 
   #[test]
-  fn arrays() {
+  fn arrays() -> TResult {
     let input = "\
     let xs = [0, 1, 2];\n\
     xs[0] = xs[0] + xs[2];\n\
     xs[1] = xs[1] + 2;\n\
     xs[2] = xs[2] * xs[0];\n\
-    assert xs == [2, 3, 4]\
+    assert(xs == [2, 3, 4])\
     ";
-    let (rest, tokens) = parse_tokens(Span::new(input)).unwrap();
-    let tokens: Vec<_> = tokens.into_iter().map(Token::from).collect();
+    let (rest, tokens) = parse_tokens(Span::new(input))?;
     assert_eq!(rest.into_fragment(), "");
     assert_eq!(
-      tokens,
+      Vec::from_iter(tokens.into_iter().map(Token::from)),
       vec![
         Let,
-        Ident("xs".into()),
+        StringIdent("xs".into()),
         Assign,
         LSquare,
         Float(0.0),
@@ -182,50 +184,51 @@ mod test {
         Float(2.0),
         RSquare,
         Semi,
-        Ident("xs".into()),
+        StringIdent("xs".into()),
         LSquare,
         Float(0.0),
         RSquare,
         Assign,
-        Ident("xs".into()),
+        StringIdent("xs".into()),
         LSquare,
         Float(0.0),
         RSquare,
         Plus,
-        Ident("xs".into()),
+        StringIdent("xs".into()),
         LSquare,
         Float(2.0),
         RSquare,
         Semi,
-        Ident("xs".into()),
+        StringIdent("xs".into()),
         LSquare,
         Float(1.0),
         RSquare,
         Assign,
-        Ident("xs".into()),
+        StringIdent("xs".into()),
         LSquare,
         Float(1.0),
         RSquare,
         Plus,
         Float(2.0),
         Semi,
-        Ident("xs".into()),
+        StringIdent("xs".into()),
         LSquare,
         Float(2.0),
         RSquare,
         Assign,
-        Ident("xs".into()),
+        StringIdent("xs".into()),
         LSquare,
         Float(2.0),
         RSquare,
         Times,
-        Ident("xs".into()),
+        StringIdent("xs".into()),
         LSquare,
         Float(0.0),
         RSquare,
         Semi,
-        Ident("assert".into()),
-        Ident("xs".into()),
+        StringIdent("assert".into()),
+        LParen,
+        StringIdent("xs".into()),
         Eq,
         LSquare,
         Float(2.0),
@@ -234,7 +237,9 @@ mod test {
         Comma,
         Float(4.0),
         RSquare,
+        RParen,
       ]
-    )
+    );
+    Ok(())
   }
 }

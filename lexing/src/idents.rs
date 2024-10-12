@@ -14,31 +14,35 @@ pub fn parse_ident(input: Span) -> SResult<Token> {
   let parse_first = alt((alpha1, tag("_")));
   let parse_rest = alt((alphanumeric1, tag("_")));
   let (input, ident) = recognize(pair(parse_first, many0(parse_rest)))(input)?;
-  Ok((input, Token::Ident(ident.into_fragment().into())))
+  Ok((input, Token::StringIdent(ident.into_fragment().into())))
 }
 
 #[cfg(test)]
 mod test {
-  use super::{Token::*, *};
+  use super::{parse_ident, Token::*};
+  use crate::tests::TResult;
 
   #[test]
-  fn letter() {
-    let (rest, ident) = parse_ident(Span::new("x + 1")).unwrap();
+  fn letter() -> TResult<()> {
+    let (rest, ident) = parse_ident("x + 1".into())?;
     assert_eq!(rest.into_fragment(), " + 1");
-    assert_eq!(ident, Ident("x".into()))
+    assert_eq!(ident, StringIdent("x".into()));
+    Ok(())
   }
 
   #[test]
-  fn variable() {
-    let (rest, ident) = parse_ident(Span::new("array_len + 1")).unwrap();
+  fn variable() -> TResult<()> {
+    let (rest, ident) = parse_ident("array_len + 1".into())?;
     assert_eq!(rest.into_fragment(), " + 1");
-    assert_eq!(ident, Ident("array_len".into()))
+    assert_eq!(ident, StringIdent("array_len".into()));
+    Ok(())
   }
 
   #[test]
-  fn type_var() {
-    let (rest, ident) = parse_ident(Span::new("Bool): Option<T> = ...")).unwrap();
+  fn type_var() -> TResult<()> {
+    let (rest, ident) = parse_ident("Bool): Option<T> = ...".into())?;
     assert_eq!(rest.into_fragment(), "): Option<T> = ...");
-    assert_eq!(ident, Ident("Bool".into()))
+    assert_eq!(ident, StringIdent("Bool".into()));
+    Ok(())
   }
 }
