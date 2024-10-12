@@ -27,10 +27,14 @@ pub fn enum_type(data: &DataEnum) -> TokenStream {
   };
 
   assert!(
-    variant.fields.len() == 1,
-    "expected variants to have one field"
+    variant.fields.len() <= 1,
+    "expected variants no more than one field"
   );
-  let field = &variant.fields.iter().next().unwrap();
+  let field = &variant
+    .fields
+    .iter()
+    .next()
+    .expect("expected variants to have at least one field");
   assert!(field.ident.is_none(), "expected variants to be tuple-like");
   let field_ty = &field.ty;
   quote_spanned! {field_ty.span() => <#field_ty as InfoSource>::Info}
