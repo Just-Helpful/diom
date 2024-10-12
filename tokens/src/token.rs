@@ -33,7 +33,7 @@ pub enum Token {
   GtEq,
   Monad,
   // String-like
-  Ident(Box<str>),
+  StringIdent(Box<str>),
   Char(char),
   Comment(Box<str>),
   // Value-like
@@ -82,7 +82,7 @@ impl Token {
         | (LtEq, LtEq)
         | (GtEq, GtEq)
         | (Monad, Monad)
-        | (Ident(_), Ident(_))
+        | (StringIdent(_), StringIdent(_))
         | (Char(_), Char(_))
         | (Comment(_), Comment(_))
         | (Float(_), Float(_))
