@@ -1,3 +1,13 @@
+/// All possible tokens in the Diom language.
+///
+/// ## Naming
+///
+/// The naming here is meant to reflect how the tokens are **used**<br>
+/// not the current string that parses to the token in `/lexing`.
+///
+/// If you can think of better names for these tokens based on **usage**<br>
+/// then feel absolutely free to rename a variant, they are by no means<br>
+/// final. If you do, make sure that tests **still pass**.
 #[derive(Debug, Clone, PartialEq)]
 pub enum Token {
   // Brackets
