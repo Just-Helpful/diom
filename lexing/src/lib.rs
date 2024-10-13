@@ -43,6 +43,8 @@ pub fn parse_token(input: Span) -> SResult<Token> {
       tag("let").map(|_| Token::Let),
       tag("return").map(|_| Token::Return),
     )),
+    // Functions
+    tag("=>").map(|_| Token::Function),
     // Operators
     alt((
       tag("!=").map(|_| Token::Ne),

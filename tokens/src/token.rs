@@ -14,6 +14,7 @@ pub enum Token {
   Comma,
   Assign,
   Ellipses,
+  Function,
   // Reserved keywords
   Let,
   Return,
