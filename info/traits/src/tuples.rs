@@ -30,10 +30,23 @@ pub mod tuple1 {
     }
   }
 
-  impl<I0> InfoMap for (I0,)
+  unsafe impl<I0> InfoMap for (I0,)
   where
     I0: InfoMap,
   {
+    /// ## Safety
+    ///
+    /// ```ignore
+    /// Self::GenericSelf<Self::Info>
+    ///   "`InfoMap` implementation"
+    /// => (<I0 as InfoMap>::GenericSelf<Self::Info>,)
+    ///   "`InfoSource` implementation"
+    /// => (<I0 as InfoMap>::GenericSelf<I0::Info>,)
+    ///   "Induction"
+    /// => (I0,)
+    ///   "Implemetation"
+    /// => Self
+    /// ```
     type GenericSelf<T> = (<I0 as InfoMap>::GenericSelf<T>,);
     fn map<R>(self, f: impl FnMut(Self::Info) -> R) -> Self::GenericSelf<R> {
       (self.0.map(f),)
@@ -51,11 +64,36 @@ pub mod tuple2 {
     type Info = I0::Info;
   }
 
-  impl<I0, I1> InfoMap for (I0, I1)
+  unsafe impl<I0, I1> InfoMap for (I0, I1)
   where
     I0: InfoMap,
     I1: InfoMap<Info = I0::Info>,
   {
+    /// ## Safety
+    ///
+    /// ```ignore
+    /// Self::GenericSelf<Self::Info>
+    ///   "`InfoMap` implementation"
+    /// => (
+    ///   <I0 as InfoMap>::GenericSelf<Self::Info>,
+    ///   <I1 as InfoMap>::GenericSelf<Self::Info>,
+    /// )
+    ///   "`InfoSource` implementation"
+    /// => (
+    ///   <I0 as InfoMap>::GenericSelf<I0::Info>,
+    ///   <I1 as InfoMap>::GenericSelf<I0::Info>,
+    /// )
+    ///   "`where` bound"
+    ///   => I0::Info == I1::Info
+    /// => (
+    ///   <I0 as InfoMap>::GenericSelf<I0::Info>,
+    ///   <I1 as InfoMap>::GenericSelf<I1::Info>,
+    /// )
+    ///   "Induction"
+    /// => (I0, I1)
+    ///   "Implemetation"
+    /// => Self
+    /// ```
     type GenericSelf<T> = (
       <I0 as InfoMap>::GenericSelf<T>,
       <I1 as InfoMap>::GenericSelf<T>,
@@ -77,12 +115,40 @@ pub mod tuple3 {
     type Info = I0::Info;
   }
 
-  impl<I0, I1, I2> InfoMap for (I0, I1, I2)
+  unsafe impl<I0, I1, I2> InfoMap for (I0, I1, I2)
   where
     I0: InfoMap,
     I1: InfoMap<Info = I0::Info>,
     I2: InfoMap<Info = I0::Info>,
   {
+    /// ## Safety
+    ///
+    /// ```ignore
+    /// Self::GenericSelf<Self::Info>
+    ///   "`InfoMap` implementation"
+    /// => (
+    ///   <I0 as InfoMap>::GenericSelf<Self::Info>,
+    ///   <I1 as InfoMap>::GenericSelf<Self::Info>,
+    ///   <I2 as InfoMap>::GenericSelf<Self::Info>,
+    /// )
+    ///   "`InfoSource` implementation"
+    /// => (
+    ///   <I0 as InfoMap>::GenericSelf<I0::Info>,
+    ///   <I1 as InfoMap>::GenericSelf<I0::Info>,
+    ///   <I2 as InfoMap>::GenericSelf<I0::Info>,
+    /// )
+    ///   "`where` bound"
+    ///   => I0::Info == I1::Info == I2::Info
+    /// => (
+    ///   <I0 as InfoMap>::GenericSelf<I0::Info>,
+    ///   <I1 as InfoMap>::GenericSelf<I1::Info>,
+    ///   <I2 as InfoMap>::GenericSelf<I2::Info>,
+    /// )
+    ///   "Induction"
+    /// => (I0, I1, I2)
+    ///   "Implemetation"
+    /// => Self
+    /// ```
     type GenericSelf<T> = (
       <I0 as InfoMap>::GenericSelf<T>,
       <I1 as InfoMap>::GenericSelf<T>,
@@ -106,13 +172,45 @@ pub mod tuple4 {
     type Info = I0::Info;
   }
 
-  impl<I0, I1, I2, I3> InfoMap for (I0, I1, I2, I3)
+  unsafe impl<I0, I1, I2, I3> InfoMap for (I0, I1, I2, I3)
   where
     I0: InfoMap,
     I1: InfoMap<Info = I0::Info>,
     I2: InfoMap<Info = I0::Info>,
     I3: InfoMap<Info = I0::Info>,
   {
+    /// ## Safety
+    ///
+    /// ```ignore
+    /// Self::GenericSelf<Self::Info>
+    ///   "`InfoMap` implementation"
+    /// => (
+    ///   <I0 as InfoMap>::GenericSelf<Self::Info>,
+    ///   <I1 as InfoMap>::GenericSelf<Self::Info>,
+    ///   <I2 as InfoMap>::GenericSelf<Self::Info>,
+    ///   <I3 as InfoMap>::GenericSelf<Self::Info>,
+    /// )
+    ///   "`InfoSource` implementation"
+    /// => (
+    ///   <I0 as InfoMap>::GenericSelf<I0::Info>,
+    ///   <I1 as InfoMap>::GenericSelf<I0::Info>,
+    ///   <I2 as InfoMap>::GenericSelf<I0::Info>,
+    ///   <I3 as InfoMap>::GenericSelf<I0::Info>,
+    /// )
+    ///   "`where` bound"
+    ///   => I0::Info == I1::Info == I2::Info
+    ///   == I3::Info
+    /// => (
+    ///   <I0 as InfoMap>::GenericSelf<I0::Info>,
+    ///   <I1 as InfoMap>::GenericSelf<I1::Info>,
+    ///   <I2 as InfoMap>::GenericSelf<I2::Info>,
+    ///   <I3 as InfoMap>::GenericSelf<I3::Info>,
+    /// )
+    ///   "Induction"
+    /// => (I0, I1, I2, I3)
+    ///   "Implemetation"
+    /// => Self
+    /// ```
     type GenericSelf<T> = (
       <I0 as InfoMap>::GenericSelf<T>,
       <I1 as InfoMap>::GenericSelf<T>,
@@ -143,7 +241,7 @@ pub mod tuple5 {
     type Info = I0::Info;
   }
 
-  impl<I0, I1, I2, I3, I4> InfoMap for (I0, I1, I2, I3, I4)
+  unsafe impl<I0, I1, I2, I3, I4> InfoMap for (I0, I1, I2, I3, I4)
   where
     I0: InfoMap,
     I1: InfoMap<Info = I0::Info>,
@@ -151,6 +249,41 @@ pub mod tuple5 {
     I3: InfoMap<Info = I0::Info>,
     I4: InfoMap<Info = I0::Info>,
   {
+    /// ## Safety
+    ///
+    /// ```ignore
+    /// Self::GenericSelf<Self::Info>
+    ///   "`InfoMap` implementation"
+    /// => (
+    ///   <I0 as InfoMap>::GenericSelf<Self::Info>,
+    ///   <I1 as InfoMap>::GenericSelf<Self::Info>,
+    ///   <I2 as InfoMap>::GenericSelf<Self::Info>,
+    ///   <I3 as InfoMap>::GenericSelf<Self::Info>,
+    ///   <I4 as InfoMap>::GenericSelf<Self::Info>,
+    /// )
+    ///   "`InfoSource` implementation"
+    /// => (
+    ///   <I0 as InfoMap>::GenericSelf<I0::Info>,
+    ///   <I1 as InfoMap>::GenericSelf<I0::Info>,
+    ///   <I2 as InfoMap>::GenericSelf<I0::Info>,
+    ///   <I3 as InfoMap>::GenericSelf<I0::Info>,
+    ///   <I4 as InfoMap>::GenericSelf<I0::Info>,
+    /// )
+    ///   "`where` bound"
+    ///   => I0::Info == I1::Info == I2::Info
+    ///   == I3::Info == I4::Info
+    /// => (
+    ///   <I0 as InfoMap>::GenericSelf<I0::Info>,
+    ///   <I1 as InfoMap>::GenericSelf<I1::Info>,
+    ///   <I2 as InfoMap>::GenericSelf<I2::Info>,
+    ///   <I3 as InfoMap>::GenericSelf<I3::Info>,
+    ///   <I4 as InfoMap>::GenericSelf<I4::Info>,
+    /// )
+    ///   "Induction"
+    /// => (I0, I1, I2, I3, I4)
+    ///   "Implemetation"
+    /// => Self
+    /// ```
     type GenericSelf<T> = (
       <I0 as InfoMap>::GenericSelf<T>,
       <I1 as InfoMap>::GenericSelf<T>,
@@ -184,7 +317,7 @@ pub mod tuple6 {
     type Info = I0::Info;
   }
 
-  impl<I0, I1, I2, I3, I4, I5> InfoMap for (I0, I1, I2, I3, I4, I5)
+  unsafe impl<I0, I1, I2, I3, I4, I5> InfoMap for (I0, I1, I2, I3, I4, I5)
   where
     I0: InfoMap,
     I1: InfoMap<Info = I0::Info>,
@@ -193,6 +326,44 @@ pub mod tuple6 {
     I4: InfoMap<Info = I0::Info>,
     I5: InfoMap<Info = I0::Info>,
   {
+    /// ## Safety
+    ///
+    /// ```ignore
+    /// Self::GenericSelf<Self::Info>
+    ///   "`InfoMap` implementation"
+    /// => (
+    ///   <I0 as InfoMap>::GenericSelf<Self::Info>,
+    ///   <I1 as InfoMap>::GenericSelf<Self::Info>,
+    ///   <I2 as InfoMap>::GenericSelf<Self::Info>,
+    ///   <I3 as InfoMap>::GenericSelf<Self::Info>,
+    ///   <I4 as InfoMap>::GenericSelf<Self::Info>,
+    ///   <I5 as InfoMap>::GenericSelf<Self::Info>,
+    /// )
+    ///   "`InfoSource` implementation"
+    /// => (
+    ///   <I0 as InfoMap>::GenericSelf<I0::Info>,
+    ///   <I1 as InfoMap>::GenericSelf<I0::Info>,
+    ///   <I2 as InfoMap>::GenericSelf<I0::Info>,
+    ///   <I3 as InfoMap>::GenericSelf<I0::Info>,
+    ///   <I4 as InfoMap>::GenericSelf<I0::Info>,
+    ///   <I5 as InfoMap>::GenericSelf<I0::Info>,
+    /// )
+    ///   "`where` bound"
+    ///   => I0::Info == I1::Info == I2::Info
+    ///   == I3::Info == I4::Info == I5::Info
+    /// => (
+    ///   <I0 as InfoMap>::GenericSelf<I0::Info>,
+    ///   <I1 as InfoMap>::GenericSelf<I1::Info>,
+    ///   <I2 as InfoMap>::GenericSelf<I2::Info>,
+    ///   <I3 as InfoMap>::GenericSelf<I3::Info>,
+    ///   <I4 as InfoMap>::GenericSelf<I4::Info>,
+    ///   <I5 as InfoMap>::GenericSelf<I5::Info>,
+    /// )
+    ///   "Induction"
+    /// => (I0, I1, I2, I3, I4, I5)
+    ///   "Implemetation"
+    /// => Self
+    /// ```
     type GenericSelf<T> = (
       <I0 as InfoMap>::GenericSelf<T>,
       <I1 as InfoMap>::GenericSelf<T>,

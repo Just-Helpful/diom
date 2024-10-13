@@ -19,9 +19,13 @@ pub trait InfoRef: InfoSource {
 
 /// Modifies the underlying information for a source.<br>
 /// This map can change the type of `self` and hence needs to consume.
-pub trait InfoMap: InfoSource {
+///
+/// ## Safety
+///
+/// `Self::GenericSelf<Self::Info>` must equal `Self`.
+pub unsafe trait InfoMap: InfoSource {
   /// A generic version of `Self`.<br>
-  /// This should fulfill `GenericSelf<T> == Self` for some `T`.
+  /// This must fulfill `GenericSelf<Self::Info> == Self`.
   type GenericSelf<T>;
 
   /// Modifies the information attached to `self`

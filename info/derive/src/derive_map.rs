@@ -26,7 +26,7 @@ pub fn derive_map(input: DeriveInput) -> TokenStream {
 
   quote_spanned! {input.span()=>
     #[automatically_derived]
-    impl #impl_gens InfoMap for #name #ty_gens #where_clause {
+    unsafe impl #impl_gens InfoMap for #name #ty_gens #where_clause {
       type GenericSelf<I0> = #name<I0>;
       #info_fn
     }
