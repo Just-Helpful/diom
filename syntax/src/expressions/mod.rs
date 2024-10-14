@@ -10,11 +10,11 @@ pub use access::{Call, Field, Index, Infix, MonadThen};
 mod blocks;
 pub use blocks::{Assign, Block, Declare, Group, Return, Statement};
 mod compound;
-pub use compound::{Argument, Array, Function, FunctionArm, Struct, Tuple};
+pub use compound::{Argument, Array, Function, FunctionArm, Struct};
 
 #[derive(Clone, InfoSource, InfoRef, InfoMap)]
 pub enum Expression<I> {
-  /* fundamental values to the language */
+  /* base values in the language */
   Char(Char<I>),
   Float(Float<I>),
   Var(Ident<I>),
@@ -28,7 +28,6 @@ pub enum Expression<I> {
   Array(Array<I>),
   Function(Function<I>),
   Struct(Struct<I>),
-  Tuple(Tuple<I>),
   /* accessing values in the language */
   Call(Call<I>),
   Field(Field<I>),

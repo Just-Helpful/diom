@@ -5,8 +5,11 @@ use diom_info::{InfoMap, InfoRef, InfoSource};
 /// A type for arrays of items.
 ///
 /// ```ignore
-/// let String: [Char];
-/// let xs: [Float] = [1, 2, 3];
+/// let String[Char];
+/// let Nums: [Float];
+///
+/// let greeting: String = "Hello!";
+/// let xs: Nums = [1, 2, 3];
 /// ```
 #[derive(Clone, InfoSource, InfoRef, InfoMap)]
 pub struct Array<I> {
