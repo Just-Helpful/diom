@@ -15,8 +15,8 @@ pub enum Token {
   RParen,
   LCurly,
   RCurly,
-  LSquare,
-  RSquare,
+  LBrace,
+  RBrace,
   // Punctuation
   Dot,
   Semi,
@@ -70,8 +70,8 @@ impl Token {
         | (RParen, RParen)
         | (LCurly, LCurly)
         | (RCurly, RCurly)
-        | (LSquare, LSquare)
-        | (RSquare, RSquare)
+        | (LBrace, LBrace)
+        | (RBrace, RBrace)
         | (Dot, Dot)
         | (Semi, Semi)
         | (Colon, Colon)

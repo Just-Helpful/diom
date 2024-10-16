@@ -100,9 +100,9 @@ pub fn parse_string(input: Span) -> SResult<Vec<SpanToken>> {
     many0(parse_escaped_eol),
   );
 
-  let (input, lbrac) = span_wrap(char('"').map(|_| Token::LSquare))(input)?;
+  let (input, lbrac) = span_wrap(char('"').map(|_| Token::LBrace))(input)?;
   let (input, chars) = parse_content(input)?;
-  let (input, rbrac) = span_wrap(char('"').map(|_| Token::RSquare))(input)?;
+  let (input, rbrac) = span_wrap(char('"').map(|_| Token::RBrace))(input)?;
   let char_tokens = chars.into_iter().flat_map(|c| {
     let comma = c.with_token(Token::Comma);
     [c, comma].into_iter()
@@ -182,7 +182,7 @@ mod test {
       let res = complete_parse(parse_string, r#""""#)?;
       assert_eq!(
         Vec::from_iter(res.into_iter().map(Token::from)),
-        vec![LSquare, RSquare]
+        vec![LBrace, RBrace]
       );
       Ok(())
     }
@@ -195,7 +195,7 @@ mod test {
       let res = complete_parse(parse_string, input)?;
       assert_eq!(
         Vec::from_iter(res.into_iter().map(Token::from)),
-        vec![LSquare, RSquare]
+        vec![LBrace, RBrace]
       );
       Ok(())
     }
@@ -205,7 +205,7 @@ mod test {
       let res = complete_parse(parse_string, r#""a""#)?;
       assert_eq!(
         Vec::from_iter(res.into_iter().map(Token::from)),
-        vec![LSquare, Char('a'), Comma, RSquare]
+        vec![LBrace, Char('a'), Comma, RBrace]
       );
       Ok(())
     }
@@ -216,7 +216,7 @@ mod test {
       assert_eq!(
         Vec::from_iter(res.into_iter().map(Token::from)),
         vec![
-          LSquare,
+          LBrace,
           Char('h'),
           Comma,
           Char('e'),
@@ -239,7 +239,7 @@ mod test {
           Comma,
           Char('d'),
           Comma,
-          RSquare
+          RBrace
         ]
       );
       Ok(())
@@ -251,7 +251,7 @@ mod test {
       assert_eq!(
         Vec::from_iter(res.into_iter().map(Token::from)),
         vec![
-          LSquare,
+          LBrace,
           Char('f'),
           Comma,
           Char('o'),
@@ -270,7 +270,7 @@ mod test {
           Comma,
           Char('\n'),
           Comma,
-          RSquare
+          RBrace
         ]
       );
       Ok(())
@@ -286,7 +286,7 @@ mod test {
       assert_eq!(
         Vec::from_iter(res.into_iter().map(Token::from)),
         vec![
-          LSquare,
+          LBrace,
           Char('f'),
           Comma,
           Char('o'),
@@ -299,7 +299,7 @@ mod test {
           Comma,
           Char('r'),
           Comma,
-          RSquare,
+          RBrace,
         ]
       );
       Ok(())
@@ -311,7 +311,7 @@ mod test {
       assert_eq!(
         Vec::from_iter(res.into_iter().map(Token::from)),
         vec![
-          LSquare,
+          LBrace,
           Char('\t'),
           Comma,
           Char('f'),
@@ -328,7 +328,7 @@ mod test {
           Comma,
           Char('r'),
           Comma,
-          RSquare
+          RBrace
         ]
       );
       Ok(())
@@ -340,7 +340,7 @@ mod test {
       assert_eq!(
         Vec::from_iter(res.into_iter().map(Token::from)),
         vec![
-          LSquare,
+          LBrace,
           Char('"'),
           Comma,
           Char('h'),
@@ -361,7 +361,7 @@ mod test {
           Comma,
           Char('"'),
           Comma,
-          RSquare,
+          RBrace,
         ]
       );
       Ok(())
@@ -373,7 +373,7 @@ mod test {
       assert_eq!(
         Vec::from_iter(res.into_iter().map(Token::from)),
         vec![
-          LSquare,
+          LBrace,
           Char('s'),
           Comma,
           Char('n'),
@@ -392,7 +392,7 @@ mod test {
           Comma,
           Char('\u{fe0e}'),
           Comma,
-          RSquare,
+          RBrace,
         ]
       );
       Ok(())
