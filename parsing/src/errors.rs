@@ -1,4 +1,4 @@
-use diom_lexing::tokens::SpanTokens;
+use diom_tokens::SpanTokens;
 use nom::{error::Error, Err};
 
 /// The result type for parsing Diom syntax nodes from spanned tokens

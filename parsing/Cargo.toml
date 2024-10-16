@@ -8,7 +8,13 @@ edition = "2021"
 
 [dependencies]
 cached = "0.51.3"
-diom-lexing = { version = "0.1.0", path = "../lexing" }
+cargo-readme = "3.3.1"
+diom-info = { version = "0.1.0", path = "../info/traits" }
+diom-tokens = { version = "0.1.0", path = "../tokens" }
 diom-syntax = { version = "0.1.0", path = "../syntax" }
 nom = "7.1.3"
 nom_locate = "4.2.0"
+take_mut = "0.2.2"
+
+[dev-dependencies]
+diom-lexing = { path = "../lexing" }

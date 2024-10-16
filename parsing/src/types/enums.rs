@@ -1,18 +1,24 @@
-use std::ops::Range;
-
-use diom_lexing::{token::Token, tokens::SpanTokens};
+use crate::{
+  common::{PResult, SpanTokens, Token},
+  parsers::opt_tag_group,
+  Span,
+};
 use diom_syntax::{
   ident::Ident,
   types::{Enum, Type},
 };
-use nom::{branch::alt, combinator::opt, multi::separated_list0, Parser};
+use nom::{
+  branch::alt,
+  combinator::{complete, eof},
+  multi::separated_list0,
+  Parser,
+};
 
-use crate::{ident::parse_ident, parsers::token, PResult};
+use crate::{ident::parse_ident, parsers::token};
 
 use super::{structs::parse_struct, tuples::parse_tuple};
 
-#[allow(clippy::type_complexity)]
-fn parse_variant(input: SpanTokens) -> PResult<(Ident<Range<usize>>, Type<Range<usize>>)> {
+fn parse_variant(input: SpanTokens) -> PResult<(Ident<Span>, Type<Span>)> {
   // variants *must* start with an identifier
   let (_, name) = parse_ident(input)?;
   let (input, ty) = alt((
@@ -45,25 +51,18 @@ fn parse_variant(input: SpanTokens) -> PResult<(Ident<Range<usize>>, Type<Range<
 /// // or with no trailing comma
 /// { Some(Number), None }
 /// ```
-pub fn parse_enum(input: SpanTokens) -> PResult<Enum<Range<usize>>> {
-  let (input, name) = opt(parse_ident)(input)?;
-  let (input, brac) = token(Token::LCurly)(input)?;
-  let mut start = brac.span.start;
-  if let Some(ref ident) = name {
-    start = ident.info.start;
-  }
-
-  let (input, variants) = separated_list0(token(Token::Comma), parse_variant)(input)?;
-
-  let (input, brac) = token(Token::RCurly)(input)?;
-  let end = brac.span.end;
+pub fn parse_enum(input: SpanTokens) -> PResult<Enum<Span>> {
+  let (input, (name, inner, span)) =
+    opt_tag_group(parse_ident, Token::LCurly, Token::RCurly)(input)?;
+  let (inner, variants) = complete(separated_list0(token(Token::Comma), parse_variant))(inner)?;
+  eof(inner)?;
 
   Ok((
     input,
     Enum {
       name,
       variants,
-      info: start..end,
+      info: span,
     },
   ))
 }

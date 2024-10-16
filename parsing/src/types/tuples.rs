@@ -1,12 +1,16 @@
-use std::ops::Range;
-
-use diom_lexing::{token::Token, tokens::SpanTokens};
-use diom_syntax::types::Tuple;
-use nom::{combinator::opt, multi::separated_list1};
-
-use crate::{ident::parse_ident, parsers::token, PResult};
-
 use super::parse_type;
+use crate::{
+  common::PResult,
+  ident::parse_ident,
+  parsers::{opt_tag_group, token},
+};
+use diom_syntax::types::Tuple;
+use diom_tokens::{SpanTokens, Token};
+use nom::{
+  combinator::{eof, opt},
+  multi::separated_list1,
+};
+use std::ops::Range;
 
 /// Parses a tuple-like type.
 ///
@@ -30,26 +34,18 @@ use super::parse_type;
 /// ( Number, Number )
 /// ```
 pub fn parse_tuple(input: SpanTokens) -> PResult<Tuple<Range<usize>>> {
-  let (input, name) = opt(parse_ident)(input)?;
-  let (input, brac) = token(Token::LParen)(input)?;
-  let mut start = brac.span.start;
-  if let Some(ref ident) = name {
-    start = ident.info.start;
-  }
-
-  let (input, fields) = separated_list1(token(Token::Comma), parse_type)(input)?;
-  // optional trailing comma
-  let (input, _) = opt(token(Token::Comma))(input)?;
-
-  let (input, brac) = token(Token::RParen)(input)?;
-  let end = brac.span.end;
+  let (input, (name, inner, span)) =
+    opt_tag_group(parse_ident, Token::LParen, Token::RParen)(input)?;
+  let (inner, fields) = separated_list1(token(Token::Comma), parse_type)(inner)?;
+  let (inner, _) = opt(token(Token::Comma))(inner)?;
+  eof(inner)?;
 
   Ok((
     input,
     Tuple {
       name,
       fields,
-      info: start..end,
+      info: span,
     },
   ))
 }
