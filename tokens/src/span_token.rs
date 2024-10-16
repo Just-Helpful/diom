@@ -11,7 +11,7 @@ impl SpanToken {
   /// Returns a spanned token with the same span, but a different token.
   ///
   /// ```
-  /// # use diom_lexing::{SpanToken, Token::*};
+  /// # use diom_tokens::{SpanToken, Token::*};
   /// let lbrac = SpanToken { token: LParen, span: 4..5 };
   /// assert_eq!(
   ///   lbrac.with_token(LCurly),
@@ -62,7 +62,7 @@ impl TryFrom<Token> for f64 {
 
 /// Simple unwrapping of span tokens
 /// ```
-/// # use diom_lexing::{Token, Token::*, SpanToken};
+/// # use diom_tokens::{Token, Token::*, SpanToken};
 /// let token = Comma;
 /// let s_token: SpanToken = token.clone().into();
 /// let n_token: Token = s_token.into();
@@ -76,9 +76,9 @@ impl From<SpanToken> for Token {
 
 /// Allows usage of `matches` on `SpanToken`s
 /// ```
-/// # use diom_lexing::{SpanToken, Token::*};
-/// let token1 = SpanToken::from(Ident("foo".into()));
-/// let token2 = SpanToken::from(Ident("bar".into()));
+/// # use diom_tokens::{SpanToken, Token::*};
+/// let token1 = SpanToken::from(StringIdent("foo".into()));
+/// let token2 = SpanToken::from(StringIdent("bar".into()));
 /// assert!(token1.matches(&token2));
 /// ```
 impl Deref for SpanToken {

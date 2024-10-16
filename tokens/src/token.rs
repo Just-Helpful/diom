@@ -56,15 +56,15 @@ impl Token {
   /// Therefore we implement a custom `matches` method for light equality.
   ///
   /// ```
-  /// # use diom_lexing::Token::*;
+  /// # use diom_tokens::Token::*;
   /// assert!(Dot.matches(&Dot));
   /// assert!(Char('a').matches(&Char('b')));
   /// assert!(Float(2.5).matches(&Float(3e-4)));
-  /// assert!(Ident("foo".into()).matches(&Ident("bar".into())));
+  /// assert!(StringIdent("foo".into()).matches(&StringIdent("bar".into())));
   /// ```
   pub fn matches(&self, other: &Token) -> bool {
     use Token::*;
-    matches!(
+    matches! {
       (self, other),
       (LParen, LParen)
         | (RParen, RParen)
@@ -97,7 +97,7 @@ impl Token {
         | (Char(_), Char(_))
         | (Comment(_), Comment(_))
         | (Float(_), Float(_))
-    )
+    }
   }
 }
 
