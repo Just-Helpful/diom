@@ -1,6 +1,6 @@
 use diom_info::{InfoMap, InfoRef, InfoSource};
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Name {
   Literal(Box<str>),
   Not,
