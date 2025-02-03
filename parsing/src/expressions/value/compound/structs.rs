@@ -2,8 +2,7 @@ use crate::{
   errors::PResult,
   expressions::parse_expression,
   ident::parse_ident,
-  parsers::{opt_tag_group, token},
-  path::parse_path,
+  parsers::{group, token},
   Span,
 };
 use diom_syntax::{
@@ -24,16 +23,8 @@ pub fn parse_struct_field(input: SpanTokens) -> PResult<(Ident<Span>, Expression
 }
 
 pub fn parse_struct(input: SpanTokens) -> PResult<Struct<Span>> {
-  let (input, (name, inner, span)) =
-    opt_tag_group(parse_path, Token::LCurly, Token::RCurly)(input)?;
+  let (input, (inner, span)) = group(Token::LCurly, Token::RCurly)(input)?;
   let (inner, fields) = separated_list0(token(Token::Comma), parse_struct_field)(inner)?;
   eof(inner)?;
-  Ok((
-    input,
-    Struct {
-      name,
-      fields,
-      info: span,
-    },
-  ))
+  Ok((input, Struct { fields, info: span }))
 }
