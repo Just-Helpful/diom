@@ -23,7 +23,7 @@ impl<'a, T: AsRef<[SpanToken]> + ?Sized> From<&'a T> for SpanTokens<'a> {
   }
 }
 
-impl<'a> SpanTokens<'a> {
+impl SpanTokens<'_> {
   /// Splits off the first token, returning the remaining section of the tokens
   pub fn split_first(&self) -> Option<(&SpanToken, SpanTokens)> {
     let (first, rest) = self.0.split_first()?;
@@ -37,7 +37,7 @@ impl<'a> SpanTokens<'a> {
   }
 }
 
-impl<'a> Deref for SpanTokens<'a> {
+impl Deref for SpanTokens<'_> {
   type Target = [SpanToken];
   /// Simplifies access to the underlying `SpanToken`s
   ///
@@ -56,7 +56,7 @@ impl<'a> Deref for SpanTokens<'a> {
   }
 }
 
-impl<'a> Slice<Range<usize>> for SpanTokens<'a> {
+impl Slice<Range<usize>> for SpanTokens<'_> {
   /// Accesses sub-ranges of tokens
   ///
   /// ```
@@ -75,7 +75,7 @@ impl<'a> Slice<Range<usize>> for SpanTokens<'a> {
   }
 }
 
-impl<'a> Slice<RangeFrom<isize>> for SpanTokens<'a> {
+impl Slice<RangeFrom<isize>> for SpanTokens<'_> {
   fn slice(&self, range: RangeFrom<isize>) -> Self {
     let mut s = range.start;
     if s < 0 {
@@ -85,7 +85,7 @@ impl<'a> Slice<RangeFrom<isize>> for SpanTokens<'a> {
   }
 }
 
-impl<'a> Slice<RangeTo<isize>> for SpanTokens<'a> {
+impl Slice<RangeTo<isize>> for SpanTokens<'_> {
   fn slice(&self, range: RangeTo<isize>) -> Self {
     let mut e = range.end;
     if e < 0 {
@@ -95,7 +95,7 @@ impl<'a> Slice<RangeTo<isize>> for SpanTokens<'a> {
   }
 }
 
-impl<'a> Slice<RangeFrom<usize>> for SpanTokens<'a> {
+impl Slice<RangeFrom<usize>> for SpanTokens<'_> {
   /// Simplifies skipping of a single `SpanToken`
   ///
   /// ```
@@ -115,7 +115,7 @@ impl<'a> Slice<RangeFrom<usize>> for SpanTokens<'a> {
   }
 }
 
-impl<'a> InputTake for SpanTokens<'a> {
+impl InputTake for SpanTokens<'_> {
   /// Allows for use of `double`, `take`, `tag` and other common parsers
   ///
   /// ```
@@ -167,9 +167,9 @@ impl<'a> InputTake for SpanTokens<'a> {
 /// Allows for the `take_till1` parser
 /// We can't really do anything special for searching,
 /// so just use the default, linear search
-impl<'a> UnspecializedInput for SpanTokens<'a> {}
+impl UnspecializedInput for SpanTokens<'_> {}
 
-impl<'a> InputLength for SpanTokens<'a> {
+impl InputLength for SpanTokens<'_> {
   /// Allows for use of `many0`, `many1`, `separated_list0` and other parsers
   ///
   /// ```
@@ -221,7 +221,7 @@ impl<'a> InputIter for SpanTokens<'a> {
   }
 }
 
-impl<'a> FindSubstring<SpanToken> for SpanTokens<'a> {
+impl FindSubstring<SpanToken> for SpanTokens<'_> {
   fn find_substring(&self, substr: SpanToken) -> Option<usize> {
     for (i, tok) in self.0.iter().enumerate() {
       if tok.matches(&substr) {
@@ -232,7 +232,7 @@ impl<'a> FindSubstring<SpanToken> for SpanTokens<'a> {
   }
 }
 
-impl<'a> FindSubstring<&Token> for SpanTokens<'a> {
+impl FindSubstring<&Token> for SpanTokens<'_> {
   fn find_substring(&self, substr: &Token) -> Option<usize> {
     for (i, tok) in self.0.iter().enumerate() {
       if tok.as_ref().matches(substr) {
