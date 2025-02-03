@@ -221,19 +221,9 @@ impl<'a> InputIter for SpanTokens<'a> {
   }
 }
 
-impl FindSubstring<SpanToken> for SpanTokens<'_> {
-  fn find_substring(&self, substr: SpanToken) -> Option<usize> {
-    for (i, tok) in self.0.iter().enumerate() {
-      if tok.matches(&substr) {
-        return Some(i);
-      }
-    }
-    None
-  }
-}
-
-impl FindSubstring<&Token> for SpanTokens<'_> {
-  fn find_substring(&self, substr: &Token) -> Option<usize> {
+impl<T: AsRef<Token>> FindSubstring<T> for SpanTokens<'_> {
+  fn find_substring(&self, substr: T) -> Option<usize> {
+    let substr = substr.as_ref();
     for (i, tok) in self.0.iter().enumerate() {
       if tok.as_ref().matches(substr) {
         return Some(i);
