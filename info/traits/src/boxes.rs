@@ -4,11 +4,11 @@ use crate::InfoRef;
 
 use super::{InfoMap, InfoSource};
 
-impl<I: InfoSource> InfoSource for Box<I> {
+impl<I: InfoSource + ?Sized> InfoSource for Box<I> {
   type Info = I::Info;
 }
 
-impl<I: InfoRef> InfoRef for Box<I> {
+impl<I: InfoRef + ?Sized> InfoRef for Box<I> {
   fn info(&self) -> &Self::Info {
     self.deref().info()
   }
