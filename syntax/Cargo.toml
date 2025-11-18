@@ -1,9 +1,0 @@
-[package]
-name = "diom-syntax"
-version = "0.1.0"
-description = "Provides the syntax tree for the Diom language"
-edition = "2021"
-
-[dependencies]
-diom-info = { version = "0.1.0", path = "../info/traits" }
-diom-info-derive = { version = "0.1.0", path = "../info/derive" }

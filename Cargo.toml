@@ -2,10 +2,10 @@
 members = [
   "info/derive",
   "info/traits",
-  "lexing",
-  "parsing",
-  "syntax",
-  "tokens",
+  "lexing/lexer",
+  "lexing/tokens",
+  "parsing/parser",
+  "parsing/syntax",
   "typing",
 ]
 resolver = "2"

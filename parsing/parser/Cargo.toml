@@ -1,0 +1,20 @@
+[package]
+name = "diom-parser"
+version = "0.1.0"
+description = "Parses the Diom language to produce an AST"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+cached = "0.51.3"
+cargo-readme = "3.3.1"
+diom-info-traits = { version = "0.1.0", path = "../../info/traits" }
+diom-tokens = { version = "0.1.0", path = "../../lexing/tokens" }
+diom-syntax = { version = "0.1.0", path = "../syntax" }
+nom = "7.1.3"
+nom_locate = "4.2.0"
+take_mut = "0.2.2"
+
+[dev-dependencies]
+diom-lexer = { path = "../../lexing/lexer" }

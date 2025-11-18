@@ -230,13 +230,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "diom-info"
-version = "0.1.0"
-dependencies = [
- "diom-info-derive",
-]
-
-[[package]]
 name = "diom-info-derive"
 version = "0.1.0"
 dependencies = [
@@ -246,7 +239,14 @@ dependencies = [
 ]
 
 [[package]]
-name = "diom-lexing"
+name = "diom-info-traits"
+version = "0.1.0"
+dependencies = [
+ "diom-info-derive",
+]
+
+[[package]]
+name = "diom-lexer"
 version = "0.1.0"
 dependencies = [
  "derivative",
@@ -256,13 +256,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "diom-parse"
+name = "diom-parser"
 version = "0.1.0"
 dependencies = [
  "cached",
  "cargo-readme",
- "diom-info",
- "diom-lexing",
+ "diom-info-traits",
+ "diom-lexer",
  "diom-syntax",
  "diom-tokens",
  "nom",
@@ -274,8 +274,8 @@ dependencies = [
 name = "diom-syntax"
 version = "0.1.0"
 dependencies = [
- "diom-info",
  "diom-info-derive",
+ "diom-info-traits",
 ]
 
 [[package]]
