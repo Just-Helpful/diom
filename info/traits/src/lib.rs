@@ -26,7 +26,7 @@ pub trait InfoRef: InfoSource {
 pub unsafe trait InfoMap: InfoSource {
   /// A generic version of `Self`.<br>
   /// This must fulfill `GenericSelf<Self::Info> == Self`.
-  type GenericSelf<T>;
+  type GenericSelf<T>: InfoSource<Info = T>;
 
   /// Modifies the information attached to `self`
   fn map<R>(self, f: impl FnMut(Self::Info) -> R) -> Self::GenericSelf<R>;
