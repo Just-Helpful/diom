@@ -5,17 +5,17 @@ use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 /// The definition for a type alias
 ///
 /// ```_,ignore
-/// let Number: Float;
-/// let Boolean: Bool;
+/// type Number = Float;
+/// type Boolean = Bool;
 ///
-/// let Vec2_0: {x: Float, y: Float};
-/// let Vec2_1 {x: Float, y: Float};
+/// type Vec2_0 = {x: Float, y: Float};
+/// type Vec2_1 {x: Float, y: Float};
 ///
-/// let Vec3_0: (Float, Float, Float);
-/// let Vec3_1(Float, Float, Float);
+/// type Vec3_0 = [Float, Float, Float];
+/// type Vec3_1 [Float, Float, Float];
 ///
-/// let VecN_0: [Float];
-/// let VecN_1[Float];
+/// type VecN_0 = [Float; _];
+/// type VecN_1 [Float; _];
 /// ```
 #[derive(Clone, InfoSource, InfoRef, InfoMap)]
 pub struct TypeDef<I> {

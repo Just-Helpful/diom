@@ -14,12 +14,11 @@ pub struct Argument<I> {
 ///
 /// ```ignore
 /// # function types can be simplified a bit
-/// let Binary: (x: Float): (y: Float): Float;
-/// let Binary: (x: Float)(y: Float): Float;
-/// let Binary(x: Float)(y: Float): Float;
+/// type Binary = (x: Float): (y: Float): Float;
+/// type Binary = (x: Float)(y: Float): Float;
 ///
-/// let add: Binary = (x)(y) x + y;
-/// let add: Binary = (x) {(y) {x + y}};
+/// let add: Binary = (x)(y) => x + y;
+/// let add: Binary = (x) => {(y) => {x + y}};
 /// ```
 #[derive(Clone, InfoSource, InfoRef, InfoMap)]
 pub struct Function<I> {

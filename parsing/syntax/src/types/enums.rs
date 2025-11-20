@@ -6,12 +6,12 @@ use super::Type;
 /// A type for combinations of possible types
 ///
 /// ```ignore
-/// let CharOption {
+/// type CharOption {
 ///   Some(Char),
 ///   None,
 /// };
 ///
-/// let Boolean: {
+/// type Boolean: {
 ///   True,
 ///   False,
 /// };

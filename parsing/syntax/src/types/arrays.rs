@@ -5,8 +5,8 @@ use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 /// A type for arrays of items.
 ///
 /// ```ignore
-/// let String[Char];
-/// let Nums: [Float];
+/// type String [Char; _];
+/// type Nums = [Float];
 ///
 /// let greeting: String = "Hello!";
 /// let xs: Nums = [1, 2, 3];
