@@ -21,9 +21,9 @@ authors = ["Alex Colby"]
 keywords = ["compiler", "lazy", "function"]
 categories = ["compilers", "parser-implementations"]
 
-homepage = "https://github.com/Mr-Helpful/diom"
-repository = "https://github.com/Mr-Helpful/diom"
-documentation = "https://github.com/Mr-Helpful/diom-docs"
+homepage = "https://github.com/Just-Helpful/diom"
+repository = "https://github.com/Just-Helpful/diom"
+documentation = "https://github.com/Just-Helpful/diom-docs"
 
 license = "MIT"
 license-file = "LICENSE"
