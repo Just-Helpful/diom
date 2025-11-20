@@ -6,6 +6,7 @@ members = [
   "lexing/tokens",
   "parsing/parser",
   "parsing/syntax",
+  "backends/interpreter",
   "typing",
 ]
 resolver = "2"
