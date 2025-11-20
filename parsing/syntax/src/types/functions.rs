@@ -5,9 +5,9 @@ use super::Type;
 
 #[derive(Clone, InfoSource, InfoRef, InfoMap)]
 pub struct Argument<I> {
-    pub name: Ident<I>,
-    pub annotation: Type<I>,
-    pub info: I,
+  pub name: Ident<I>,
+  pub annotation: Type<I>,
+  pub info: I,
 }
 
 /// The type for a callable function
@@ -23,7 +23,7 @@ pub struct Argument<I> {
 /// ```
 #[derive(Clone, InfoSource, InfoRef, InfoMap)]
 pub struct Function<I> {
-    pub arguments: Vec<Argument<I>>,
-    pub returned: Box<Type<I>>,
-    pub info: I,
+  pub arguments: Vec<Argument<I>>,
+  pub returned: Box<Type<I>>,
+  pub info: I,
 }

@@ -24,7 +24,7 @@ use super::Type;
 /// ```
 #[derive(Clone, InfoSource, InfoRef, InfoMap)]
 pub struct Enum<I> {
-    pub name: Option<Ident<I>>,
-    pub variants: Vec<(Ident<I>, Type<I>)>,
-    pub info: I,
+  pub name: Option<Ident<I>>,
+  pub variants: Vec<(Ident<I>, Type<I>)>,
+  pub info: I,
 }

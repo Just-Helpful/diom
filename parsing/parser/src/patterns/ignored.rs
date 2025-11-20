@@ -1,4 +1,4 @@
-use crate::{Span, errors::PResult, parsers::token};
+use crate::{errors::PResult, parsers::token, Span};
 use diom_syntax::patterns::ignored::Ignored;
 use diom_tokens::{SpanTokens, Token};
 

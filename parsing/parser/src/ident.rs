@@ -1,5 +1,5 @@
-use crate::Span;
 use crate::common::{PResult, SpanTokens, Token};
+use crate::Span;
 use diom_syntax::ident::{Ident, Name};
 use nom::bytes::complete::take;
 use nom::error::{Error, ErrorKind};

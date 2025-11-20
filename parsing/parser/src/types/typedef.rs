@@ -1,12 +1,12 @@
 use super::{arrays::parse_array, parse_type, structs::parse_struct, tuples::parse_tuple};
-use crate::{Span, errors::PResult, ident::parse_ident, parsers::token};
+use crate::{errors::PResult, ident::parse_ident, parsers::token, Span};
 use diom_info_traits::InfoRef;
 use diom_syntax::types::{Type, TypeDef};
 use diom_tokens::{SpanTokens, Token};
 use nom::{
-  Parser,
   branch::alt,
   sequence::{pair, preceded},
+  Parser,
 };
 
 pub fn parse_typedef(input: SpanTokens) -> PResult<TypeDef<Span>> {

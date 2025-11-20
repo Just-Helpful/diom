@@ -20,13 +20,13 @@ pub use typedef::TypeDef;
 
 #[derive(Clone, InfoSource, InfoRef, InfoMap)]
 pub enum Type<I> {
-    /* type variables */
-    Var(Ident<I>),
-    /* structural types for composition */
-    Array(Array<I>),
-    Struct(Struct<I>),
-    Tuple(Tuple<I>),
-    Enum(Enum<I>),
-    /* function types */
-    Function(Function<I>),
+  /* type variables */
+  Var(Ident<I>),
+  /* structural types for composition */
+  Array(Array<I>),
+  Struct(Struct<I>),
+  Tuple(Tuple<I>),
+  Enum(Enum<I>),
+  /* function types */
+  Function(Function<I>),
 }

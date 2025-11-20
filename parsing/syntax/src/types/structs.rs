@@ -20,7 +20,7 @@ use super::Type;
 /// ```
 #[derive(Clone, InfoSource, InfoRef, InfoMap)]
 pub struct Struct<I> {
-    pub name: Option<Ident<I>>,
-    pub fields: Vec<(Ident<I>, Type<I>)>,
-    pub info: I,
+  pub name: Option<Ident<I>>,
+  pub fields: Vec<(Ident<I>, Type<I>)>,
+  pub info: I,
 }

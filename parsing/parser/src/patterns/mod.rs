@@ -1,7 +1,7 @@
 use diom_syntax::patterns::Pattern;
 use diom_tokens::SpanTokens;
 use ignored::parse_ignored;
-use nom::{Parser, branch::alt};
+use nom::{branch::alt, Parser};
 
 pub mod arrays;
 use arrays::parse_array;

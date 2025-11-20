@@ -6,7 +6,7 @@ use diom_syntax::{
 use diom_tokens::{SpanTokens, Token};
 
 use crate::{
-  Span, common::PResult, expressions::postfix::UnaryOperator, ident::parse_ident, parsers::token,
+  common::PResult, expressions::postfix::UnaryOperator, ident::parse_ident, parsers::token, Span,
 };
 
 #[derive(InfoSource, InfoRef)]

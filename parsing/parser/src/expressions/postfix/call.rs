@@ -4,10 +4,10 @@ use diom_tokens::{SpanTokens, Token};
 use nom::multi::separated_list0;
 
 use crate::{
-  Span,
   common::PResult,
   expressions::{parse_expression, postfix::UnaryOperator},
   parsers::token,
+  Span,
 };
 
 #[derive(InfoSource, InfoRef)]

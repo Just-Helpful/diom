@@ -1,8 +1,8 @@
 use super::parse_expression;
-use crate::{Span, errors::PResult, parsers::token, types::parse_typedef};
+use crate::{errors::PResult, parsers::token, types::parse_typedef, Span};
 use diom_syntax::expressions::{Block, Statement};
 use diom_tokens::{SpanTokens, Token};
-use nom::{Parser, branch::alt, multi::separated_list0};
+use nom::{branch::alt, multi::separated_list0, Parser};
 
 pub fn parse_statement(input: SpanTokens) -> PResult<Statement<Span>> {
   alt((

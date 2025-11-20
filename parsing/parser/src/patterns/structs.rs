@@ -1,23 +1,23 @@
 use super::{parse_pattern, parse_rest};
 use crate::{
-  Span,
   errors::PResult,
   ident::parse_ident,
   parsers::{opt_tag_group, token},
   path::parse_path,
+  Span,
 };
 use diom_info_traits::InfoRef;
 use diom_syntax::patterns::{
-  Pattern,
   structs::{Struct, StructField, StructItem},
+  Pattern,
 };
 use diom_tokens::{SpanTokens, Token};
 use nom::{
-  Parser,
   branch::alt,
   combinator::{eof, opt},
   multi::separated_list1,
   sequence::preceded,
+  Parser,
 };
 
 pub fn parse_struct_field(input: SpanTokens) -> PResult<StructField<Span>> {

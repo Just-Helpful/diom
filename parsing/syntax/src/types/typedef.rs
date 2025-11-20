@@ -19,7 +19,7 @@ use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 /// ```
 #[derive(Clone, InfoSource, InfoRef, InfoMap)]
 pub struct TypeDef<I> {
-    pub name: Ident<I>,
-    pub value: Box<Type<I>>,
-    pub info: I,
+  pub name: Ident<I>,
+  pub value: Box<Type<I>>,
+  pub info: I,
 }

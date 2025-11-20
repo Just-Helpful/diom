@@ -5,7 +5,7 @@ use nom::multi::separated_list1;
 
 use crate::{
   common::{PResult, Span},
-  expressions::{UnaryOperator, parse_expression},
+  expressions::{parse_expression, UnaryOperator},
   parsers::token,
 };
 

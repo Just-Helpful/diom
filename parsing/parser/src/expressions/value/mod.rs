@@ -1,6 +1,6 @@
 use super::parse_expression;
-use crate::{Span, common::PResult};
-use nom::{Parser, branch::alt};
+use crate::{common::PResult, Span};
+use nom::{branch::alt, Parser};
 
 mod base;
 mod block;

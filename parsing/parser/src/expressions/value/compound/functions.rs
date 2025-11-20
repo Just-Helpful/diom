@@ -1,21 +1,21 @@
 use crate::{
-  Span,
   errors::PResult,
   expressions::parse_expression,
   parsers::{group, token},
   patterns::parse_pattern,
   types::parse_type,
+  Span,
 };
 
 use diom_info_traits::InfoRef;
 use diom_syntax::expressions::{Argument, Function, FunctionArm};
 use diom_tokens::{SpanTokens, Token};
 use nom::{
-  Parser,
   branch::alt,
   combinator::{eof, opt},
   multi::{many0, separated_list0},
   sequence::preceded,
+  Parser,
 };
 
 pub fn parse_argument(input: SpanTokens) -> PResult<Argument<Span>> {

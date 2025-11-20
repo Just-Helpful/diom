@@ -10,8 +10,8 @@ use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 
 #[derive(Clone, InfoSource, InfoRef, InfoMap)]
 pub struct Infix<I> {
-    pub value: Box<Expression<I>>,
-    pub name: Ident<I>,
-    pub other: Box<Expression<I>>,
-    pub info: I,
+  pub value: Box<Expression<I>>,
+  pub name: Ident<I>,
+  pub other: Box<Expression<I>>,
+  pub info: I,
 }

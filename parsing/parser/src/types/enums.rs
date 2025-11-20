@@ -1,17 +1,17 @@
 use crate::{
-  Span,
   common::{PResult, SpanTokens, Token},
   parsers::opt_tag_group,
+  Span,
 };
 use diom_syntax::{
   ident::Ident,
   types::{Enum, Type},
 };
 use nom::{
-  Parser,
   branch::alt,
   combinator::{complete, eof},
   multi::separated_list0,
+  Parser,
 };
 
 use crate::{ident::parse_ident, parsers::token};

@@ -1,4 +1,4 @@
-use crate::{Span, common::PResult, expressions::value::parse_value, ident::parse_ident};
+use crate::{common::PResult, expressions::value::parse_value, ident::parse_ident, Span};
 use diom_syntax::{expressions::Expression, ident::Ident};
 use diom_tokens::SpanTokens;
 

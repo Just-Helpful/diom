@@ -11,5 +11,5 @@ use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 /// ```
 #[derive(Clone, InfoSource, InfoRef, InfoMap)]
 pub struct Float<I> {
-    pub info: I,
+  pub info: I,
 }

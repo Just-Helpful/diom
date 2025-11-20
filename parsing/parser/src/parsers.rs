@@ -1,11 +1,11 @@
-use crate::Span;
 use crate::common::{PResult, SpanToken, SpanTokens, Token};
+use crate::Span;
 use diom_info_traits::InfoRef;
 use nom::{
-  Slice,
   bytes::streaming::take_until,
   combinator::opt,
   error::{Error, ErrorKind},
+  Slice,
 };
 
 pub fn token<'a>(tok: impl AsRef<Token> + 'a) -> impl Fn(SpanTokens) -> PResult<SpanToken> + 'a {

@@ -1,5 +1,5 @@
-use super::{UnaryOperator, parse_expression};
-use crate::{Span, errors::PResult, parsers::token};
+use super::{parse_expression, UnaryOperator};
+use crate::{errors::PResult, parsers::token, Span};
 use diom_info_traits::{InfoRef, InfoSource};
 use diom_syntax::expressions::{Assign, Expression};
 use diom_tokens::{SpanTokens, Token};

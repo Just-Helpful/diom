@@ -15,7 +15,7 @@
 //! See the individual modules for more details
 use diom_syntax::types::Type;
 use diom_tokens::SpanTokens;
-use nom::{Parser, branch::alt};
+use nom::{branch::alt, Parser};
 
 mod arrays;
 use arrays::parse_array;
@@ -30,7 +30,7 @@ use tuples::parse_tuple;
 mod typedef;
 pub use typedef::*;
 
-use crate::{Span, errors::PResult, ident::parse_ident};
+use crate::{errors::PResult, ident::parse_ident, Span};
 
 /// Parses a type in the Diom language.
 ///

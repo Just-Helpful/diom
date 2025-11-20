@@ -1,4 +1,4 @@
-use crate::{Span, errors::PResult, ident::parse_ident, parsers::token};
+use crate::{errors::PResult, ident::parse_ident, parsers::token, Span};
 use diom_info_traits::InfoRef;
 use diom_syntax::patterns::rest::Rest;
 use diom_tokens::{SpanTokens, Token};

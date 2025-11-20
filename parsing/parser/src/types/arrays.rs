@@ -1,8 +1,8 @@
 use crate::{
-  Span,
   common::{PResult, SpanTokens, Token},
   ident::parse_ident,
   parsers::opt_tag_group,
+  Span,
 };
 use diom_syntax::types::Array;
 use nom::combinator::{complete, eof};

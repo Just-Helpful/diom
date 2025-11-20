@@ -14,7 +14,7 @@ use super::Type;
 /// ```
 #[derive(Clone, InfoSource, InfoRef, InfoMap)]
 pub struct Tuple<I> {
-    pub name: Option<Ident<I>>,
-    pub fields: Vec<Type<I>>,
-    pub info: I,
+  pub name: Option<Ident<I>>,
+  pub fields: Vec<Type<I>>,
+  pub info: I,
 }

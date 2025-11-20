@@ -5,9 +5,9 @@ mod chars;
 use chars::parse_char;
 mod floats;
 use floats::parse_float;
-use nom::{Parser, branch::alt};
+use nom::{branch::alt, Parser};
 
-use crate::{Span, common::PResult, ident::parse_ident};
+use crate::{common::PResult, ident::parse_ident, Span};
 
 pub fn parse_base(input: SpanTokens) -> PResult<Expression<Span>> {
   alt((

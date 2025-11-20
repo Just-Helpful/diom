@@ -15,7 +15,7 @@ use std::cmp::Ordering;
 mod infix;
 use infix::parse_infix;
 mod postfix;
-use postfix::{UnaryOperator, parse_postfix};
+use postfix::{parse_postfix, UnaryOperator};
 mod value;
 use value::parse_value;
 

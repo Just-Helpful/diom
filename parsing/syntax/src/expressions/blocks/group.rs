@@ -3,6 +3,6 @@ use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 
 #[derive(Clone, InfoSource, InfoRef, InfoMap)]
 pub struct Group<I> {
-    pub value: Box<Expression<I>>,
-    pub info: I,
+  pub value: Box<Expression<I>>,
+  pub info: I,
 }

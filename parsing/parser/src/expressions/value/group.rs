@@ -1,5 +1,5 @@
 use super::parse_expression;
-use crate::{Span, common::PResult, parsers::token};
+use crate::{common::PResult, parsers::token, Span};
 use diom_syntax::expressions::Group;
 use diom_tokens::{SpanTokens, Token};
 

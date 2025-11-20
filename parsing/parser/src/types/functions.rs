@@ -1,8 +1,8 @@
 use crate::{
-  Span,
   common::{PResult, SpanTokens, Token},
   ident::parse_ident,
   parsers::{group, token},
+  Span,
 };
 use diom_info_traits::InfoRef;
 use diom_syntax::types::{Argument, Function};

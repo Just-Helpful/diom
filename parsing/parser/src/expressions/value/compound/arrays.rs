@@ -3,10 +3,10 @@ use diom_tokens::{SpanTokens, Token};
 use nom::{combinator::eof, multi::separated_list0};
 
 use crate::{
-  Span,
   errors::PResult,
   expressions::parse_expression,
   parsers::{group, token},
+  Span,
 };
 
 pub fn parse_array(input: SpanTokens) -> PResult<Array<Span>> {

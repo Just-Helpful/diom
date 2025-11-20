@@ -1,9 +1,9 @@
 use crate::{
-  Span,
   errors::PResult,
   expressions::parse_expression,
   ident::parse_ident,
   parsers::{group, token},
+  Span,
 };
 use diom_syntax::{
   expressions::{Expression, Struct},

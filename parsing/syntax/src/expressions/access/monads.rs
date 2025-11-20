@@ -42,8 +42,8 @@ use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 /// ```
 #[derive(Clone, InfoSource, InfoRef, InfoMap)]
 pub struct MonadThen<I> {
-    pub value: Box<Expression<I>>,
-    pub info: I,
+  pub value: Box<Expression<I>>,
+  pub info: I,
 }
 
 /// The syntax for wrapping a value in a monad, looks like `!`.
@@ -80,6 +80,6 @@ pub struct MonadThen<I> {
 /// ```
 #[derive(Clone, InfoSource, InfoRef, InfoMap)]
 pub struct MonadResult<I> {
-    pub value: Box<Expression<I>>,
-    pub info: I,
+  pub value: Box<Expression<I>>,
+  pub info: I,
 }

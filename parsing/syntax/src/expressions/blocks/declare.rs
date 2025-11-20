@@ -25,8 +25,8 @@ use super::Expression;
 /// return value is not used, it'll throw an compiler error.
 #[derive(Clone, InfoSource, InfoRef, InfoMap)]
 pub struct Declare<I> {
-    pub pattern: Pattern<I>,
-    pub annotation: Option<Type<I>>,
-    pub value: Box<Expression<I>>,
-    pub info: I,
+  pub pattern: Pattern<I>,
+  pub annotation: Option<Type<I>>,
+  pub value: Box<Expression<I>>,
+  pub info: I,
 }

@@ -12,27 +12,27 @@
 //!
 //! Hence we can go about expression parsing by parsing an initial value
 //! and then parsing postfix operators and combining them with the expression.
-use super::{Expression, parse_expression};
-use crate::{Span, common::PResult};
+use super::{parse_expression, Expression};
+use crate::{common::PResult, Span};
 use diom_info_traits::{InfoRef, InfoSource};
-use nom::{Parser, branch::alt};
+use nom::{branch::alt, Parser};
 
 mod assign;
-use assign::AssignOp;
 use assign::parse_assign;
+use assign::AssignOp;
 mod call;
-use call::CallOp;
 use call::parse_call;
+use call::CallOp;
 mod field;
 use diom_tokens::SpanTokens;
-use field::FieldOp;
 use field::parse_field;
+use field::FieldOp;
 mod index;
-use index::IndexOp;
 use index::parse_index;
+use index::IndexOp;
 mod monads;
-use monads::MonadOp;
 use monads::parse_monad;
+use monads::MonadOp;
 
 /// Any Unary operator that can be applied to an Expression
 pub trait UnaryOperator: InfoRef {

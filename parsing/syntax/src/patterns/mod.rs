@@ -14,9 +14,9 @@ use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 
 #[derive(Clone, InfoSource, InfoRef, InfoMap)]
 pub enum Pattern<I> {
-    Array(Array<I>),
-    Struct(Struct<I>),
-    Tuple(Tuple<I>),
-    Ignored(Ignored<I>),
-    Var(Ident<I>),
+  Array(Array<I>),
+  Struct(Struct<I>),
+  Tuple(Tuple<I>),
+  Ignored(Ignored<I>),
+  Var(Ident<I>),
 }

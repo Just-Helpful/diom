@@ -14,24 +14,24 @@ pub use compound::{Argument, Array, Function, FunctionArm, Struct};
 
 #[derive(Clone, InfoSource, InfoRef, InfoMap)]
 pub enum Expression<I> {
-    /* base values in the language */
-    Char(Char<I>),
-    Float(Float<I>),
-    Var(Ident<I>),
-    /* block expressions */
-    Group(Group<I>),
-    Block(Block<I>),
-    Assign(Assign<I>),
-    Declare(Declare<I>),
-    Return(Return<I>),
-    /* compound values in the language */
-    Array(Array<I>),
-    Function(Function<I>),
-    Struct(Struct<I>),
-    /* accessing values in the language */
-    Call(Call<I>),
-    Field(Field<I>),
-    Index(Index<I>),
-    Infix(Infix<I>),
-    Monad(MonadThen<I>),
+  /* base values in the language */
+  Char(Char<I>),
+  Float(Float<I>),
+  Var(Ident<I>),
+  /* block expressions */
+  Group(Group<I>),
+  Block(Block<I>),
+  Assign(Assign<I>),
+  Declare(Declare<I>),
+  Return(Return<I>),
+  /* compound values in the language */
+  Array(Array<I>),
+  Function(Function<I>),
+  Struct(Struct<I>),
+  /* accessing values in the language */
+  Call(Call<I>),
+  Field(Field<I>),
+  Index(Index<I>),
+  Infix(Infix<I>),
+  Monad(MonadThen<I>),
 }
