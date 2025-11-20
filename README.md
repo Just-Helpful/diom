@@ -7,3 +7,13 @@ This is mostly a language written because:
 3. I wanted to give a language with minimal syntax a go
 4. I like expression-driven languages but don't want to be stuck with FP
 5. I've gotten interested in Algebraic effects
+
+## Todo
+
+- [ ] f-string support
+  - I'll need to update how strings are parsed...
+  - maybe consider having f-strings create templates not strings\
+    if we support string conversion on these, we can solve most\
+    of the standard string injection attacks by not converting to\
+    strings until the last possible second.
+- [ ] create a basic interpreter backend
