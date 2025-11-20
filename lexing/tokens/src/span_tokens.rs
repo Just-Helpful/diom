@@ -25,13 +25,13 @@ impl<'a, T: AsRef<[SpanToken]> + ?Sized> From<&'a T> for SpanTokens<'a> {
 
 impl SpanTokens<'_> {
   /// Splits off the first token, returning the remaining section of the tokens
-  pub fn split_first(&self) -> Option<(&SpanToken, SpanTokens)> {
+  pub fn split_first(&'_ self) -> Option<(&'_ SpanToken, SpanTokens<'_>)> {
     let (first, rest) = self.0.split_first()?;
     Some((first, SpanTokens(rest)))
   }
 
   /// Splits off the last token, returning the starting section of the tokens
-  pub fn split_last(&self) -> Option<(&SpanToken, SpanTokens)> {
+  pub fn split_last(&'_ self) -> Option<(&'_ SpanToken, SpanTokens<'_>)> {
     let (last, initial) = self.0.split_last()?;
     Some((last, SpanTokens(initial)))
   }
