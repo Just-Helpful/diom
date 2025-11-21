@@ -18,7 +18,7 @@ pub enum Name {
   GtEq,
 }
 
-#[derive(Clone, InfoSource, InfoRef, InfoMap)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, PartialEq, Eq, Hash, Debug)]
 pub struct Ident<I> {
   #[map_ignore]
   pub name: Name,

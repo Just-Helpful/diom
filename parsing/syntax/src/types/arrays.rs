@@ -11,7 +11,7 @@ use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 /// let greeting: String = "Hello!";
 /// let xs: Nums = [1, 2, 3];
 /// ```
-#[derive(Clone, InfoSource, InfoRef, InfoMap)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
 pub struct Array<I> {
   pub name: Option<Ident<I>>,
   pub item: Box<Type<I>>,

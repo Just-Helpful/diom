@@ -1,7 +1,7 @@
 use super::Expression;
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 
-#[derive(Clone, InfoSource, InfoRef, InfoMap)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
 pub struct Assign<I> {
   pub reference: Box<Expression<I>>,
   pub value: Box<Expression<I>>,

@@ -12,7 +12,7 @@ use tuples::Tuple;
 use crate::ident::Ident;
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 
-#[derive(Clone, InfoSource, InfoRef, InfoMap)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
 pub enum Pattern<I> {
   Array(Array<I>),
   Struct(Struct<I>),

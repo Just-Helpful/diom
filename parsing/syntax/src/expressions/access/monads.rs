@@ -40,7 +40,7 @@ use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 /// };
 /// assert optn_x == None;
 /// ```
-#[derive(Clone, InfoSource, InfoRef, InfoMap)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
 pub struct MonadThen<I> {
   pub value: Box<Expression<I>>,
   pub info: I,

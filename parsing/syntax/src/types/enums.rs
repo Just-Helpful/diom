@@ -22,7 +22,7 @@ use super::Type;
 /// let bool = Boolean.True;
 /// let bool = Boolean.False;
 /// ```
-#[derive(Clone, InfoSource, InfoRef, InfoMap)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
 pub struct Enum<I> {
   pub name: Option<Ident<I>>,
   pub variants: Vec<(Ident<I>, Type<I>)>,

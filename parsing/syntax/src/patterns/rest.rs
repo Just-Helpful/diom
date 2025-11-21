@@ -22,7 +22,7 @@ use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 /// // gives a compiler error (whilst type checking)
 /// // that `sx` cannot be bound to an empty structure
 /// ```
-#[derive(Clone, InfoSource, InfoRef, InfoMap)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
 pub struct Rest<I> {
   pub name: Option<Ident<I>>,
   pub info: I,

@@ -12,7 +12,7 @@ use super::Type;
 /// let vec2: Vec2 = Vec2 [1.2, 3.0];
 /// let bobs_email: Email = ["bob.jones", "hotmail.com"];
 /// ```
-#[derive(Clone, InfoSource, InfoRef, InfoMap)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
 pub struct Tuple<I> {
   pub name: Option<Ident<I>>,
   pub fields: Vec<Type<I>>,

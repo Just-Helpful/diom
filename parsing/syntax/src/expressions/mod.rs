@@ -12,7 +12,7 @@ pub use blocks::{Assign, Block, Declare, Group, Return, Statement};
 mod compound;
 pub use compound::{Argument, Array, Function, FunctionArm, Struct};
 
-#[derive(Clone, InfoSource, InfoRef, InfoMap)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
 pub enum Expression<I> {
   /* base values in the language */
   Char(Char<I>),

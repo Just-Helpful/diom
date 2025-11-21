@@ -18,7 +18,7 @@ pub use tuples::Tuple;
 mod typedef;
 pub use typedef::TypeDef;
 
-#[derive(Clone, InfoSource, InfoRef, InfoMap)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
 pub enum Type<I> {
   /* type variables */
   Var(Ident<I>),

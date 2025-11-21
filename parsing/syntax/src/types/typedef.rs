@@ -17,7 +17,7 @@ use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 /// type VecN_0 = [Float; _];
 /// type VecN_1 [Float; _];
 /// ```
-#[derive(Clone, InfoSource, InfoRef, InfoMap)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
 pub struct TypeDef<I> {
   pub name: Ident<I>,
   pub value: Box<Type<I>>,

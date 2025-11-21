@@ -3,20 +3,20 @@ use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 
 use super::{Pattern, Rest};
 
-#[derive(Clone, InfoSource, InfoRef, InfoMap)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
 pub struct StructField<I> {
   pub name: Ident<I>,
   pub pattern: Pattern<I>,
   pub info: I,
 }
 
-#[derive(Clone, InfoSource, InfoRef, InfoMap)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
 pub enum StructItem<I> {
   Field(StructField<I>),
   Rest(Rest<I>),
 }
 
-#[derive(Clone, InfoSource, InfoRef, InfoMap)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
 pub struct Struct<I> {
   pub name: Option<Path<I>>,
   pub fields: Vec<StructItem<I>>,
