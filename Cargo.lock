@@ -248,6 +248,9 @@ dependencies = [
 [[package]]
 name = "diom-interpreter"
 version = "0.1.0"
+dependencies = [
+ "diom-syntax",
+]
 
 [[package]]
 name = "diom-lexer"
