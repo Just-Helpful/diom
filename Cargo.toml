@@ -7,6 +7,7 @@ members = [
   "parsing/parser",
   "parsing/syntax",
   "backends/interpreter",
+  "backends/interpreter-cli",
   "typing",
 ]
 resolver = "2"

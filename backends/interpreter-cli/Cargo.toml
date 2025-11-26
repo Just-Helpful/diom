@@ -1,0 +1,22 @@
+[package]
+name = "diom-interpreter-main"
+rust-version.workspace = true
+version.workspace = true
+edition.workspace = true
+description.workspace = true
+authors.workspace = true
+keywords.workspace = true
+categories.workspace = true
+homepage.workspace = true
+repository.workspace = true
+documentation.workspace = true
+license.workspace = true
+readme.workspace = true
+
+[dependencies]
+clap = { version = "4.5.53", features = ["derive"] }
+diom-info-traits = { version = "0.1.0", path = "../../info/traits" }
+diom-interpreter = { version = "0.1.0", path = "../interpreter" }
+diom-lexer = { version = "0.1.0", path = "../../lexing/lexer" }
+diom-parser = { version = "0.1.0", path = "../../parsing/parser" }
+diom-tokens = { version = "0.1.0", path = "../../lexing/tokens" }
