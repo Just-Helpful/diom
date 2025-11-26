@@ -3,38 +3,37 @@ use diom_syntax::{
   ident::{Ident, Name},
 };
 use std::collections::HashMap;
+use std::hash::Hash;
 
 #[derive(Debug, Clone, PartialEq)]
-pub enum Value {
+pub enum Value<I: Hash + Eq> {
   Float(f64),
   Bool(bool),
   Char(char),
-  Array(Array),
-  Struct(Struct),
+  Array(Array<I>),
+  Struct(Struct<I>),
 }
 
-type Array = Vec<Value>;
-type Struct = HashMap<Ident<()>, Value>;
+type Array<I> = Vec<Value<I>>;
+type Struct<I> = HashMap<Ident<I>, Value<I>>;
 
 #[derive(Debug)]
-pub enum Error {
+pub enum Error<I: Hash + Eq> {
   Unsupported(&'static str),
-  NotStruct(Value, Ident<()>),
-  MissingField(Struct, Ident<()>),
-  NotArray(Value, Vec<Expr>),
-  TooManyKeys(Vec<Value>, Vec<Expr>),
-  IndexMissing(Vec<Value>),
-  IndexNotInt(Vec<Value>, Value),
-  IndexOutsideBounds(Vec<Value>, usize, usize),
+  NotStruct(Value<I>, Ident<I>),
+  MissingField(Struct<I>, Ident<I>),
+  NotArray(Value<I>, Vec<Expression<I>>),
+  TooManyKeys(Vec<Value<I>>, Vec<Expression<I>>),
+  IndexMissing(Vec<Value<I>>),
+  IndexNotInt(Vec<Value<I>>, Value<I>),
+  IndexOutsideBounds(Vec<Value<I>>, usize, usize),
 }
 
-type Expr = Expression<()>;
-
-pub fn interpret_infix(
+pub fn interpret_infix<I: Hash + Eq + Clone>(
   Infix {
     value, name, other, ..
-  }: Infix<()>,
-) -> Result<Value, Error> {
+  }: Infix<I>,
+) -> Result<Value<I>, Error<I>> {
   use Name::*;
   use Value::*;
   let Ident { name, .. } = name;
@@ -108,13 +107,13 @@ pub fn interpret_infix(
   }
 }
 
-pub fn interpret_expr(expr: Expr) -> Result<Value, Error> {
+pub fn interpret_expr<I: Hash + Eq + Clone>(expr: Expression<I>) -> Result<Value<I>, Error<I>> {
   use Expression::*;
   match expr {
     Char(c) => Ok(Value::Char(c.value)),
     Float(f) => Ok(Value::Float(f.value)),
     Var(_) => Err(Error::Unsupported("Variables")),
-    Group(_) => unreachable!("We shouldn't have groups at this point"),
+    Group(group) => interpret_expr(*group.value),
     Block(_) => Err(Error::Unsupported("Blocks")),
     Assign(_) => Err(Error::Unsupported("Assignments")),
     Declare(_) => Err(Error::Unsupported("Declarations")),
@@ -123,14 +122,14 @@ pub fn interpret_expr(expr: Expr) -> Result<Value, Error> {
       .contents
       .into_iter()
       .map(interpret_expr)
-      .collect::<Result<Vec<Value>, _>>()
+      .collect::<Result<Vec<Value<I>>, _>>()
       .map(Value::Array),
     Function(_) => Err(Error::Unsupported("Functions")),
     Struct(data) => data
       .fields
       .into_iter()
       .map(|(ident, item)| interpret_expr(item).map(|val| (ident, val)))
-      .collect::<Result<HashMap<Ident<()>, Value>, _>>()
+      .collect::<Result<HashMap<Ident<I>, Value<I>>, _>>()
       .map(Value::Struct),
     Call(_) => Err(Error::Unsupported("Functions")),
     Field(field) => {
