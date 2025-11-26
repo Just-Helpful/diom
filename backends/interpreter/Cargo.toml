@@ -16,7 +16,6 @@ documentation.workspace = true
 
 readme.workspace = true
 license.workspace = true
-license-file.workspace = true
 
 [dependencies]
 diom-syntax = { version = "0.1.0", path = "../../parsing/syntax" }
