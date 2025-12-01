@@ -98,10 +98,10 @@ impl Token {
   /// assert!(Float(2.5).matches(&Float(3e-4)));
   /// assert!(StringIdent("foo".into()).matches(&StringIdent("bar".into())));
   /// ```
-  pub fn matches(&self, other: &Token) -> bool {
+  pub fn matches(&self, other: &impl AsRef<Token>) -> bool {
     use Token::*;
     matches! {
-      (self, other),
+      (self, other.as_ref()),
       (LParen, LParen)
         | (RParen, RParen)
         | (LCurly, LCurly)
