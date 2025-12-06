@@ -11,12 +11,19 @@ use diom_info_traits::InfoRef;
 use diom_syntax::expressions::{Call, Expression, Infix};
 use diom_tokens::{SpanTokens, Token};
 
+mod compound;
 mod control;
-mod values;
-use nom::{combinator::eof, multi::separated_list0};
-use values::parse_value;
+mod literals;
+use compound::parse_compound_value;
+use literals::parse_literal_value;
+use nom::{branch::alt, combinator::eof, multi::separated_list0};
 
 use crate::{common::Span, errors::PResult};
+
+/// Values that have clear start + end delimiters
+pub fn parse_value(input: SpanTokens) -> PResult<Expression<Span>> {
+  alt((parse_literal_value, parse_compound_value))(input)
+}
 
 /// Constructs an infix parser from a higher precedence expression parser
 fn infix_parser<'a>(
