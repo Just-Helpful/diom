@@ -1,13 +1,12 @@
 use crate::common::{PResult, SpanTokens, Token};
 use crate::Span;
 use diom_syntax::ident::{Ident, Name};
+use diom_tokens::SpanToken;
 use nom::bytes::complete::take;
 use nom::error::{Error, ErrorKind};
 
-pub fn parse_ident(input: SpanTokens) -> PResult<Ident<Span>> {
-  let (input, toks) = take(1usize)(input)?;
-  let tok = &toks[0];
-  let name = match &tok.token {
+pub fn try_into_ident(tok: &SpanToken) -> Result<Ident<Span>, Token> {
+  let name = match tok.as_ref() {
     Token::StringIdent(name) => Name::Literal(name.clone()),
     Token::Not => Name::Not,
     Token::And => Name::And,
@@ -22,15 +21,21 @@ pub fn parse_ident(input: SpanTokens) -> PResult<Ident<Span>> {
     Token::Gt => Name::Gt,
     Token::LtEq => Name::LtEq,
     Token::GtEq => Name::GtEq,
-    _ => return Err(nom::Err::Error(Error::new(input, ErrorKind::Tag))),
+    t => return Err(t.clone()),
   };
-  Ok((
-    input,
-    Ident {
-      name,
-      info: tok.span.clone(),
-    },
-  ))
+
+  Ok(Ident {
+    name,
+    info: tok.span.clone(),
+  })
+}
+
+pub fn parse_ident(input: SpanTokens) -> PResult<Ident<Span>> {
+  let (input, toks) = take(1usize)(input)?;
+  let Ok(ident) = try_into_ident(&toks[0]) else {
+    return Err(nom::Err::Error(Error::new(input, ErrorKind::Tag)));
+  };
+  Ok((input, ident))
 }
 
 #[cfg(test)]
