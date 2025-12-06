@@ -81,6 +81,19 @@ impl From<SpanToken> for Token {
 /// let token2 = SpanToken::from(StringIdent("bar".into()));
 /// assert!(token1.matches(&token2));
 /// ```
+impl AsRef<Token> for SpanToken {
+  fn as_ref(&self) -> &Token {
+    &self.token
+  }
+}
+
+/// Allows usage of `matches` on `SpanToken`s
+/// ```
+/// # use diom_tokens::{SpanToken, Token::*};
+/// let token1 = SpanToken::from(StringIdent("foo".into()));
+/// let token2 = SpanToken::from(StringIdent("bar".into()));
+/// assert!(token1.matches(&token2));
+/// ```
 impl Deref for SpanToken {
   type Target = Token;
   fn deref(&self) -> &Self::Target {
