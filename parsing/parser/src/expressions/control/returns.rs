@@ -4,10 +4,10 @@
 //   pub value: Box<Expression<I>>,
 //   pub info: I,
 // }
-
-use super::parse_expression;
+use super::super::parse_expression;
 use crate::{errors::PResult, parsers::token, Span};
-use diom_syntax::{expressions::Return, InfoSource};
+use diom_info_traits::InfoRef;
+use diom_syntax::expressions::Return;
 use diom_tokens::{SpanTokens, Token};
 
 pub fn parse_return(input: SpanTokens) -> PResult<Return<Span>> {

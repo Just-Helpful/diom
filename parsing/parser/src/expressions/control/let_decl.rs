@@ -2,7 +2,8 @@ use crate::{
   errors::PResult, expressions::parse_expression, parsers::token, patterns::parse_pattern,
   types::parse_type, Span,
 };
-use diom_syntax::{expressions::Declare, InfoSource};
+use diom_info_traits::InfoRef;
+use diom_syntax::expressions::Declare;
 use diom_tokens::{SpanTokens, Token};
 use nom::{combinator::opt, sequence::preceded};
 

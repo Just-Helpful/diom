@@ -18,7 +18,9 @@ use nom::{
   Parser,
 };
 
-pub fn parse_argument(input: SpanTokens) -> PResult<Argument<Span>> {
+/// Parses a function parameter for a given function, i.e.
+/// `x: int`, `[x]: [int]`, `{x: name}: {x: number}`
+pub fn parse_parameter(input: SpanTokens) -> PResult<Argument<Span>> {
   let (input, pattern) = parse_pattern(input)?;
   let (input, annotation) = opt(preceded(token(Token::Colon), parse_type))(input)?;
   let mut info = pattern.info().clone();
@@ -39,7 +41,7 @@ pub fn parse_function_arm(input: SpanTokens) -> PResult<FunctionArm<Span>> {
   // @todo maybe define type that holds the span for all arguments
   // @todo support `(x)(y) => 3` syntax
   let (input, (inner, span)) = group(Token::LParen, Token::RParen)(input)?;
-  let (inner, arguments) = many0(parse_argument)(inner)?;
+  let (inner, arguments) = many0(parse_parameter)(inner)?;
   eof(inner)?;
 
   let (input, annotation) = opt(preceded(token(Token::Colon), parse_type))(input)?;
@@ -57,7 +59,7 @@ pub fn parse_function_arm(input: SpanTokens) -> PResult<FunctionArm<Span>> {
 }
 
 pub fn parse_function_arms(input: SpanTokens) -> PResult<(Span, Vec<FunctionArm<Span>>)> {
-  let (input, (inner, span)) = group(Token::LParen, Token::RParen)(input)?;
+  let (input, (inner, span)) = group(Token::LCurly, Token::RCurly)(input)?;
   let (inner, arms) = separated_list0(token(Token::Comma), parse_function_arm)(inner)?;
   eof(inner)?;
   Ok((input, (span, arms)))

@@ -1,4 +1,4 @@
-use super::parse_expression;
+use super::super::parse_expression;
 use crate::{common::PResult, parsers::token, Span};
 use diom_syntax::expressions::Group;
 use diom_tokens::{SpanTokens, Token};

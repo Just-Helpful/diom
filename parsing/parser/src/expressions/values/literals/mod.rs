@@ -9,7 +9,7 @@ use nom::{branch::alt, Parser};
 
 use crate::{common::PResult, ident::parse_ident, Span};
 
-pub fn parse_base(input: SpanTokens) -> PResult<Expression<Span>> {
+pub fn parse_literal_value(input: SpanTokens) -> PResult<Expression<Span>> {
   alt((
     parse_char.map(Expression::Char),
     parse_float.map(Expression::Float),
