@@ -1,8 +1,10 @@
+use std::num::NonZero;
+
 use crate::common::{PResult, SpanToken, SpanTokens, Token};
 use crate::Span;
 use diom_info_traits::InfoRef;
+use nom::InputTake;
 use nom::{
-  bytes::streaming::take_until,
   combinator::opt,
   error::{Error, ErrorKind},
   Slice,
@@ -22,7 +24,29 @@ pub fn group(
 ) -> impl Fn(SpanTokens) -> PResult<(SpanTokens, Span)> {
   move |input| {
     let (input, ltok) = token(&lbrac)(input)?;
-    let (input, inner) = take_until(rbrac.as_ref())(input)?;
+    let mut scope = 1usize;
+
+    // bracket counting and scope detection
+    let idx = input.into_iter().position(|tok| {
+      if tok.matches(lbrac.as_ref()) {
+        scope += 1;
+        return false;
+      }
+      if tok.matches(rbrac.as_ref()) {
+        scope -= 1;
+      }
+      scope == 0
+    });
+
+    // if we are in scope `scope` by the end of the input
+    // then we need at least `scope` more closing brackets...
+    let Some(i) = idx else {
+      return Err(nom::Err::Incomplete(nom::Needed::Size(
+        NonZero::new(scope).unwrap(),
+      )));
+    };
+
+    let (input, inner) = input.take_split(i);
     let (input, rtok) = token(&rbrac)(input)?;
     Ok((input, (inner, ltok.span.start..rtok.span.end)))
   }
