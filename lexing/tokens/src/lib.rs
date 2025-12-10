@@ -1,3 +1,4 @@
+mod display;
 mod token;
 pub use token::Token;
 mod span_token;

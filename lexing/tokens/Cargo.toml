@@ -11,4 +11,9 @@ repository.workspace = true
 documentation.workspace = true
 
 [dependencies]
+colorz = { version = "1.1.4", optional = true }
 nom = "7.1.3"
+
+[features]
+default = ["pretty"]
+pretty = ["dep:colorz"]

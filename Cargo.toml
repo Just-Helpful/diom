@@ -27,5 +27,4 @@ repository = "https://github.com/Just-Helpful/diom"
 documentation = "https://github.com/Just-Helpful/diom-docs"
 
 license = "MIT"
-license-file = "LICENSE"
 readme = "README.md"

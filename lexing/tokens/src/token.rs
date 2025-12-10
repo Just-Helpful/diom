@@ -75,12 +75,14 @@ pub enum Token {
   GtEq,
   /// A monadic application `?` operator
   Monad,
-  // Literals
+
+  /* Literals */
   /// A floating point value, i.e. `2.34`, `-0.02`
   Float(f64),
   /// A single character, i.e. `'x'`, `'\u+26c4'`
   Char(char),
-  // String-like
+
+  /* String-like */
   /// An identifier, i.e. `x`, `_`, `string_ident_0`
   StringIdent(Box<str>),
   /// A single / multiline comment

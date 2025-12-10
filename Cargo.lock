@@ -184,6 +184,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0b6a852b24ab71dffc585bcb46eaf7959d175cb865a7152e35b348d1b2960422"
 
 [[package]]
+name = "colorz"
+version = "1.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6ceb37c5798821e37369cb546f430f19da2f585e0364c9615ae340a9f2e6067b"
+
+[[package]]
 name = "darling"
 version = "0.20.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -301,6 +307,7 @@ dependencies = [
 name = "diom-tokens"
 version = "0.1.0"
 dependencies = [
+ "colorz",
  "nom",
 ]
 
