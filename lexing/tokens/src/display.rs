@@ -1,4 +1,4 @@
-use crate::Token;
+use crate::{SpanToken, SpanTokens, Token};
 use std::fmt::{Display, Write};
 
 #[cfg(feature = "pretty")]
@@ -121,5 +121,27 @@ impl Display for Token {
       return pretty::display(self, f);
     }
     display(self, f)
+  }
+}
+
+impl Display for SpanToken {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    self.token.fmt(f)
+  }
+}
+
+impl<'a> Display for SpanTokens<'a> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    let mut iter = self.iter();
+    let Some(tok) = iter.next() else {
+      return Ok(());
+    };
+
+    tok.fmt(f)?;
+    for tok in iter {
+      f.write_char(' ')?;
+      tok.fmt(f)?;
+    }
+    Ok(())
   }
 }
