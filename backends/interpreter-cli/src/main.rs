@@ -83,10 +83,16 @@ fn main() {
   let code = src.fetch().unwrap();
 
   let (input, tokens) = parse_tokens(code.as_str().into()).unwrap();
-  assert!(input.is_empty());
+  assert!(
+    input.is_empty(),
+    "Input was not fulled lexed, remaining input = {input}",
+  );
 
   let (input, expr) = parse_expression(SpanTokens::from(&tokens)).unwrap();
-  assert!(input.is_empty());
+  assert!(
+    input.is_empty(),
+    "Input was not fully parsed, remaining input = `{input}`",
+  );
   println!("{code}");
   println!("{}", expr.display());
 
