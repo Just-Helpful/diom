@@ -8,7 +8,7 @@ use crate::{
   parsers::{group, token},
 };
 use diom_info_traits::InfoRef;
-use diom_syntax::expressions::{Call, Expression, Field, Infix};
+use diom_syntax::expressions::{Call, Expression, Field, Index, Infix};
 use diom_tokens::{SpanTokens, Token};
 
 mod compound;
@@ -106,7 +106,29 @@ fn explicit_call_parser<'a>(
   }
 }
 
-fn field_access_parser<'a>(
+fn index_parser<'a>(
+  mut parse_expr: impl FnMut(SpanTokens<'a>) -> PResult<'a, Expression<Span>>,
+) -> impl FnMut(SpanTokens<'a>) -> PResult<Expression<Span>> {
+  move |input| {
+    let (mut input, mut value) = parse_expr(input)?;
+
+    while let Ok((input_, (inner, span))) = group(Token::LBrace, Token::RBrace)(input) {
+      let (inner, key) = separated_list0(token(Token::Comma), parse_expression)(inner)?;
+      eof(inner)?;
+
+      value = Expression::Index(Index {
+        info: value.info().start..span.end,
+        value: Box::new(value),
+        key,
+      });
+      input = input_
+    }
+
+    Ok((input, value))
+  }
+}
+
+fn field_parser<'a>(
   mut parse_expr: impl FnMut(SpanTokens<'a>) -> PResult<'a, Expression<Span>>,
 ) -> impl FnMut(SpanTokens<'a>) -> PResult<Expression<Span>> {
   move |input| {
@@ -160,7 +182,8 @@ pub fn parse_expression(input: SpanTokens) -> PResult<Expression<Span>> {
   // parse explicit function calls first
   let parse_expr = explicit_call_parser(parse_value);
 
-  let parse_expr = field_access_parser(parse_expr);
+  let parse_expr = field_parser(parse_expr);
+  let parse_expr = index_parser(parse_expr);
 
   let parse_expr = infix_parser(
     parse_expr,
