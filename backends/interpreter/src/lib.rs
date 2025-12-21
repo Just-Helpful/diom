@@ -6,35 +6,35 @@ use std::collections::HashMap;
 use std::hash::Hash;
 
 #[derive(Debug, Clone, PartialEq)]
-pub enum Value<I: Hash + Eq> {
+pub enum Value {
   Unit,
   Float(f64),
   Bool(bool),
   Char(char),
-  Array(Array<I>),
-  Struct(Struct<I>),
+  Array(Array),
+  Struct(Struct),
 }
 
-type Array<I> = Vec<Value<I>>;
-type Struct<I> = HashMap<Ident<I>, Value<I>>;
+type Array = Vec<Value>;
+type Struct = HashMap<Name, Value>;
 
 #[derive(Debug)]
 pub enum Error<I: Hash + Eq> {
   Unsupported(&'static str),
-  NotStruct(Value<I>, Ident<I>),
-  MissingField(Struct<I>, Ident<I>),
-  NotArray(Value<I>, Vec<Expression<I>>),
-  TooManyKeys(Vec<Value<I>>, Vec<Expression<I>>),
-  IndexMissing(Vec<Value<I>>),
-  IndexNotInt(Vec<Value<I>>, Value<I>),
-  IndexOutsideBounds(Vec<Value<I>>, usize, usize),
+  NotStruct(Value, Ident<I>),
+  MissingField(Struct, Ident<I>),
+  NotArray(Value, Vec<Expression<I>>),
+  TooManyKeys(Vec<Value>, Vec<Expression<I>>),
+  IndexMissing(Vec<Value>),
+  IndexNotInt(Vec<Value>, Value),
+  IndexOutsideBounds(Vec<Value>, usize, usize),
 }
 
 pub fn interpret_infix<I: Hash + Eq + Clone>(
   Infix {
     value, name, other, ..
   }: Infix<I>,
-) -> Result<Value<I>, Error<I>> {
+) -> Result<Value, Error<I>> {
   use Name::*;
   use Value::*;
   let Ident { name, .. } = name;
@@ -108,7 +108,7 @@ pub fn interpret_infix<I: Hash + Eq + Clone>(
   }
 }
 
-pub fn interpret_stmt<I: Hash + Eq + Clone>(stmt: Statement<I>) -> Result<Value<I>, Error<I>> {
+pub fn interpret_stmt<I: Hash + Eq + Clone>(stmt: Statement<I>) -> Result<Value, Error<I>> {
   use Statement::*;
   match stmt {
     TypeDef(_) => Err(Error::Unsupported("Types")),
@@ -116,7 +116,7 @@ pub fn interpret_stmt<I: Hash + Eq + Clone>(stmt: Statement<I>) -> Result<Value<
   }
 }
 
-pub fn interpret_expr<I: Hash + Eq + Clone>(expr: Expression<I>) -> Result<Value<I>, Error<I>> {
+pub fn interpret_expr<I: Hash + Eq + Clone>(expr: Expression<I>) -> Result<Value, Error<I>> {
   use Expression::*;
   match expr {
     Char(c) => Ok(Value::Char(c.value)),
@@ -134,14 +134,14 @@ pub fn interpret_expr<I: Hash + Eq + Clone>(expr: Expression<I>) -> Result<Value
       .contents
       .into_iter()
       .map(interpret_expr)
-      .collect::<Result<Vec<Value<I>>, _>>()
+      .collect::<Result<Vec<Value>, _>>()
       .map(Value::Array),
     Function(_) => Err(Error::Unsupported("Functions")),
     Struct(data) => data
       .fields
       .into_iter()
-      .map(|(ident, item)| interpret_expr(item).map(|val| (ident, val)))
-      .collect::<Result<HashMap<Ident<I>, Value<I>>, _>>()
+      .map(|(ident, item)| interpret_expr(item).map(|val| (ident.name, val)))
+      .collect::<Result<HashMap<Name, Value>, _>>()
       .map(Value::Struct),
     Call(_) => Err(Error::Unsupported("Functions")),
     Field(field) => {
@@ -149,7 +149,7 @@ pub fn interpret_expr<I: Hash + Eq + Clone>(expr: Expression<I>) -> Result<Value
       let Value::Struct(value) = value else {
         return Err(Error::NotStruct(value, field.name));
       };
-      let Some(value) = value.get(&field.name) else {
+      let Some(value) = value.get(&field.name.name) else {
         return Err(Error::MissingField(value, field.name));
       };
       Ok(value.clone())
