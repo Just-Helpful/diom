@@ -1,4 +1,4 @@
-use super::parse_expression;
+use super::super::parse_expression;
 use crate::{errors::PResult, parsers::token, types::parse_typedef, Span};
 use diom_syntax::expressions::{Block, Statement};
 use diom_tokens::{SpanTokens, Token};
@@ -12,9 +12,9 @@ pub fn parse_statement(input: SpanTokens) -> PResult<Statement<Span>> {
 }
 
 pub fn parse_block(input: SpanTokens) -> PResult<Block<Span>> {
-  let (input, lbrac) = token(&Token::LCurly)(input)?;
+  let (input, lbrac) = token(&Token::LParen)(input)?;
   let (input, statements) = separated_list0(token(Token::Semi), parse_statement)(input)?;
-  let (input, rbrac) = token(&Token::RCurly)(input)?;
+  let (input, rbrac) = token(&Token::RParen)(input)?;
 
   Ok((
     input,

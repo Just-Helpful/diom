@@ -7,8 +7,8 @@ use nom::{branch::alt, Parser};
 pub use structs::parse_struct;
 pub mod function;
 pub use function::parse_function;
-mod group;
-pub use group::parse_group;
+mod block;
+pub use block::parse_block;
 
 use crate::{common::PResult, Span};
 
@@ -17,6 +17,6 @@ pub fn parse_compound_value(input: SpanTokens) -> PResult<Expression<Span>> {
     parse_array.map(Expression::Array),
     parse_struct.map(Expression::Struct),
     parse_function.map(Expression::Function),
-    parse_group.map(Expression::Group),
+    parse_block.map(Expression::Block),
   ))(input)
 }
