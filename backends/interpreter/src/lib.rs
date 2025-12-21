@@ -174,7 +174,7 @@ pub fn interpret_expr<I: Hash + Eq + Clone>(expr: Expression<I>) -> Result<Value
       };
       let idx = idx.floor() as usize;
       let len = value.len();
-      if (0..len).contains(&idx) {
+      if !(0..len).contains(&idx) {
         return Err(Error::IndexOutsideBounds(value, len, idx));
       }
       return Ok(value[idx].clone());
