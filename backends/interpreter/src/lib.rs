@@ -1,5 +1,5 @@
 use diom_syntax::{
-  expressions::{Expression, Infix},
+  expressions::{Expression, Infix, Statement},
   ident::{Ident, Name},
 };
 use std::collections::HashMap;
@@ -7,6 +7,7 @@ use std::hash::Hash;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Value<I: Hash + Eq> {
+  Unit,
   Float(f64),
   Bool(bool),
   Char(char),
@@ -107,6 +108,14 @@ pub fn interpret_infix<I: Hash + Eq + Clone>(
   }
 }
 
+pub fn interpret_stmt<I: Hash + Eq + Clone>(stmt: Statement<I>) -> Result<Value<I>, Error<I>> {
+  use Statement::*;
+  match stmt {
+    TypeDef(_) => Err(Error::Unsupported("Types")),
+    Expression(expr) => interpret_expr(expr),
+  }
+}
+
 pub fn interpret_expr<I: Hash + Eq + Clone>(expr: Expression<I>) -> Result<Value<I>, Error<I>> {
   use Expression::*;
   match expr {
@@ -114,7 +123,10 @@ pub fn interpret_expr<I: Hash + Eq + Clone>(expr: Expression<I>) -> Result<Value
     Float(f) => Ok(Value::Float(f.value)),
     Var(_) => Err(Error::Unsupported("Variables")),
     Group(group) => interpret_expr(*group.value),
-    Block(_) => Err(Error::Unsupported("Blocks")),
+    Block(block) => block
+      .statements
+      .into_iter()
+      .try_fold(Value::Unit, |_, stmt| interpret_stmt(stmt)),
     Assign(_) => Err(Error::Unsupported("Assignments")),
     Declare(_) => Err(Error::Unsupported("Declarations")),
     Return(_) => Err(Error::Unsupported("Returns")),
