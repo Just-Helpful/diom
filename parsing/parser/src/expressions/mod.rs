@@ -8,7 +8,7 @@ use crate::{
   parsers::{group, token},
 };
 use diom_info_traits::InfoRef;
-use diom_syntax::expressions::{Call, Expression, Infix};
+use diom_syntax::expressions::{Call, Expression, Field, Infix};
 use diom_tokens::{SpanTokens, Token};
 
 mod compound;
@@ -106,6 +106,27 @@ fn explicit_call_parser<'a>(
   }
 }
 
+fn field_access_parser<'a>(
+  mut parse_expr: impl FnMut(SpanTokens<'a>) -> PResult<'a, Expression<Span>>,
+) -> impl FnMut(SpanTokens<'a>) -> PResult<Expression<Span>> {
+  move |input| {
+    let (mut input, mut value) = parse_expr(input)?;
+
+    while let Ok((input_, _)) = token(Token::Dot)(input) {
+      let (input_, name) = parse_ident(input_)?;
+
+      value = Expression::Field(Field {
+        info: value.info().start..name.info.end,
+        value: Box::new(value),
+        name,
+      });
+      input = input_
+    }
+
+    Ok((input, value))
+  }
+}
+
 /// When parsing expressions, we need to actually be somewhat careful
 /// about the order that we parse different expression types in.
 ///
@@ -138,6 +159,8 @@ fn explicit_call_parser<'a>(
 pub fn parse_expression(input: SpanTokens) -> PResult<Expression<Span>> {
   // parse explicit function calls first
   let parse_expr = explicit_call_parser(parse_value);
+
+  let parse_expr = field_access_parser(parse_expr);
 
   let parse_expr = infix_parser(
     parse_expr,
