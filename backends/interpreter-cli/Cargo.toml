@@ -19,4 +19,5 @@ diom-info-traits = { version = "0.1.0", path = "../../info/traits" }
 diom-interpreter = { version = "0.1.0", path = "../interpreter" }
 diom-lexer = { version = "0.1.0", path = "../../lexing/lexer" }
 diom-parser = { version = "0.1.0", path = "../../parsing/parser" }
+diom-syntax = { version = "0.1.0", path = "../../parsing/syntax" }
 diom-tokens = { version = "0.1.0", path = "../../lexing/tokens" }

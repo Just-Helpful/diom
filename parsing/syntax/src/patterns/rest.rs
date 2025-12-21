@@ -1,5 +1,7 @@
+use crate::fmt::{bracket, MultiDisplay};
 use crate::ident::Ident;
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
+use std::ops::Range;
 
 /// A pattern that captures the remaining contents of a structure.
 /// For example:
@@ -26,4 +28,15 @@ use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 pub struct Rest<I> {
   pub name: Option<Ident<I>>,
   pub info: I,
+}
+
+impl MultiDisplay for Rest<Range<usize>> {
+  type Options = usize;
+  fn multi_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
+    w.write_at([self.info.start, depth], bracket("rest", self.info.len()));
+    if let Some(name) = &self.name {
+      name.multi_fmt(w, depth + 1)?;
+    }
+    Ok(())
+  }
 }

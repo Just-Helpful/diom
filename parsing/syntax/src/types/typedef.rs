@@ -1,6 +1,8 @@
 use super::Type;
+use crate::fmt::{bracket, MultiDisplay};
 use crate::ident::Ident;
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
+use std::ops::Range;
 
 /// The definition for a type alias
 ///
@@ -22,4 +24,16 @@ pub struct TypeDef<I> {
   pub name: Ident<I>,
   pub value: Box<Type<I>>,
   pub info: I,
+}
+
+impl MultiDisplay for TypeDef<Range<usize>> {
+  type Options = usize;
+  fn multi_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
+    w.write_at(
+      [self.info.start, depth],
+      bracket("type def", self.info.len()),
+    );
+    self.name.multi_fmt(w, depth + 1)?;
+    self.value.multi_fmt(w, depth + 1)
+  }
 }

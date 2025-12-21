@@ -1,4 +1,9 @@
-use crate::ident::Ident;
+use std::ops::Range;
+
+use crate::{
+  fmt::{bracket, MultiDisplay},
+  ident::Ident,
+};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 
 use super::Type;
@@ -23,4 +28,19 @@ pub struct Struct<I> {
   pub name: Option<Ident<I>>,
   pub fields: Vec<(Ident<I>, Type<I>)>,
   pub info: I,
+}
+
+impl MultiDisplay for Struct<Range<usize>> {
+  type Options = usize;
+  fn multi_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
+    w.write_at([self.info.start, depth], bracket("struct", self.info.len()));
+    if let Some(name) = &self.name {
+      name.multi_fmt(w, depth + 1)?;
+    }
+    for (name, ty) in &self.fields {
+      name.multi_fmt(w, depth + 1)?;
+      ty.multi_fmt(w, depth + 1)?;
+    }
+    Ok(())
+  }
 }

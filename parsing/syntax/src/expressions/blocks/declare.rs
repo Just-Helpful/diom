@@ -1,7 +1,8 @@
+use super::Expression;
+use crate::fmt::{bracket, MultiDisplay};
 use crate::{patterns::Pattern, types::Type};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
-
-use super::Expression;
+use std::ops::Range;
 
 /// Decleration should allow for pattern matching in its syntax
 ///
@@ -29,4 +30,19 @@ pub struct Declare<I> {
   pub annotation: Option<Type<I>>,
   pub value: Box<Expression<I>>,
   pub info: I,
+}
+
+impl MultiDisplay for Declare<Range<usize>> {
+  type Options = usize;
+  fn multi_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
+    w.write_at(
+      [self.info.start, depth],
+      bracket("declare", self.info.len()),
+    );
+    self.pattern.multi_fmt(w, depth + 1)?;
+    if let Some(ty) = &self.annotation {
+      ty.multi_fmt(w, depth + 1)?;
+    }
+    self.value.multi_fmt(w, depth + 1)
+  }
 }

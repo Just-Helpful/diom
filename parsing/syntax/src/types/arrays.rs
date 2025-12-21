@@ -1,6 +1,10 @@
 use super::Type;
-use crate::ident::Ident;
+use crate::{
+  fmt::{bracket, MultiDisplay},
+  ident::Ident,
+};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
+use std::ops::Range;
 
 /// A type for arrays of items.
 ///
@@ -16,4 +20,15 @@ pub struct Array<I> {
   pub name: Option<Ident<I>>,
   pub item: Box<Type<I>>,
   pub info: I,
+}
+
+impl MultiDisplay for Array<Range<usize>> {
+  type Options = usize;
+  fn multi_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
+    w.write_at([self.info.start, depth], bracket("array", self.info.len()));
+    if let Some(name) = &self.name {
+      name.multi_fmt(w, depth + 1)?;
+    }
+    self.item.multi_fmt(w, depth + 1)
+  }
 }

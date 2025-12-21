@@ -1,4 +1,8 @@
+use std::ops::Range;
+
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
+
+use crate::fmt::{bracket, MultiDisplay};
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Name {
@@ -23,4 +27,12 @@ pub struct Ident<I> {
   #[map_ignore]
   pub name: Name,
   pub info: I,
+}
+
+impl MultiDisplay for Ident<Range<usize>> {
+  type Options = usize;
+  fn multi_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
+    w.write_at([self.info.start, depth], bracket("ident", self.info.len()));
+    Ok(())
+  }
 }

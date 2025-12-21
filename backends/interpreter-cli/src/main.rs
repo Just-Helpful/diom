@@ -8,6 +8,7 @@ use clap::{Args, Parser};
 use diom_interpreter::interpret_expr;
 use diom_lexer::parse_tokens;
 use diom_parser::expressions::parse_expression;
+use diom_syntax::fmt::MultiDisplay;
 use diom_tokens::SpanTokens;
 
 /// Interprets and executes the Diom language
@@ -83,11 +84,11 @@ fn main() {
 
   let (input, tokens) = parse_tokens(code.as_str().into()).unwrap();
   assert!(input.is_empty());
-  println!("tokens = {tokens:?}");
 
   let (input, expr) = parse_expression(SpanTokens::from(&tokens)).unwrap();
   assert!(input.is_empty());
-  println!("expr = {expr:?}");
+  println!("{code}");
+  println!("{}", expr.display());
 
   let value = interpret_expr(expr).unwrap();
   println!("{value:?}");

@@ -267,6 +267,7 @@ dependencies = [
  "diom-interpreter",
  "diom-lexer",
  "diom-parser",
+ "diom-syntax",
  "diom-tokens",
 ]
 
