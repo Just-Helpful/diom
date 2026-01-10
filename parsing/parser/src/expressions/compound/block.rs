@@ -1,26 +1,32 @@
 use super::super::parse_expression;
-use crate::{errors::PResult, parsers::token, types::parse_typedef, Span};
+use crate::{
+  errors::{PResult, SyntaxError},
+  parsers::{group, matches},
+  types::parse_typedef,
+  In,
+};
 use diom_syntax::expressions::{Block, Statement};
-use diom_tokens::{SpanTokens, Token};
-use nom::{branch::alt, multi::separated_list0, Parser};
+use diom_tokens::Token;
+use nom::{
+  branch::alt,
+  combinator::{consumed, eof},
+  multi::separated_list0,
+  sequence::terminated,
+  Parser,
+};
 
-pub fn parse_statement(input: SpanTokens) -> PResult<Statement<Span>> {
+pub fn parse_statement<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Statement<In<'a>>, E> {
   alt((
     parse_expression.map(Statement::Expression),
     parse_typedef.map(Statement::TypeDef),
-  ))(input)
+  ))
+  .parse(input)
 }
 
-pub fn parse_block(input: SpanTokens) -> PResult<Block<Span>> {
-  let (input, lbrac) = token(&Token::LParen)(input)?;
-  let (input, statements) = separated_list0(token(Token::Semi), parse_statement)(input)?;
-  let (input, rbrac) = token(&Token::RParen)(input)?;
+pub fn parse_block<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Block<In<'a>>, E> {
+  let parse_inner = terminated(separated_list0(matches(Token::Semi), parse_statement), eof);
+  let parser = group(Token::LParen, Token::RParen).and_then(parse_inner);
 
-  Ok((
-    input,
-    Block {
-      info: lbrac.span.start..rbrac.span.end,
-      statements,
-    },
-  ))
+  let (input, (info, statements)) = consumed(parser).parse(input)?;
+  Ok((input, Block { statements, info }))
 }

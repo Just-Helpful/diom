@@ -1,13 +1,13 @@
-use crate::{errors::PResult, parsers::token, Span};
+use crate::{
+  errors::{PResult, SyntaxError},
+  parsers::token,
+  In,
+};
 use diom_syntax::patterns::ignored::Ignored;
-use diom_tokens::{SpanTokens, Token};
+use diom_tokens::Token;
+use nom::{combinator::recognize, Parser};
 
-pub fn parse_ignored(input: SpanTokens) -> PResult<Ignored<Span>> {
-  let (input, underscore) = token(Token::StringIdent("_".into()))(input)?;
-  Ok((
-    input,
-    Ignored {
-      info: underscore.span,
-    },
-  ))
+pub fn parse_ignored<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Ignored<In<'a>>, E> {
+  let (input, info) = recognize(token(Token::StringIdent("_".into()))).parse(input)?;
+  Ok((input, Ignored { info }))
 }

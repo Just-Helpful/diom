@@ -1,33 +1,37 @@
 use super::{parse_pattern, parse_rest};
 use crate::{
-  errors::PResult,
-  parsers::{opt_tag_group, token},
+  errors::{PResult, SyntaxError},
+  parsers::{group, matches},
   path::parse_path,
-  Span,
+  In,
 };
 use diom_syntax::patterns::tuples::{Tuple, TupleItem};
-use diom_tokens::{SpanTokens, Token};
-use nom::{branch::alt, combinator::eof, multi::separated_list0, Parser};
+use diom_tokens::Token;
+use nom::{
+  branch::alt,
+  combinator::{consumed, eof, opt},
+  multi::separated_list0,
+  sequence::terminated,
+  Parser,
+};
 
-pub fn parse_tuple_item(input: SpanTokens) -> PResult<TupleItem<Span>> {
+pub fn parse_tuple_item<'a, E: SyntaxError<'a>>(
+  input: In<'a>,
+) -> PResult<'a, TupleItem<In<'a>>, E> {
   alt((
     parse_pattern.map(TupleItem::Field),
     parse_rest.map(TupleItem::Rest),
-  ))(input)
+  ))
+  .parse(input)
 }
 
-pub fn parse_tuple(input: SpanTokens) -> PResult<Tuple<Span>> {
-  let (input, (name, inner, span)) =
-    opt_tag_group(parse_path, Token::LParen, Token::RParen)(input)?;
-  let (inner, fields) = separated_list0(token(Token::Comma), parse_tuple_item)(inner)?;
-  eof(inner)?;
+pub fn parse_tuple<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Tuple<In<'a>>, E> {
+  let parse_inner = terminated(
+    separated_list0(matches(Token::Comma), parse_tuple_item),
+    eof,
+  );
+  let parser = opt(parse_path).and(group(Token::LBrace, Token::RBrace).and_then(parse_inner));
 
-  Ok((
-    input,
-    Tuple {
-      name,
-      fields,
-      info: span,
-    },
-  ))
+  let (input, (info, (name, fields))) = consumed(parser).parse(input)?;
+  Ok((input, Tuple { name, fields, info }))
 }

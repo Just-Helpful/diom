@@ -3,37 +3,61 @@
 //! All expression parsers assume their entire input is an expression.
 //! This means that if there is any remaining input after each parse,
 //! they will fail.
+use crate::errors::PResult;
+use crate::errors::SyntaxError;
+use crate::In;
 use crate::{
   ident::parse_ident,
-  parsers::{group, token},
+  parsers::{group, matches},
 };
 use diom_info_traits::InfoRef;
 use diom_syntax::expressions::{Call, Expression, Field, Index, Infix};
 use diom_tokens::{SpanTokens, Token};
+use nom::combinator::consumed;
+use nom::sequence::{preceded, terminated};
+use nom::{branch::alt, combinator::eof, error::context, multi::separated_list0, Parser};
 
 mod compound;
-mod control;
 mod literals;
+mod scopes;
 use compound::parse_compound_value;
 use literals::parse_literal_value;
-use nom::{branch::alt, combinator::eof, multi::separated_list0};
-
-use crate::{common::Span, errors::PResult};
 
 /// Values that have clear start + end delimiters
-pub fn parse_value(input: SpanTokens) -> PResult<Expression<Span>> {
-  alt((parse_literal_value, parse_compound_value))(input)
+pub fn parse_value<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Expression<In<'a>>, E> {
+  context("value", alt((parse_literal_value, parse_compound_value))).parse(input)
+}
+
+/// Merges two slices into one
+///
+/// # Safety
+///
+/// Boths `a` and `b` must come from the same original slice
+const unsafe fn merge_slices<'a, T>(a: &'a [T], b: &'a [T]) -> &'a [T] {
+  let start = a.as_ptr();
+  let end = b.as_ptr().add(b.len());
+  let len = end.offset_from(start) as usize;
+  std::slice::from_raw_parts(start, len)
+}
+
+/// Merges two spans into one
+///
+/// # Safety
+///
+/// Boths `a` and `b` must come from the same original input span
+unsafe fn merge_spans<'a>(a: SpanTokens<'a>, b: SpanTokens<'a>) -> SpanTokens<'a> {
+  let merged = merge_slices(a.0, b.0);
+  SpanTokens::from(merged)
 }
 
 /// Constructs an infix parser from a higher precedence expression parser
-fn infix_parser<'a>(
-  mut parse_expr: impl FnMut(SpanTokens<'a>) -> PResult<'a, Expression<Span>>,
+fn infix_parser<'a, E: SyntaxError<'a>>(
+  mut parse_expr: impl Parser<In<'a>, Output = Expression<In<'a>>, Error = E>,
   op_tokens: impl AsRef<[Token]>,
-) -> impl FnMut(SpanTokens<'a>) -> PResult<'a, Expression<Span>> {
-  #[inline]
-  move |input| {
+) -> impl Parser<In<'a>, Output = Expression<In<'a>>, Error = E> {
+  context("infix", move |input: In<'a>| {
     // parse an initial expression
-    let (mut input, mut value) = parse_expr(input)?;
+    let (mut input, mut value) = parse_expr.parse(input.clone())?;
 
     // and then wrap it from left to right
     // this means we'll always bracket expressions as so:
@@ -46,107 +70,127 @@ fn infix_parser<'a>(
         .any(|pat| pat.matches(tok.as_ref()))
     }) {
       let (input_, ident) = parse_ident(input)?;
-      let (input_, other) = parse_expr(input_)?;
+      let (input_, other) = parse_expr.parse(input_)?;
+
+      // Safety: `value` and `other`'s info is constructed from `input`
+      let info = unsafe { merge_spans(*value.info(), *other.info()) };
 
       value = Expression::Infix(Infix {
-        info: value.info().start..other.info().end,
-        value: Box::new(value),
+        value: Box::new(value.clone()),
         name: ident,
-        other: Box::new(other),
+        other: Box::new(other.clone()),
+        info,
       });
       input = input_
     }
 
     Ok((input, value))
-  }
+  })
 }
 
 /// Constructs an implicit call parser from a higher precedence expression parser\
 /// Implicit calls don't require brackets and therefore should have a lower precedence
 /// Than "method-like" operators (as otherwise it would consume the ident)
-fn implicit_call_parser<'a>(
-  mut parse_expr: impl FnMut(SpanTokens<'a>) -> PResult<'a, Expression<Span>>,
-) -> impl FnMut(SpanTokens<'a>) -> PResult<Expression<Span>> {
-  #[inline]
-  move |input| {
-    let (mut input, mut value) = parse_expr(input)?;
+fn implicit_call_parser<'a, E: SyntaxError<'a>>(
+  mut parse_expr: impl Parser<In<'a>, Output = Expression<In<'a>>, Error = E>,
+) -> impl Parser<In<'a>, Output = Expression<In<'a>>, Error = E> {
+  context("call", move |input| {
+    let (mut input, mut value) = parse_expr.parse(input)?;
 
-    while let Ok((input_, arg)) = parse_value(input) {
+    while let Ok((input_, arg)) = parse_value::<E>(input) {
+      // Safety: `value` and `arg`'s info is constructed from `input`
+      let info = unsafe { merge_spans(*value.info(), *arg.info()) };
+
       value = Expression::Call(Call {
-        info: value.info().start..arg.info().end,
         value: Box::new(value),
         args: vec![arg],
+        info,
       });
       input = input_
     }
 
     Ok((input, value))
-  }
+  })
 }
 
-fn explicit_call_parser<'a>(
-  mut parse_expr: impl FnMut(SpanTokens<'a>) -> PResult<'a, Expression<Span>>,
-) -> impl FnMut(SpanTokens<'a>) -> PResult<Expression<Span>> {
-  move |input| {
-    let (mut input, mut value) = parse_expr(input)?;
+fn explicit_call_parser<'a, E: SyntaxError<'a>>(
+  mut parse_expr: impl Parser<In<'a>, Output = Expression<In<'a>>, Error = E>,
+) -> impl Parser<In<'a>, Output = Expression<In<'a>>, Error = E> {
+  let parse_inner = terminated(
+    separated_list0(matches(Token::Comma), parse_expression),
+    eof,
+  );
+  let parser = group::<E>(Token::LParen, Token::RParen).and_then(parse_inner);
+  let mut parser = consumed(parser);
 
-    while let Ok((input_, (inner, span))) = group(Token::LParen, Token::RParen)(input) {
-      let (inner, args) = separated_list0(token(Token::Comma), parse_expression)(inner)?;
-      eof(inner)?;
+  context("call", move |input| {
+    let (mut input, mut value) = parse_expr.parse(input)?;
+    while let Ok((input_, (info, args))) = parser.parse(input) {
+      // Safety: `value` and `args`'s info is constructed from `input`
+      let info = unsafe { merge_spans(*value.info(), info) };
 
       value = Expression::Call(Call {
-        info: value.info().start..span.end,
         value: Box::new(value),
         args,
+        info,
       });
       input = input_
     }
 
     Ok((input, value))
-  }
+  })
 }
 
-fn index_parser<'a>(
-  mut parse_expr: impl FnMut(SpanTokens<'a>) -> PResult<'a, Expression<Span>>,
-) -> impl FnMut(SpanTokens<'a>) -> PResult<Expression<Span>> {
-  move |input| {
-    let (mut input, mut value) = parse_expr(input)?;
+fn index_parser<'a, E: SyntaxError<'a>>(
+  mut parse_expr: impl Parser<In<'a>, Output = Expression<In<'a>>, Error = E>,
+) -> impl Parser<In<'a>, Output = Expression<In<'a>>, Error = E> {
+  let parse_inner = terminated(
+    separated_list0(matches(Token::Comma), parse_expression::<E>),
+    eof,
+  );
+  let parser = group::<E>(Token::LBrace, Token::RBrace).and_then(parse_inner);
+  let mut parser = consumed(parser);
 
-    while let Ok((input_, (inner, span))) = group(Token::LBrace, Token::RBrace)(input) {
-      let (inner, key) = separated_list0(token(Token::Comma), parse_expression)(inner)?;
-      eof(inner)?;
+  context("index", move |input| {
+    let (mut input, mut value) = parse_expr.parse(input)?;
+    while let Ok((input_, (info, key))) = parser.parse(input) {
+      // Safety: `value` and `key`'s info is constructed from `input`
+      let info = unsafe { merge_spans(*value.info(), info) };
 
       value = Expression::Index(Index {
-        info: value.info().start..span.end,
         value: Box::new(value),
         key,
+        info,
       });
       input = input_
     }
 
     Ok((input, value))
-  }
+  })
 }
 
-fn field_parser<'a>(
-  mut parse_expr: impl FnMut(SpanTokens<'a>) -> PResult<'a, Expression<Span>>,
-) -> impl FnMut(SpanTokens<'a>) -> PResult<Expression<Span>> {
-  move |input| {
-    let (mut input, mut value) = parse_expr(input)?;
+fn field_parser<'a, E: SyntaxError<'a>>(
+  mut parse_expr: impl Parser<In<'a>, Output = Expression<In<'a>>, Error = E>,
+) -> impl Parser<In<'a>, Output = Expression<In<'a>>, Error = E> {
+  let parser = preceded(matches::<E>(Token::Dot), parse_ident);
+  let mut consumed = consumed(parser);
 
-    while let Ok((input_, _)) = token(Token::Dot)(input) {
-      let (input_, name) = parse_ident(input_)?;
+  context("field", move |input| {
+    let (mut input, mut value) = parse_expr.parse(input)?;
+    while let Ok((input_, (info, name))) = consumed.parse(input) {
+      // Safety: `value` and `name`'s info is constructed from `input`
+      let info = unsafe { merge_spans(*value.info(), info) };
 
       value = Expression::Field(Field {
-        info: value.info().start..name.info.end,
         value: Box::new(value),
         name,
+        info,
       });
       input = input_
     }
 
     Ok((input, value))
-  }
+  })
 }
 
 /// When parsing expressions, we need to actually be somewhat careful
@@ -178,7 +222,9 @@ fn field_parser<'a>(
 /// 1. `+` and `-`
 /// 1. `&` and `|`
 /// 1. `<`, `>`, `<=`, `>=`, `==` and `!=`
-pub fn parse_expression(input: SpanTokens) -> PResult<Expression<Span>> {
+pub fn parse_expression<'a, E: SyntaxError<'a>>(
+  input: In<'a>,
+) -> PResult<'a, Expression<In<'a>>, E> {
   // parse explicit function calls first
   let parse_expr = explicit_call_parser(parse_value);
 
@@ -218,7 +264,7 @@ pub fn parse_expression(input: SpanTokens) -> PResult<Expression<Span>> {
   );
 
   // parse implicit calls after "method-like"s
-  let mut parse_expr = implicit_call_parser(parse_expr);
+  let parse_expr = implicit_call_parser(parse_expr);
 
-  parse_expr(input)
+  context("expression", parse_expr).parse(input)
 }

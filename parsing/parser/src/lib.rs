@@ -5,10 +5,11 @@
 mod common;
 use common::PResult;
 use diom_syntax::expressions::Expression;
-use diom_tokens::SpanTokens;
+use diom_tokens::{SpanToken, SpanTokens};
 use expressions::parse_expression;
 use nom::Parser;
-use std::ops::Range;
+
+use crate::errors::SyntaxError;
 
 pub mod errors;
 pub mod expressions;
@@ -23,8 +24,9 @@ pub enum SyntaxNode<I> {
   Expression(Expression<I>),
 }
 
-pub fn parse_node(input: SpanTokens) -> PResult<SyntaxNode<Span>> {
-  (parse_expression.map(SyntaxNode::Expression)).parse(input)
+pub fn parse_node<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, SyntaxNode<In<'a>>, E> {
+  parse_expression.map(SyntaxNode::Expression).parse(input)
 }
 
-type Span = Range<usize>;
+type In<'a> = SpanTokens<'a>;
+type Item<'a> = SpanToken<'a>;

@@ -1,31 +1,20 @@
 use crate::{
   common::{PResult, SpanTokens, Token},
+  errors::SyntaxError,
   ident::parse_ident,
-  parsers::token,
-  Span,
+  parsers::matches,
+  In,
 };
-use diom_info_traits::InfoRef;
 use diom_syntax::path::Path;
-use nom::{combinator::opt, multi::separated_list1};
+use nom::{
+  combinator::{consumed, opt},
+  multi::separated_list1,
+  Parser,
+};
 
-pub fn parse_path(input: SpanTokens) -> PResult<Path<Span>> {
-  let (input, segments) = separated_list1(opt(token(Token::Dot)), parse_ident)(input)?;
-  let start = segments
-    .first()
-    .expect("`seperated_list1` should produce a Vec with at least 1 element")
-    .info()
-    .start;
-  let end = segments
-    .last()
-    .expect("`seperated_list1` should produce a Vec with at least 1 element")
-    .info()
-    .end;
+pub fn parse_path<'a, E: SyntaxError<'a>>(input: SpanTokens<'a>) -> PResult<'a, Path<In<'a>>, E> {
+  let (input, (info, segments)) =
+    consumed(separated_list1(opt(matches(Token::Dot)), parse_ident)).parse(input)?;
 
-  Ok((
-    input,
-    Path {
-      segments,
-      info: start..end,
-    },
-  ))
+  Ok((input, Path { segments, info }))
 }

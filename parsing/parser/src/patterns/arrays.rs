@@ -1,33 +1,37 @@
 use super::{parse_pattern, parse_rest};
 use crate::{
-  errors::PResult,
-  parsers::{opt_tag_group, token},
+  errors::{PResult, SyntaxError},
+  parsers::{group, matches},
   path::parse_path,
-  Span,
+  In,
 };
 use diom_syntax::patterns::arrays::{Array, ArrayItem};
-use diom_tokens::{SpanTokens, Token};
-use nom::{branch::alt, combinator::eof, multi::separated_list0, Parser};
+use diom_tokens::Token;
+use nom::{
+  branch::alt,
+  combinator::{consumed, eof, opt},
+  multi::separated_list0,
+  sequence::terminated,
+  Parser,
+};
 
-pub fn parse_array_item(input: SpanTokens) -> PResult<ArrayItem<Span>> {
+pub fn parse_array_item<'a, E: SyntaxError<'a>>(
+  input: In<'a>,
+) -> PResult<'a, ArrayItem<In<'a>>, E> {
   alt((
     parse_pattern.map(ArrayItem::Item),
     parse_rest.map(ArrayItem::Rest),
-  ))(input)
+  ))
+  .parse(input)
 }
 
-pub fn parse_array(input: SpanTokens) -> PResult<Array<Span>> {
-  let (input, (name, inner, span)) =
-    opt_tag_group(parse_path, Token::LBrace, Token::RBrace)(input)?;
-  let (inner, items) = separated_list0(token(Token::Comma), parse_array_item)(inner)?;
-  eof(inner)?;
+pub fn parse_array<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Array<In<'a>>, E> {
+  let parse_inner = terminated(
+    separated_list0(matches(Token::Comma), parse_array_item),
+    eof,
+  );
+  let parser = opt(parse_path).and(group(Token::LBrace, Token::RBrace).and_then(parse_inner));
 
-  Ok((
-    input,
-    Array {
-      name,
-      items,
-      info: span,
-    },
-  ))
+  let (input, (info, (name, items))) = consumed(parser).parse(input)?;
+  Ok((input, Array { name, items, info }))
 }

@@ -1,26 +1,30 @@
 use crate::{
-  common::{PResult, SpanTokens, Token},
+  common::{PResult, Token},
+  errors::SyntaxError,
   ident::parse_ident,
-  parsers::opt_tag_group,
-  Span,
+  parsers::group,
+  In,
 };
 use diom_syntax::types::Array;
-use nom::combinator::{complete, eof};
+use nom::{
+  combinator::{consumed, eof, opt},
+  sequence::terminated,
+  Parser,
+};
 
 use super::parse_type;
 
-pub fn parse_array(input: SpanTokens) -> PResult<Array<Span>> {
-  let (input, (name, inner, span)) =
-    opt_tag_group(parse_ident, Token::LBrace, Token::RBrace)(input)?;
-  let (inner, item) = complete(parse_type)(inner)?;
-  eof(inner)?;
+pub fn parse_array<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Array<In<'a>>, E> {
+  let parse_inner = terminated(parse_type, eof);
+  let parser = opt(parse_ident).and(group(Token::LBrace, Token::RBrace).and_then(parse_inner));
 
+  let (input, (info, (name, item))) = consumed(parser).parse(input)?;
   Ok((
     input,
     Array {
       name,
       item: Box::new(item),
-      info: span,
+      info,
     },
   ))
 }

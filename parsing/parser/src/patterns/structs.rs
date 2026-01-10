@@ -1,30 +1,34 @@
 use super::{parse_pattern, parse_rest};
 use crate::{
-  errors::PResult,
+  errors::{PResult, SyntaxError},
   ident::parse_ident,
-  parsers::{opt_tag_group, token},
+  parsers::{group, matches},
   path::parse_path,
-  Span,
+  In,
 };
-use diom_info_traits::InfoRef;
 use diom_syntax::patterns::{
   structs::{Struct, StructField, StructItem},
   Pattern,
 };
-use diom_tokens::{SpanTokens, Token};
+use diom_tokens::Token;
 use nom::{
   branch::alt,
-  combinator::{eof, opt},
+  combinator::{consumed, eof, opt},
   multi::separated_list1,
-  sequence::preceded,
+  sequence::{preceded, terminated},
   Parser,
 };
 
-pub fn parse_struct_field(input: SpanTokens) -> PResult<StructField<Span>> {
-  let (input, name) = parse_ident(input)?;
-  let (input, pattern) = opt(preceded(token(Token::Colon), parse_pattern))(input)?;
-  let pattern = pattern.unwrap_or_else(|| Pattern::Var(name.clone()));
-  let info = name.info().start..pattern.info().end;
+pub fn parse_struct_field<'a, E: SyntaxError<'a>>(
+  input: In<'a>,
+) -> PResult<'a, StructField<In<'a>>, E> {
+  let parse_sub = preceded(matches(Token::Colon), parse_pattern);
+  let parser = parse_ident.and(opt(parse_sub)).map(|(name, pat)| {
+    let pat = pat.unwrap_or_else(|| Pattern::Var(name.clone()));
+    (name, pat)
+  });
+
+  let (input, (info, (name, pattern))) = consumed(parser).parse(input)?;
   Ok((
     input,
     StructField {
@@ -35,25 +39,23 @@ pub fn parse_struct_field(input: SpanTokens) -> PResult<StructField<Span>> {
   ))
 }
 
-pub fn parse_struct_item(input: SpanTokens) -> PResult<StructItem<Span>> {
+pub fn parse_struct_item<'a, E: SyntaxError<'a>>(
+  input: In<'a>,
+) -> PResult<'a, StructItem<In<'a>>, E> {
   alt((
     parse_struct_field.map(StructItem::Field),
     parse_rest.map(StructItem::Rest),
-  ))(input)
+  ))
+  .parse(input)
 }
 
-pub fn parse_struct(input: SpanTokens) -> PResult<Struct<Span>> {
-  let (input, (name, inner, span)) =
-    opt_tag_group(parse_path, Token::LCurly, Token::RCurly)(input)?;
-  let (inner, fields) = separated_list1(token(Token::Comma), parse_struct_item)(inner)?;
-  eof(inner)?;
+pub fn parse_struct<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Struct<In<'a>>, E> {
+  let parse_inner = terminated(
+    separated_list1(matches(Token::Comma), parse_struct_item),
+    eof,
+  );
+  let parser = opt(parse_path).and(group(Token::LCurly, Token::RCurly).and_then(parse_inner));
 
-  Ok((
-    input,
-    Struct {
-      name,
-      fields,
-      info: span,
-    },
-  ))
+  let (input, (info, (name, fields))) = consumed(parser).parse(input)?;
+  Ok((input, Struct { name, fields, info }))
 }

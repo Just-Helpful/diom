@@ -1,16 +1,19 @@
 use super::parse_type;
 use crate::{
   common::PResult,
+  errors::SyntaxError,
   ident::parse_ident,
-  parsers::{opt_tag_group, token},
+  parsers::{group, matches},
+  In,
 };
 use diom_syntax::types::Tuple;
-use diom_tokens::{SpanTokens, Token};
+use diom_tokens::Token;
 use nom::{
-  combinator::{eof, opt},
+  combinator::{consumed, eof, opt},
   multi::separated_list1,
+  sequence::terminated,
+  Parser,
 };
-use std::ops::Range;
 
 /// Parses a tuple-like type.
 ///
@@ -33,19 +36,10 @@ use std::ops::Range;
 /// // or with no trailing comma
 /// ( Number, Number )
 /// ```
-pub fn parse_tuple(input: SpanTokens) -> PResult<Tuple<Range<usize>>> {
-  let (input, (name, inner, span)) =
-    opt_tag_group(parse_ident, Token::LParen, Token::RParen)(input)?;
-  let (inner, fields) = separated_list1(token(Token::Comma), parse_type)(inner)?;
-  let (inner, _) = opt(token(Token::Comma))(inner)?;
-  eof(inner)?;
+pub fn parse_tuple<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Tuple<In<'a>>, E> {
+  let parse_inner = terminated(separated_list1(matches(Token::Comma), parse_type), eof);
+  let parser = opt(parse_ident).and(group(Token::LParen, Token::RParen).and_then(parse_inner));
 
-  Ok((
-    input,
-    Tuple {
-      name,
-      fields,
-      info: span,
-    },
-  ))
+  let (input, (info, (name, fields))) = consumed(parser).parse(input)?;
+  Ok((input, Tuple { name, fields, info }))
 }

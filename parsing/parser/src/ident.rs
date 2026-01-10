@@ -1,11 +1,13 @@
-use crate::common::{PResult, SpanTokens, Token};
-use crate::Span;
+use crate::common::{PResult, Token};
+use crate::errors::SyntaxError;
+use crate::{In, Item};
 use diom_syntax::ident::{Ident, Name};
-use diom_tokens::SpanToken;
 use nom::bytes::complete::take;
-use nom::error::{Error, ErrorKind};
+use nom::combinator::consumed;
+use nom::error::ErrorKind;
+use nom::Parser;
 
-pub fn try_into_ident(tok: &SpanToken) -> Result<Ident<Span>, Token> {
+pub fn try_into_name<'a>(tok: Item<'a>) -> Result<Name, Token> {
   let name = match tok.as_ref() {
     Token::StringIdent(name) => Name::Literal(name.clone()),
     Token::Not => Name::Not,
@@ -24,36 +26,34 @@ pub fn try_into_ident(tok: &SpanToken) -> Result<Ident<Span>, Token> {
     t => return Err(t.clone()),
   };
 
-  Ok(Ident {
-    name,
-    info: tok.span.clone(),
-  })
+  Ok(name)
 }
 
-pub fn parse_ident(input: SpanTokens) -> PResult<Ident<Span>> {
-  let (input, toks) = take(1usize)(input)?;
-  let Ok(ident) = try_into_ident(&toks[0]) else {
-    return Err(nom::Err::Error(Error::new(input, ErrorKind::Tag)));
+pub fn parse_ident<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Ident<In<'a>>, E> {
+  let (input, (info, toks)) = consumed(take(1usize)).parse(input)?;
+  let Ok(name) = try_into_name(toks[0].clone()) else {
+    return Err(nom::Err::Error(E::from_error_kind(input, ErrorKind::Tag)));
   };
-  Ok((input, ident))
+  Ok((input, Ident { name, info }))
 }
 
 #[cfg(test)]
 mod test {
-  use std::ops::Deref;
-
   use super::parse_ident;
   use diom_lexer::parse_tokens;
   use diom_syntax::ident::Name;
-  use nom::multi::many1;
+  use diom_tokens::SpanTokens;
+  use nom::{error::Error, multi::many1, Parser};
+
+  type SpanError<'a> = Error<SpanTokens<'a>>;
 
   #[test]
   fn simple_ident() {
     let (input, tokens) = parse_tokens("x".into()).unwrap();
-    assert_eq!(input.deref(), &"");
+    assert_eq!(input, "");
     assert_eq!(tokens.len(), 1, "{tokens:?}.len() != 1");
 
-    let (tokens, ident) = parse_ident((&tokens).into()).unwrap();
+    let (tokens, ident) = parse_ident::<SpanError>((&tokens).into()).unwrap();
     assert_eq!(tokens, (&[]).into());
     assert_eq!(ident.name, Name::Literal("x".into()));
   }
@@ -61,10 +61,12 @@ mod test {
   #[test]
   fn operator_ident() {
     let (input, tokens) = parse_tokens("+ - / < & !".into()).unwrap();
-    assert_eq!(input.deref(), &"");
+    assert_eq!(input, "");
     assert_eq!(tokens.len(), 6, "{tokens:?}.len() != 6");
 
-    let (tokens, idents) = many1(parse_ident)((&tokens).into()).unwrap();
+    let (tokens, idents) = many1(parse_ident::<SpanError>)
+      .parse((&tokens).into())
+      .unwrap();
     assert_eq!(tokens, (&[]).into());
     assert_eq!(
       idents

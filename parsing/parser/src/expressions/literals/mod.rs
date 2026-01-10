@@ -1,18 +1,19 @@
+use crate::{common::PResult, errors::SyntaxError, ident::parse_ident, In};
 use diom_syntax::expressions::Expression;
-use diom_tokens::SpanTokens;
+use nom::{branch::alt, Parser};
 
 mod chars;
 use chars::parse_char;
 mod floats;
 use floats::parse_float;
-use nom::{branch::alt, Parser};
 
-use crate::{common::PResult, ident::parse_ident, Span};
-
-pub fn parse_literal_value(input: SpanTokens) -> PResult<Expression<Span>> {
+pub fn parse_literal_value<'a, E: SyntaxError<'a>>(
+  input: In<'a>,
+) -> PResult<'a, Expression<In<'a>>, E> {
   alt((
     parse_char.map(Expression::Char),
     parse_float.map(Expression::Float),
     parse_ident.map(Expression::Var),
-  ))(input)
+  ))
+  .parse(input)
 }

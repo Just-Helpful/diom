@@ -1,32 +1,28 @@
 use crate::{
-  errors::PResult,
+  errors::{PResult, SyntaxError},
   expressions::parse_expression,
-  parsers::{group, token},
+  parsers::{group, matches},
   patterns::parse_pattern,
   types::parse_type,
-  Span,
+  In,
 };
 
 use diom_info_traits::InfoRef;
 use diom_syntax::expressions::{Argument, Function, FunctionArm};
-use diom_tokens::{SpanTokens, Token};
+use diom_tokens::Token;
 use nom::{
   branch::alt,
-  combinator::{eof, opt},
+  combinator::{consumed, eof, opt},
   multi::{many0, separated_list0},
-  sequence::preceded,
+  sequence::{preceded, separated_pair, terminated},
   Parser,
 };
 
 /// Parses a function parameter for a given function, i.e.
 /// `x: int`, `[x]: [int]`, `{x: name}: {x: number}`
-pub fn parse_parameter(input: SpanTokens) -> PResult<Argument<Span>> {
-  let (input, pattern) = parse_pattern(input)?;
-  let (input, annotation) = opt(preceded(token(Token::Colon), parse_type))(input)?;
-  let mut info = pattern.info().clone();
-  if let Some(span) = annotation.as_ref().map(|ann| ann.info()) {
-    info.end = span.end;
-  }
+pub fn parse_parameter<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Argument<In<'a>>, E> {
+  let parser = parse_pattern.and(opt(preceded(matches(Token::Colon), parse_type)));
+  let (input, (info, (pattern, annotation))) = consumed(parser).parse(input)?;
   Ok((
     input,
     Argument {
@@ -37,20 +33,25 @@ pub fn parse_parameter(input: SpanTokens) -> PResult<Argument<Span>> {
   ))
 }
 
-pub fn parse_function_arm(input: SpanTokens) -> PResult<FunctionArm<Span>> {
+pub fn parse_arm<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, FunctionArm<In<'a>>, E> {
   // @todo maybe define type that holds the span for all arguments
   // @todo support `(x)(y) => 3` syntax
-  let (input, (inner, span)) = group(Token::LParen, Token::RParen)(input)?;
-  let (inner, arguments) = many0(parse_parameter)(inner)?;
-  eof(inner)?;
+  let parse_inner = terminated(many0(parse_parameter), eof);
+  let parse_params = group(Token::LParen, Token::RParen).and_then(parse_inner);
 
-  let (input, annotation) = opt(preceded(token(Token::Colon), parse_type))(input)?;
-  let (input, _) = token(Token::Assign)(input)?;
-  let (input, returned) = parse_expression.map(Box::new).parse(input)?;
+  let parse_annotation = opt(preceded(matches(Token::Colon), parse_type));
+  let parse_function = separated_pair(
+    parse_params.and(parse_annotation), // parameters `(...): ...`
+    matches(Token::Function),           // arrow      `=>`
+    parse_expression.map(Box::new),     // expression `...`
+  );
+
+  let (input, (info, ((arguments, annotation), returned))) =
+    consumed(parse_function).parse(input)?;
   Ok((
     input,
     FunctionArm {
-      info: span.start..returned.info().end,
+      info,
       arguments,
       annotation,
       returned,
@@ -58,22 +59,26 @@ pub fn parse_function_arm(input: SpanTokens) -> PResult<FunctionArm<Span>> {
   ))
 }
 
-pub fn parse_function_arms(input: SpanTokens) -> PResult<(Span, Vec<FunctionArm<Span>>)> {
-  let (input, (inner, span)) = group(Token::LCurly, Token::RCurly)(input)?;
-  let (inner, arms) = separated_list0(token(Token::Comma), parse_function_arm)(inner)?;
-  eof(inner)?;
-  Ok((input, (span, arms)))
+pub fn parse_arms<'a, E: SyntaxError<'a>>(
+  input: In<'a>,
+) -> PResult<'a, (In<'a>, Vec<FunctionArm<In<'a>>>), E> {
+  let parse_inner = terminated(separated_list0(matches(Token::Comma), parse_arm), eof);
+  let (input, (info, arms)) =
+    consumed(group(Token::LCurly, Token::RCurly).and_then(parse_inner)).parse(input)?;
+
+  Ok((input, (info, arms)))
 }
 
-pub fn parse_function(input: SpanTokens) -> PResult<Function<Span>> {
+pub fn parse_function<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Function<In<'a>>, E> {
   alt((
-    parse_function_arm.map(|arm| Function {
-      info: arm.info().clone(),
+    parse_arm.map(|arm| Function {
+      info: *arm.info(),
       arms: vec![arm],
     }),
-    parse_function_arms.map(|(span, arms_vec)| Function {
-      info: span,
+    parse_arms.map(|(info, arms_vec)| Function {
       arms: arms_vec,
+      info,
     }),
-  ))(input)
+  ))
+  .parse(input)
 }

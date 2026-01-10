@@ -1,12 +1,18 @@
 use super::parse_type;
 use crate::{
-  common::{PResult, SpanTokens, Token},
+  common::{PResult, Token},
+  errors::SyntaxError,
   ident::parse_ident,
-  parsers::{opt_tag_group, token},
+  parsers::{group, matches},
+  In,
 };
 use diom_syntax::types::Struct;
-use nom::{combinator::eof, multi::separated_list1, sequence::separated_pair};
-use std::ops::Range;
+use nom::{
+  combinator::{consumed, opt},
+  multi::separated_list1,
+  sequence::separated_pair,
+  Parser,
+};
 
 /// Parses a struct-like type.
 ///
@@ -27,21 +33,13 @@ use std::ops::Range;
 /// // or in a more compact format
 /// { id: Number, name: String }
 /// ```
-pub fn parse_struct(input: SpanTokens) -> PResult<Struct<Range<usize>>> {
-  let (input, (name, inner, span)) =
-    opt_tag_group(parse_ident, Token::LCurly, Token::RCurly)(input)?;
-  let (inner, fields) = separated_list1(
-    token(Token::Comma),
-    separated_pair(parse_ident, token(Token::Colon), parse_type),
-  )(inner)?;
-  eof(inner)?;
+pub fn parse_struct<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Struct<In<'a>>, E> {
+  let parse_inner = separated_list1(
+    matches(Token::Comma),
+    separated_pair(parse_ident, matches(Token::Colon), parse_type),
+  );
+  let parser = opt(parse_ident).and(group(Token::LCurly, Token::RCurly).and_then(parse_inner));
 
-  Ok((
-    input,
-    Struct {
-      name,
-      fields,
-      info: span,
-    },
-  ))
+  let (input, (info, (name, fields))) = consumed(parser).parse(input)?;
+  Ok((input, Struct { name, fields, info }))
 }

@@ -1,7 +1,8 @@
 use crate::{
-  common::{PResult, SpanTokens, Token},
-  parsers::opt_tag_group,
-  Span,
+  common::{PResult, Token},
+  errors::SyntaxError,
+  parsers::group,
+  In,
 };
 use diom_syntax::{
   ident::Ident,
@@ -9,23 +10,27 @@ use diom_syntax::{
 };
 use nom::{
   branch::alt,
-  combinator::{complete, eof},
+  combinator::{consumed, eof, opt},
   multi::separated_list0,
+  sequence::terminated,
   Parser,
 };
 
-use crate::{ident::parse_ident, parsers::token};
+use crate::{ident::parse_ident, parsers::matches};
 
 use super::{structs::parse_struct, tuples::parse_tuple};
 
-fn parse_variant(input: SpanTokens) -> PResult<(Ident<Span>, Type<Span>)> {
+fn parse_variant<'a, E: SyntaxError<'a>>(
+  input: In<'a>,
+) -> PResult<'a, (Ident<In<'a>>, Type<In<'a>>), E> {
   // variants *must* start with an identifier
   let (_, name) = parse_ident(input)?;
   let (input, ty) = alt((
     parse_enum.map(Type::Enum),
     parse_struct.map(Type::Struct),
     parse_tuple.map(Type::Tuple),
-  ))(input)?;
+  ))
+  .parse(input)?;
 
   Ok((input, (name, ty)))
 }
@@ -51,18 +56,17 @@ fn parse_variant(input: SpanTokens) -> PResult<(Ident<Span>, Type<Span>)> {
 /// // or with no trailing comma
 /// { Some(Number), None }
 /// ```
-pub fn parse_enum(input: SpanTokens) -> PResult<Enum<Span>> {
-  let (input, (name, inner, span)) =
-    opt_tag_group(parse_ident, Token::LCurly, Token::RCurly)(input)?;
-  let (inner, variants) = complete(separated_list0(token(Token::Comma), parse_variant))(inner)?;
-  eof(inner)?;
+pub fn parse_enum<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Enum<In<'a>>, E> {
+  let parse_inner = terminated(separated_list0(matches(Token::Comma), parse_variant), eof);
+  let parser = opt(parse_ident).and(group(Token::LCurly, Token::RCurly).and_then(parse_inner));
 
+  let (input, (info, (name, variants))) = consumed(parser).parse(input)?;
   Ok((
     input,
     Enum {
       name,
       variants,
-      info: span,
+      info,
     },
   ))
 }

@@ -1,30 +1,43 @@
 use crate::{
-  errors::PResult,
+  errors::{PResult, SyntaxError},
   expressions::parse_expression,
   ident::parse_ident,
-  parsers::{group, token},
-  Span,
+  parsers::{group, matches},
+  In,
 };
 use diom_syntax::{
   expressions::{Expression, Struct},
   ident::Ident,
 };
-use diom_tokens::{SpanTokens, Token};
-use nom::{combinator::eof, multi::separated_list0};
+use diom_tokens::Token;
+use nom::{
+  combinator::{consumed, eof, opt},
+  multi::separated_list0,
+  sequence::{preceded, terminated},
+  Parser,
+};
 
 /// Parses a single struct field
 /// @todo maybe expand this to allow for `Foo { x }` like declerations
 /// where `x` is a variable defined before `Foo`
-pub fn parse_struct_field(input: SpanTokens) -> PResult<(Ident<Span>, Expression<Span>)> {
-  let (input, field) = parse_ident(input)?;
-  let (input, _) = token(Token::Colon)(input)?;
-  let (input, value) = parse_expression(input)?;
+pub fn parse_struct_field<'a, E: SyntaxError<'a>>(
+  input: In<'a>,
+) -> PResult<'a, (Ident<In<'a>>, Expression<In<'a>>), E> {
+  let parse_value = preceded(matches::<E>(Token::Colon), parse_expression);
+  let mut parser = parse_ident.and(opt(parse_value));
+
+  let (input, (field, value)) = parser.parse(input)?;
+  let value = value.unwrap_or_else(|| Expression::Var(field.clone()));
   Ok((input, (field, value)))
 }
 
-pub fn parse_struct(input: SpanTokens) -> PResult<Struct<Span>> {
-  let (input, (inner, span)) = group(Token::LCurly, Token::RCurly)(input)?;
-  let (inner, fields) = separated_list0(token(Token::Comma), parse_struct_field)(inner)?;
-  eof(inner)?;
-  Ok((input, Struct { fields, info: span }))
+pub fn parse_struct<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Struct<In<'a>>, E> {
+  let parse_inner = terminated(
+    separated_list0(matches(Token::Comma), parse_struct_field),
+    eof,
+  );
+  let parser = group(Token::LCurly, Token::RCurly).and_then(parse_inner);
+
+  let (input, (info, fields)) = consumed(parser).parse(input)?;
+  Ok((input, Struct { fields, info }))
 }

@@ -13,8 +13,12 @@
 //! 6. Subtypes
 //!
 //! See the individual modules for more details
+use crate::{
+  errors::{PResult, SyntaxError},
+  ident::parse_ident,
+  In,
+};
 use diom_syntax::types::Type;
-use diom_tokens::SpanTokens;
 use nom::{branch::alt, Parser};
 
 mod arrays;
@@ -30,14 +34,12 @@ use tuples::parse_tuple;
 mod typedef;
 pub use typedef::*;
 
-use crate::{errors::PResult, ident::parse_ident, Span};
-
 /// Parses a type in the Diom language.
 ///
 /// Types are primarily used within:
 /// 1. variable declerations
 /// 2. function arguments
-pub fn parse_type(input: SpanTokens) -> PResult<Type<Span>> {
+pub fn parse_type<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Type<In<'a>>, E> {
   alt((
     parse_function.map(Type::Function),
     parse_array.map(Type::Array),
@@ -45,5 +47,6 @@ pub fn parse_type(input: SpanTokens) -> PResult<Type<Span>> {
     parse_struct.map(Type::Struct),
     parse_tuple.map(Type::Tuple),
     parse_ident.map(Type::Var),
-  ))(input)
+  ))
+  .parse(input)
 }
