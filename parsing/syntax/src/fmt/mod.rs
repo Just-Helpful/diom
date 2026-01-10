@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::fmt::{Display, Write};
 
 mod updater;
 pub use updater::Updater;
@@ -11,14 +11,14 @@ mod str_utils;
 /// # Note
 ///
 /// This doesn't use formatter options as they're currently unstable...
-pub trait MultiDisplay {
+pub trait MultiDisplay<W: Write + Display = MultiWriter> {
   type Options;
 
   #[must_use]
-  fn multi_fmt(&self, w: &mut MultiWriter, options: Self::Options) -> std::fmt::Result;
+  fn multi_fmt(&self, w: &mut W, options: Self::Options) -> std::fmt::Result;
 
   /// Displays a `MultiDisplay`-able type with default options
-  fn display(&self) -> DisplayWith<&Self>
+  fn display(&self) -> DisplayWith<W, &Self>
   where
     Self: Sized,
     Self::Options: Default,
@@ -27,7 +27,7 @@ pub trait MultiDisplay {
   }
 
   /// Displays a `MultiDisplay`-able type with custom options
-  fn display_with(&self, options: Self::Options) -> DisplayWith<&Self>
+  fn display_with(&self, options: Self::Options) -> DisplayWith<W, &Self>
   where
     Self: Sized,
   {
@@ -35,25 +35,27 @@ pub trait MultiDisplay {
   }
 }
 
-impl<D: MultiDisplay> MultiDisplay for &D {
+impl<W: Write + Display, D: MultiDisplay<W>> MultiDisplay<W> for &D {
   type Options = D::Options;
-  fn multi_fmt(&self, w: &mut MultiWriter, options: Self::Options) -> std::fmt::Result {
+  fn multi_fmt(&self, w: &mut W, options: Self::Options) -> std::fmt::Result {
     MultiDisplay::multi_fmt(*self, w, options)
   }
 }
 
 /// Displays a `MultiDisplay`-able type with custom options
-pub struct DisplayWith<D: MultiDisplay>(pub D, pub D::Options);
+pub struct DisplayWith<W: Write + Display, D: MultiDisplay<W>>(pub D, pub D::Options);
 
-impl<D: MultiDisplay<Options: Default>> From<D> for DisplayWith<D> {
+impl<W: Write + Display, D: MultiDisplay<W, Options: Default>> From<D> for DisplayWith<W, D> {
   fn from(value: D) -> Self {
     Self(value, Default::default())
   }
 }
 
-impl<D: MultiDisplay<Options: Clone>> Display for DisplayWith<D> {
+impl<W: Write + Display + Default, D: MultiDisplay<W, Options: Clone>> Display
+  for DisplayWith<W, D>
+{
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    let mut w = MultiWriter::default();
+    let mut w = W::default();
     self.0.multi_fmt(&mut w, self.1.clone())?;
     w.fmt(f)
   }

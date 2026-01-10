@@ -94,6 +94,7 @@ impl<const FILL: char> Write for MultiWriter<FILL> {
   fn write_char(&mut self, c: char) -> std::fmt::Result {
     let line = &mut self.lines[self.line];
     if self.byte == line.len() {
+      // SAFETY: cursor is at the end of the line
       unsafe { self.push_char(c) }
       return Ok(());
     }
@@ -115,6 +116,7 @@ impl<const FILL: char> Write for MultiWriter<FILL> {
     let len = s.chars().count();
     let line = &mut self.lines[self.line];
     if self.byte == line.len() {
+      // SAFETY: cursor is at the end of the line
       unsafe { self.push_str(s) }
       return Ok(());
     }
@@ -139,10 +141,10 @@ impl<const FILL: char> MultiWriter<FILL> {
     self.seek(loc);
     self.write_str(text.as_ref()).unwrap();
   }
+}
 
-  /// Writes the lines within the buffer to the given formatter\
-  /// This isn't implemented with `Display` to avoid confusion.
-  pub fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+impl<const FILL: char> Display for MultiWriter<FILL> {
+  fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
     let mut iter = self.lines.iter().rev();
     let Some(line) = iter.next() else {
       return Ok(());
