@@ -1,25 +1,24 @@
-use super::{SResult, Span};
-use diom_tokens::Token;
 use nom::{
   branch::alt,
   bytes::complete::{is_not, tag, take_until},
   character::complete::{char, line_ending},
+  error::Error,
   sequence::delimited,
+  Parser,
 };
 
 /// Parses a comment that spans until the end of the current line
-/// ```_,ignore
+/// ```_
 /// # initialise loop index to 0
 /// let i = 0;
 /// ```
-fn parse_line(input: Span) -> SResult<Token> {
-  let (input, comment) = delimited(char('#'), is_not("\r\n"), line_ending)(input)?;
-  Ok((input, Token::Comment(comment.into_fragment().into())))
+fn line_comment<'a>() -> impl Parser<&'a str, Output = &'a str, Error = Error<&'a str>> {
+  delimited(char('#'), is_not("\r\n"), line_ending)
 }
 
 /// Parses a comment that spans from an opening "bracket" to a closing "bracket"
 /// potentially over multiple lines.
-/// ```_,ignore
+/// ```_
 /// #(
 /// The loop index starts at 0
 /// and every loop iteration it will be incremented
@@ -27,35 +26,35 @@ fn parse_line(input: Span) -> SResult<Token> {
 /// )#
 /// let i = 0;
 /// ```
-fn parse_block(input: Span) -> SResult<Token> {
-  let (input, comment) = delimited(tag("#("), take_until(")#"), tag(")#"))(input)?;
-  Ok((input, Token::Comment(comment.into_fragment().into())))
+fn parse_block<'a>() -> impl Parser<&'a str, Output = &'a str, Error = Error<&'a str>> {
+  delimited(tag("#("), take_until(")#"), tag(")#"))
 }
 
-/// Parses either a `#` line comment, or a `#(` block comment `)#`
-pub fn parse_comment(input: Span) -> SResult<Token> {
-  alt((parse_block, parse_line))(input)
+/// Parses either a `# line comment`, or a `#( block comment )#`
+pub fn parse_comment<'a>() -> impl Parser<&'a str, Output = &'a str, Error = Error<&'a str>> {
+  alt((parse_block(), line_comment()))
 }
 
 #[cfg(test)]
 mod test {
-  use super::{parse_comment, Token::*};
-  use crate::tests::TResult;
+  use super::parse_comment;
+  use crate::tests::TestResult;
+  use nom::Parser;
 
   #[test]
-  fn line() -> TResult<()> {
+  fn line() -> TestResult<'static, ()> {
     let input = "\
     # initialise loop index to 0\n\
     let i = 0;\
     ";
-    let (rest, comment) = parse_comment(input.into())?;
-    assert_eq!(rest.into_fragment(), "let i = 0;");
-    assert_eq!(comment, Comment(" initialise loop index to 0".into()));
+    let (rest, comment) = parse_comment().parse(input)?;
+    assert_eq!(rest, "let i = 0;");
+    assert_eq!(comment, " initialise loop index to 0");
     Ok(())
   }
 
   #[test]
-  fn block() -> TResult<()> {
+  fn block() -> TestResult<'static, ()> {
     let input = "\
     #(\n\
     The loop index starts at 0\n\
@@ -64,29 +63,26 @@ mod test {
     )#\n\
     let i = 0;\
     ";
-    let (rest, comment) = parse_comment(input.into())?;
+    let (rest, comment) = parse_comment().parse(input)?;
     assert_eq!(
-      rest.into_fragment(),
+      rest,
       "\n\
       let i = 0;\
       "
     );
     assert_eq!(
       comment,
-      Comment(
-        "\n\
+      "\n\
         The loop index starts at 0\n\
         and every loop iteration it will be incremented\n\
         the sum will be calculated up until the loop index\n\
         "
-        .into()
-      )
     );
     Ok(())
   }
 
   #[test]
-  fn block_close() -> TResult<()> {
+  fn block_close() -> TestResult<'static, ()> {
     // attempt a few character combinations to break the block comment
     let input = "\
     #(\n\
@@ -97,24 +93,21 @@ mod test {
     )#\n\
     log.info(\"end of comment\")\
     ";
-    let (rest, comment) = parse_comment(input.into())?;
+    let (rest, comment) = parse_comment().parse(input)?;
     assert_eq!(
-      rest.into_fragment(),
+      rest,
       "\n\
       log.info(\"end of comment\")\
       "
     );
     assert_eq!(
       comment,
-      Comment(
-        "\n\
+      "\n\
         #(\n\
         )\n\
         \"\n\
         \'\n\
         "
-        .into()
-      )
     );
     Ok(())
   }

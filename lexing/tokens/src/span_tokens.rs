@@ -1,16 +1,18 @@
-use nom::{FindSubstring, InputIter, InputLength, InputTake, Slice, UnspecializedInput};
+use nom::FindSubstring;
+use nom::Input;
+use nom::Offset;
 use std::{
-  iter::Enumerate,
-  ops::{Deref, Range, RangeFrom, RangeTo},
+  iter::{Cloned, Enumerate},
+  ops::Deref,
   slice,
 };
 
 use super::{SpanToken, Token};
 
 #[derive(Clone, Copy, PartialEq, Debug)]
-pub struct SpanTokens<'a>(&'a [SpanToken]);
+pub struct SpanTokens<'a>(pub &'a [SpanToken<'a>]);
 
-impl<'a, T: AsRef<[SpanToken]> + ?Sized> From<&'a T> for SpanTokens<'a> {
+impl<'a, T: AsRef<[SpanToken<'a>]> + ?Sized> From<&'a T> for SpanTokens<'a> {
   /// Allows conversion from containers of `SpanToken`s
   ///
   /// ```
@@ -25,20 +27,20 @@ impl<'a, T: AsRef<[SpanToken]> + ?Sized> From<&'a T> for SpanTokens<'a> {
 
 impl SpanTokens<'_> {
   /// Splits off the first token, returning the remaining section of the tokens
-  pub fn split_first(&'_ self) -> Option<(&'_ SpanToken, SpanTokens<'_>)> {
+  pub fn split_first<'a>(&'a self) -> Option<(&'a SpanToken<'a>, SpanTokens<'a>)> {
     let (first, rest) = self.0.split_first()?;
     Some((first, SpanTokens(rest)))
   }
 
   /// Splits off the last token, returning the starting section of the tokens
-  pub fn split_last(&'_ self) -> Option<(&'_ SpanToken, SpanTokens<'_>)> {
+  pub fn split_last<'a>(&'a self) -> Option<(&'a SpanToken<'a>, SpanTokens<'a>)> {
     let (last, initial) = self.0.split_last()?;
     Some((last, SpanTokens(initial)))
   }
 }
 
-impl Deref for SpanTokens<'_> {
-  type Target = [SpanToken];
+impl<'a> Deref for SpanTokens<'a> {
+  type Target = [SpanToken<'a>];
   /// Simplifies access to the underlying `SpanToken`s
   ///
   /// ```
@@ -56,71 +58,32 @@ impl Deref for SpanTokens<'_> {
   }
 }
 
-impl Slice<Range<usize>> for SpanTokens<'_> {
-  /// Accesses sub-ranges of tokens
+impl<'a> Input for SpanTokens<'a> {
+  type Item = SpanToken<'a>;
+  type Iter = Cloned<slice::Iter<'a, SpanToken<'a>>>;
+  type IterIndices = Enumerate<Cloned<slice::Iter<'a, SpanToken<'a>>>>;
+
+  /// Allows for use of `many0`, `many1`, `separated_list0` and other parsers
   ///
   /// ```
   /// # use diom_tokens::{SpanTokens, SpanToken, Token::*};
-  /// # use nom::Slice;
+  /// # use nom::Input;
   /// let array = [
   ///   LBrace, Float(1.0), Comma, Float(2.0), RBrace
   /// ].map(SpanToken::from);
-  /// let tokens = SpanTokens::from(&array);
-  ///
-  /// assert_eq!(tokens.slice(0..1), (&array[0..1]).into());
-  /// assert_eq!(tokens.slice(2..4), (&array[2..4]).into());
+  /// assert_eq!(SpanTokens::from(&array[0..1]).input_len(), 1);
+  /// assert_eq!(SpanTokens::from(&array[0..3]).input_len(), 3);
+  /// assert_eq!(SpanTokens::from(&array[0..5]).input_len(), 5);
   /// ```
-  fn slice(&self, range: Range<usize>) -> Self {
-    Self(self.0.slice(range))
+  fn input_len(&self) -> usize {
+    self.0.len()
   }
-}
 
-impl Slice<RangeFrom<isize>> for SpanTokens<'_> {
-  fn slice(&self, range: RangeFrom<isize>) -> Self {
-    let mut s = range.start;
-    if s < 0 {
-      s += self.len() as isize;
-    }
-    Self(self.0.slice((s as usize)..))
-  }
-}
-
-impl Slice<RangeTo<isize>> for SpanTokens<'_> {
-  fn slice(&self, range: RangeTo<isize>) -> Self {
-    let mut e = range.end;
-    if e < 0 {
-      e += self.len() as isize;
-    }
-    Self(self.0.slice(..(e as usize)))
-  }
-}
-
-impl Slice<RangeFrom<usize>> for SpanTokens<'_> {
-  /// Simplifies skipping of a single `SpanToken`
-  ///
-  /// ```
-  /// # use diom_tokens::{SpanTokens, SpanToken, Token::*};
-  /// # use nom::Slice;
-  /// let array = [
-  ///   LBrace, Float(1.0), Comma, Float(2.0), RBrace
-  /// ].map(SpanToken::from);
-  /// let tokens = SpanTokens::from(&array);
-  ///
-  /// assert_eq!(tokens.slice(1usize..), SpanTokens::from(&array[1..]));
-  /// assert_eq!(tokens.slice(3usize..), SpanTokens::from(&array[3..]));
-  /// assert_eq!(tokens.slice(5usize..), SpanTokens::from(&[]));
-  /// ```
-  fn slice(&self, range: RangeFrom<usize>) -> Self {
-    Self(self.0.slice(range))
-  }
-}
-
-impl InputTake for SpanTokens<'_> {
   /// Allows for use of `double`, `take`, `tag` and other common parsers
   ///
   /// ```
   /// # use diom_tokens::{SpanTokens, SpanToken, Token::*};
-  /// # use nom::{InputTake};
+  /// # use nom::Input;
   /// let array = [
   ///   LBrace, Float(1.0), Comma, Float(2.0), RBrace
   /// ].map(SpanToken::from);
@@ -130,15 +93,33 @@ impl InputTake for SpanTokens<'_> {
   /// assert_eq!(tokens.take(3usize), (&array[0..3]).into());
   /// assert_eq!(tokens.take(5usize), (&array[0..5]).into());
   /// ```
-  fn take(&self, count: usize) -> Self {
-    Self(&self.0[0..count])
+  fn take(&self, index: usize) -> Self {
+    Self(&self.0[0..index])
   }
 
   /// Allows for use of `double`, `take`, `tag` and other common parsers
   ///
   /// ```
   /// # use diom_tokens::{SpanTokens, SpanToken, Token::*};
-  /// # use nom::{InputTake, error::Error, bytes::complete::take};
+  /// # use nom::Input;
+  /// let array = [
+  ///   LBrace, Float(1.0), Comma, Float(2.0), RBrace
+  /// ].map(SpanToken::from);
+  /// let tokens = SpanTokens::from(&array);
+  ///
+  /// assert_eq!(tokens.take_from(1usize), (&array[1..]).into());
+  /// assert_eq!(tokens.take_from(3usize), (&array[3..]).into());
+  /// assert_eq!(tokens.take_from(5usize), (&array[5..]).into());
+  /// ```
+  fn take_from(&self, index: usize) -> Self {
+    Self(&self.0[index..])
+  }
+
+  /// Allows for use of `double`, `take`, `tag` and other common parsers
+  ///
+  /// ```
+  /// # use diom_tokens::{SpanTokens, SpanToken, Token::*};
+  /// # use nom::{Input, error::Error, bytes::complete::take};
   /// let array = [
   ///   LBrace, Float(1.0), Comma, Float(2.0), RBrace
   /// ].map(SpanToken::from);
@@ -162,45 +143,15 @@ impl InputTake for SpanTokens<'_> {
     let (init, tail) = self.0.split_at(count);
     (Self(tail), Self(init))
   }
-}
-
-/// Allows for the `take_till1` parser
-/// We can't really do anything special for searching,
-/// so just use the default, linear search
-impl UnspecializedInput for SpanTokens<'_> {}
-
-impl InputLength for SpanTokens<'_> {
-  /// Allows for use of `many0`, `many1`, `separated_list0` and other parsers
-  ///
-  /// ```
-  /// # use diom_tokens::{SpanTokens, SpanToken, Token::*};
-  /// # use nom::{InputLength};
-  /// let array = [
-  ///   LBrace, Float(1.0), Comma, Float(2.0), RBrace
-  /// ].map(SpanToken::from);
-  /// assert_eq!(SpanTokens::from(&array[0..1]).input_len(), 1);
-  /// assert_eq!(SpanTokens::from(&array[0..3]).input_len(), 3);
-  /// assert_eq!(SpanTokens::from(&array[0..5]).input_len(), 5);
-  /// ```
-  fn input_len(&self) -> usize {
-    self.0.len()
-  }
-}
-
-/// Needed to allow most parsers to work
-impl<'a> InputIter for SpanTokens<'a> {
-  type Item = &'a SpanToken;
-  type Iter = Enumerate<slice::Iter<'a, SpanToken>>;
-  type IterElem = slice::Iter<'a, SpanToken>;
 
   #[inline]
-  fn iter_indices(&self) -> Self::Iter {
-    self.0.iter().enumerate()
+  fn iter_indices(&self) -> Self::IterIndices {
+    self.0.iter().cloned().enumerate()
   }
 
   #[inline]
-  fn iter_elements(&self) -> Self::IterElem {
-    self.0.iter()
+  fn iter_elements(&self) -> Self::Iter {
+    self.0.iter().cloned()
   }
 
   #[inline]
@@ -208,7 +159,7 @@ impl<'a> InputIter for SpanTokens<'a> {
   where
     P: Fn(Self::Item) -> bool,
   {
-    self.0.iter().position(predicate)
+    self.0.iter().cloned().position(predicate)
   }
 
   #[inline]
@@ -216,7 +167,7 @@ impl<'a> InputIter for SpanTokens<'a> {
     if self.0.len() >= count {
       Ok(count)
     } else {
-      Err(nom::Needed::Unknown)
+      Err(nom::Needed::new(count - self.0.len()))
     }
   }
 }
@@ -230,5 +181,13 @@ impl<T: AsRef<Token>> FindSubstring<T> for SpanTokens<'_> {
       }
     }
     None
+  }
+}
+
+impl Offset for SpanTokens<'_> {
+  fn offset(&self, second: &Self) -> usize {
+    let self_ptr = self.0.as_ptr() as usize;
+    let snd_ptr = second.0.as_ptr() as usize;
+    snd_ptr - self_ptr
   }
 }

@@ -1,56 +1,48 @@
 //! Character parsers, mostly written from the [nom string example](https://github.com/rust-bakery/nom/blob/main/examples/string.rs)
-use super::{helpers::span_wrap, SResult, Span};
 use diom_tokens::{SpanToken, Token};
 use nom::{
   branch::alt,
   bytes::complete::{tag, take_while_m_n},
-  character::complete::{anychar, char, multispace1},
-  combinator::{value, verify},
-  error::{Error, ErrorKind},
+  character::complete::{char, multispace1, none_of},
+  combinator::{consumed, value},
+  error::Error,
   multi::many0,
-  sequence::{delimited, preceded},
-  Parser,
+  sequence::{delimited, preceded, terminated},
+  IResult, Parser,
 };
-use std::iter::once;
 
 /// Parses a unicode encoded character, of the form `u{XXXX}`
-fn parse_unicode(input: Span) -> SResult<char> {
-  let (input, _) = tag("u{")(input)?;
-  let (input, hex) = take_while_m_n(1, 6, |c: char| c.is_ascii_hexdigit())(input)?;
-  let (input, _) = char('}')(input)?;
+fn unicode_char<'a>() -> impl Parser<&'a str, Output = char, Error = Error<&'a str>> {
+  let parse_hex = take_while_m_n(1, 6, |c: char| c.is_ascii_hexdigit());
+  let parse_full = delimited(tag("u{"), parse_hex, char::<&str, Error<&str>>('}'));
 
-  let Ok(code) = u32::from_str_radix(hex.fragment(), 16) else {
-    return Err(nom::Err::Error(Error::new(input, ErrorKind::MapRes)));
-  };
-  let Some(result) = char::from_u32(code) else {
-    return Err(nom::Err::Error(Error::new(input, ErrorKind::MapOpt)));
-  };
-  Ok((input, result))
+  parse_full
+    .map_res(|hex| u32::from_str_radix(hex, 16))
+    .map_opt(char::from_u32)
 }
 
 /// Parses an escaped character, of the form `\t`, `\n` or `\u{fe0e}`
-fn parse_escaped(input: Span) -> SResult<char> {
-  preceded(
-    char('\\'),
-    alt((
-      parse_unicode,
-      value('\n', char('n')),
-      value('\r', char('r')),
-      value('\t', char('t')),
-      value('\u{08}', char('b')),
-      value('\u{0C}', char('f')),
-      value('\\', char('\\')),
-    )),
-  )(input)
+fn escaped_char<'a>() -> impl Parser<&'a str, Output = char, Error = Error<&'a str>> {
+  let parse_datum = alt((
+    unicode_char(),
+    value('\n', char('n')),
+    value('\r', char('r')),
+    value('\t', char('t')),
+    value('\u{08}', char('b')),
+    value('\u{0C}', char('f')),
+    value('\\', char('\\')),
+  ));
+
+  preceded(char('\\'), parse_datum)
 }
 
-/// Parses a newline escaped with a `\`
-fn parse_escaped_eol(input: Span) -> SResult<()> {
-  value((), preceded(char('\\'), multispace1))(input)
+/// Parses whitespace escaped with a `\`
+fn escaped_eol<'a>() -> impl Parser<&'a str, Output = (), Error = Error<&'a str>> {
+  value((), preceded(char('\\'), multispace1))
 }
 
 /// Parses a single character, using the syntax:
-/// ```_,ignore
+/// ```_
 /// 'a';
 /// '\
 /// a';
@@ -59,20 +51,20 @@ fn parse_escaped_eol(input: Span) -> SResult<()> {
 /// '\n';
 /// '\u{fe0e}';
 /// ```
-pub fn parse_char(input: Span) -> SResult<Token> {
-  let parse_single = delimited(
-    many0(parse_escaped_eol),
+pub fn enclosed_char<'a>() -> impl Parser<&'a str, Output = char, Error = Error<&'a str>> {
+  let parse_contents = delimited(
+    many0(escaped_eol()),
     alt((
-      parse_escaped,
+      escaped_char(),
       // escaped single quotes, i.e. '\''
       value('\'', tag("\\'")),
       // anything that's not a single quote
-      verify(anychar, |&c| c != '\''),
-    ))
-    .map(Token::Char),
-    many0(parse_escaped_eol),
+      none_of("'"),
+    )),
+    many0(escaped_eol()),
   );
-  delimited(char('\''), parse_single, char('\''))(input)
+
+  delimited(char('\''), parse_contents, char('\''))
 }
 
 /// Parses a string as an array of characters:
@@ -85,315 +77,179 @@ pub fn parse_char(input: Span) -> SResult<Token> {
 /// assert "\"hi\" \"hey\"" == ['"','h','i','"',' ','"','h','e','y','"',];
 /// assert "snowman:\u{fe0e}" == ['s','n','o','w','m','a','n',':','\u{fe0e}',];
 /// ```
-pub fn parse_string(input: Span) -> SResult<Vec<SpanToken>> {
+pub fn parse_string<'a>(input: &str) -> IResult<&str, Vec<char>> {
   let parse_single = alt((
-    parse_escaped,
+    escaped_char(),
     // escaped double quotes, i.e. "\""
     value('"', tag("\\\"")),
     // anything that's not a double quote
-    verify(anychar, |&c| c != '"'),
-  ))
-  .map(Token::Char);
-  let mut parse_content = delimited(
-    many0(parse_escaped_eol),
-    many0(preceded(many0(parse_escaped_eol), span_wrap(parse_single))),
-    many0(parse_escaped_eol),
+    none_of("\""),
+  ));
+
+  let parse_content = terminated(
+    many0(preceded(many0(escaped_eol()), parse_single)),
+    many0(escaped_eol()),
   );
 
-  let (input, lbrac) = span_wrap(char('"').map(|_| Token::LBrace))(input)?;
-  let (input, chars) = parse_content(input)?;
-  let (input, rbrac) = span_wrap(char('"').map(|_| Token::RBrace))(input)?;
-  let char_tokens = chars.into_iter().flat_map(|c| {
-    let comma = c.with_token(Token::Comma);
-    [c, comma].into_iter()
+  delimited(char('"'), parse_content, char('"')).parse(input)
+}
+
+pub fn parse_span_string(input: &str) -> IResult<&str, Vec<SpanToken<'_>>> {
+  let parse_single = consumed(alt((
+    escaped_char(),
+    value('"', tag("\\\"")),
+    none_of("\""),
+  )))
+  .map(|(origin, ch)| SpanToken {
+    token: Token::Char(ch),
+    origin,
   });
 
-  Ok((
-    input,
-    once(lbrac).chain(char_tokens).chain(once(rbrac)).collect(),
-  ))
+  let parse_content = terminated(
+    many0(preceded(many0(escaped_eol()), parse_single)),
+    many0(escaped_eol()),
+  );
+
+  delimited(char('"'), parse_content, char('"')).parse(input)
 }
 
 #[cfg(test)]
 mod test {
-  use super::{parse_char, parse_string};
-  use crate::{
-    tests::{complete_parse, TResult},
-    Token::{self, *},
-  };
+  use super::{enclosed_char, parse_string};
+  use crate::tests::TestResult;
 
   mod char {
     use super::*;
+    use nom::{combinator::all_consuming, Parser};
 
     #[test]
-    fn simple() -> TResult<()> {
-      assert_eq!(complete_parse(parse_char, "'a'")?, Char('a'));
+    fn simple() -> TestResult<'static, ()> {
+      assert_eq!(all_consuming(enclosed_char()).parse("'a'")?, ("", 'a'));
       Ok(())
     }
 
     #[test]
-    fn escaped_eol() -> TResult<()> {
+    fn escaped_eol() -> TestResult<'static, ()> {
       let input = r"'\
       a'";
-      assert_eq!(complete_parse(parse_char, input)?, Char('a'));
+      assert_eq!(all_consuming(enclosed_char()).parse(input)?, ("", 'a'));
       Ok(())
     }
 
     #[test]
-    fn escaped_multi() -> TResult<()> {
+    fn escaped_multi() -> TestResult<'static, ()> {
       let input = r"'\
       \
       a\
       '";
-      assert_eq!(complete_parse(parse_char, input)?, Char('a'));
+      assert_eq!(all_consuming(enclosed_char()).parse(input)?, ("", 'a'));
       Ok(())
     }
 
     #[test]
-    fn tab() -> TResult<()> {
-      assert_eq!(complete_parse(parse_char, r"'\t'")?, Char('\t'));
+    fn tab() -> TestResult<'static, ()> {
+      assert_eq!(all_consuming(enclosed_char()).parse(r"'\t'")?, ("", '\t'));
       Ok(())
     }
 
     #[test]
-    fn escaped_quote() -> TResult<()> {
-      assert_eq!(complete_parse(parse_char, r"'\''")?, Char('\''));
+    fn escaped_quote() -> TestResult<'static, ()> {
+      assert_eq!(all_consuming(enclosed_char()).parse(r"'\''")?, ("", '\''));
       Ok(())
     }
 
     #[test]
-    fn newline() -> TResult<()> {
-      assert_eq!(complete_parse(parse_char, r"'\n'")?, Char('\n'));
+    fn newline() -> TestResult<'static, ()> {
+      assert_eq!(all_consuming(enclosed_char()).parse(r"'\n'")?, ("", '\n'));
       Ok(())
     }
 
     #[test]
-    fn unicode() -> TResult<()> {
-      assert_eq!(complete_parse(parse_char, r"'\u{fe0e}'")?, Char('\u{fe0e}'));
+    fn unicode() -> TestResult<'static, ()> {
+      assert_eq!(
+        all_consuming(enclosed_char()).parse(r"'\u{fe0e}'")?,
+        ("", '\u{fe0e}')
+      );
       Ok(())
     }
   }
 
   mod string {
     use super::*;
+    use nom::{combinator::all_consuming, Parser};
 
     #[test]
-    fn empty() -> TResult<()> {
-      let res = complete_parse(parse_string, r#""""#)?;
-      assert_eq!(
-        Vec::from_iter(res.into_iter().map(Token::from)),
-        vec![LBrace, RBrace]
-      );
+    fn empty() -> TestResult<'static, ()> {
+      let (_, res) = all_consuming(parse_string).parse(r#""""#)?;
+      assert_eq!(res, vec![]);
       Ok(())
     }
 
     #[test]
-    fn only_escaped_eols() -> TResult<()> {
+    fn only_escaped_eols() -> TestResult<'static, ()> {
       let input = r#""\
       \
       ""#;
-      let res = complete_parse(parse_string, input)?;
+      let (_, res) = all_consuming(parse_string).parse(input)?;
+      assert_eq!(res, vec![]);
+      Ok(())
+    }
+
+    #[test]
+    fn single() -> TestResult<'static, ()> {
+      let (_, res) = all_consuming(parse_string).parse(r#""a""#)?;
+      assert_eq!(res, vec!['a']);
+      Ok(())
+    }
+
+    #[test]
+    fn multi() -> TestResult<'static, ()> {
+      let (_, res) = all_consuming(parse_string).parse(r#""hello world""#)?;
       assert_eq!(
-        Vec::from_iter(res.into_iter().map(Token::from)),
-        vec![LBrace, RBrace]
+        res,
+        vec!['h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd',]
       );
       Ok(())
     }
 
     #[test]
-    fn single() -> TResult<()> {
-      let res = complete_parse(parse_string, r#""a""#)?;
-      assert_eq!(
-        Vec::from_iter(res.into_iter().map(Token::from)),
-        vec![LBrace, Char('a'), Comma, RBrace]
-      );
+    fn eols() -> TestResult<'static, ()> {
+      let (_, res) = all_consuming(parse_string).parse(r#""foo\n bar\n""#)?;
+      assert_eq!((res), vec!['f', 'o', 'o', '\n', ' ', 'b', 'a', 'r', '\n',]);
       Ok(())
     }
 
     #[test]
-    fn multi() -> TResult<()> {
-      let res = complete_parse(parse_string, r#""hello world""#)?;
-      assert_eq!(
-        Vec::from_iter(res.into_iter().map(Token::from)),
-        vec![
-          LBrace,
-          Char('h'),
-          Comma,
-          Char('e'),
-          Comma,
-          Char('l'),
-          Comma,
-          Char('l'),
-          Comma,
-          Char('o'),
-          Comma,
-          Char(' '),
-          Comma,
-          Char('w'),
-          Comma,
-          Char('o'),
-          Comma,
-          Char('r'),
-          Comma,
-          Char('l'),
-          Comma,
-          Char('d'),
-          Comma,
-          RBrace
-        ]
-      );
-      Ok(())
-    }
-
-    #[test]
-    fn eols() -> TResult<()> {
-      let res = complete_parse(parse_string, "\"foo\n bar\n\"")?;
-      assert_eq!(
-        Vec::from_iter(res.into_iter().map(Token::from)),
-        vec![
-          LBrace,
-          Char('f'),
-          Comma,
-          Char('o'),
-          Comma,
-          Char('o'),
-          Comma,
-          Char('\n'),
-          Comma,
-          Char(' '),
-          Comma,
-          Char('b'),
-          Comma,
-          Char('a'),
-          Comma,
-          Char('r'),
-          Comma,
-          Char('\n'),
-          Comma,
-          RBrace
-        ]
-      );
-      Ok(())
-    }
-
-    #[test]
-    fn escaped_eols() -> TResult<()> {
+    fn escaped_eols() -> TestResult<'static, ()> {
       let input = r#""\
       foo\
       bar\
       ""#;
-      let res = complete_parse(parse_string, input)?;
-      assert_eq!(
-        Vec::from_iter(res.into_iter().map(Token::from)),
-        vec![
-          LBrace,
-          Char('f'),
-          Comma,
-          Char('o'),
-          Comma,
-          Char('o'),
-          Comma,
-          Char('b'),
-          Comma,
-          Char('a'),
-          Comma,
-          Char('r'),
-          Comma,
-          RBrace,
-        ]
-      );
+      let (_, res) = all_consuming(parse_string).parse(input)?;
+      assert_eq!(res, vec!['f', 'o', 'o', 'b', 'a', 'r',]);
       Ok(())
     }
 
     #[test]
-    fn tabs() -> TResult<()> {
-      let res = complete_parse(parse_string, r#""\tfoo\tbar""#)?;
-      assert_eq!(
-        Vec::from_iter(res.into_iter().map(Token::from)),
-        vec![
-          LBrace,
-          Char('\t'),
-          Comma,
-          Char('f'),
-          Comma,
-          Char('o'),
-          Comma,
-          Char('o'),
-          Comma,
-          Char('\t'),
-          Comma,
-          Char('b'),
-          Comma,
-          Char('a'),
-          Comma,
-          Char('r'),
-          Comma,
-          RBrace
-        ]
-      );
+    fn tabs() -> TestResult<'static, ()> {
+      let (_, res) = all_consuming(parse_string).parse(r#""\tfoo\tbar""#)?;
+      assert_eq!(res, vec!['\t', 'f', 'o', 'o', '\t', 'b', 'a', 'r',]);
       Ok(())
     }
 
     #[test]
-    fn quotes() -> TResult<()> {
-      let res = complete_parse(parse_string, r#""\"hi\" \"hey\"""#)?;
-      assert_eq!(
-        Vec::from_iter(res.into_iter().map(Token::from)),
-        vec![
-          LBrace,
-          Char('"'),
-          Comma,
-          Char('h'),
-          Comma,
-          Char('i'),
-          Comma,
-          Char('"'),
-          Comma,
-          Char(' '),
-          Comma,
-          Char('"'),
-          Comma,
-          Char('h'),
-          Comma,
-          Char('e'),
-          Comma,
-          Char('y'),
-          Comma,
-          Char('"'),
-          Comma,
-          RBrace,
-        ]
-      );
+    fn quotes() -> TestResult<'static, ()> {
+      let (_, res) = all_consuming(parse_string).parse(r#""\"hi\" \"hey\"""#)?;
+      assert_eq!(res, vec!['"', 'h', 'i', '"', ' ', '"', 'h', 'e', 'y', '"',]);
       Ok(())
     }
 
     #[test]
-    fn unicode() -> TResult<()> {
-      let res = complete_parse(parse_string, r#""snowman:\u{fe0e}""#)?;
+    fn unicode() -> TestResult<'static, ()> {
+      let (_, res) = all_consuming(parse_string).parse(r#""snowman:\u{fe0e}""#)?;
       assert_eq!(
-        Vec::from_iter(res.into_iter().map(Token::from)),
-        vec![
-          LBrace,
-          Char('s'),
-          Comma,
-          Char('n'),
-          Comma,
-          Char('o'),
-          Comma,
-          Char('w'),
-          Comma,
-          Char('m'),
-          Comma,
-          Char('a'),
-          Comma,
-          Char('n'),
-          Comma,
-          Char(':'),
-          Comma,
-          Char('\u{fe0e}'),
-          Comma,
-          RBrace,
-        ]
+        res,
+        vec!['s', 'n', 'o', 'w', 'm', 'a', 'n', ':', '\u{fe0e}',]
       );
       Ok(())
     }

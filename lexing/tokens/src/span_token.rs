@@ -1,13 +1,13 @@
 use super::Token;
-use std::ops::{Deref, Range};
+use std::ops::Deref;
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct SpanToken {
+pub struct SpanToken<'a> {
   pub token: Token,
-  pub span: Range<usize>,
+  pub origin: &'a str,
 }
 
-impl SpanToken {
+impl<'a> SpanToken<'a> {
   /// Returns a spanned token with the same span, but a different token.
   ///
   /// ```
@@ -25,14 +25,14 @@ impl SpanToken {
   pub fn with_token(&self, token: Token) -> Self {
     Self {
       token,
-      span: self.span.clone(),
+      origin: self.origin,
     }
   }
 }
 
-impl From<Token> for SpanToken {
+impl<'a> From<Token> for SpanToken<'a> {
   fn from(token: Token) -> Self {
-    SpanToken { token, span: 0..0 }
+    SpanToken { token, origin: "" }
   }
 }
 
@@ -68,7 +68,7 @@ impl TryFrom<Token> for f64 {
 /// let n_token: Token = s_token.into();
 /// assert_eq!(n_token, token)
 /// ```
-impl From<SpanToken> for Token {
+impl<'a> From<SpanToken<'a>> for Token {
   fn from(val: SpanToken) -> Self {
     val.token
   }
@@ -81,7 +81,7 @@ impl From<SpanToken> for Token {
 /// let token2 = SpanToken::from(StringIdent("bar".into()));
 /// assert!(token1.matches(&token2));
 /// ```
-impl AsRef<Token> for SpanToken {
+impl<'a> AsRef<Token> for SpanToken<'a> {
   fn as_ref(&self) -> &Token {
     &self.token
   }
@@ -94,7 +94,7 @@ impl AsRef<Token> for SpanToken {
 /// let token2 = SpanToken::from(StringIdent("bar".into()));
 /// assert!(token1.matches(&token2));
 /// ```
-impl Deref for SpanToken {
+impl<'a> Deref for SpanToken<'a> {
   type Target = Token;
   fn deref(&self) -> &Self::Target {
     &self.token

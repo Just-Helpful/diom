@@ -1,48 +1,44 @@
-use super::{SResult, Span};
-use diom_tokens::Token;
 use nom::{
   branch::alt,
   bytes::complete::tag,
   character::complete::{alpha1, alphanumeric1},
   combinator::recognize,
+  error::Error,
   multi::many0,
-  sequence::pair,
+  Parser,
 };
 
 /// Parses an identifier, used for variable and type creation
-pub fn parse_ident(input: Span) -> SResult<Token> {
+pub fn parse_ident<'a>() -> impl Parser<&'a str, Output = &'a str, Error = Error<&'a str>> {
   let parse_first = alt((alpha1, tag("_")));
   let parse_rest = alt((alphanumeric1, tag("_")));
-  let (input, ident) = recognize(pair(parse_first, many0(parse_rest)))(input)?;
-  Ok((input, Token::StringIdent(ident.into_fragment().into())))
+  recognize(parse_first.and(many0(parse_rest)))
 }
 
 #[cfg(test)]
 mod test {
-  use super::{parse_ident, Token::*};
-  use crate::tests::TResult;
+  use super::parse_ident;
+  use crate::tests::TestResult;
+  use nom::Parser;
 
   #[test]
-  fn letter() -> TResult<()> {
-    let (rest, ident) = parse_ident("x + 1".into())?;
-    assert_eq!(rest.into_fragment(), " + 1");
-    assert_eq!(ident, StringIdent("x".into()));
+  fn letter() -> TestResult<'static, ()> {
+    let res = parse_ident().parse("x + 1".into())?;
+    assert_eq!(res, (" + 1", "x"));
     Ok(())
   }
 
   #[test]
-  fn variable() -> TResult<()> {
-    let (rest, ident) = parse_ident("array_len + 1".into())?;
-    assert_eq!(rest.into_fragment(), " + 1");
-    assert_eq!(ident, StringIdent("array_len".into()));
+  fn variable() -> TestResult<'static, ()> {
+    let res = parse_ident().parse("array_len + 1".into())?;
+    assert_eq!(res, (" + 1", "array_len"));
     Ok(())
   }
 
   #[test]
-  fn type_var() -> TResult<()> {
-    let (rest, ident) = parse_ident("Bool): Option<T> = ...".into())?;
-    assert_eq!(rest.into_fragment(), "): Option<T> = ...");
-    assert_eq!(ident, StringIdent("Bool".into()));
+  fn type_var() -> TestResult<'static, ()> {
+    let res = parse_ident().parse("Bool): Option<T> = ...".into())?;
+    assert_eq!(res, ("): Option<T> = ...", "Bool"));
     Ok(())
   }
 }
