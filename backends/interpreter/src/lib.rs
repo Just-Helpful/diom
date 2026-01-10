@@ -3,7 +3,6 @@ use diom_syntax::{
   ident::{Ident, Name},
 };
 use std::collections::HashMap;
-use std::hash::Hash;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Value {
@@ -19,7 +18,7 @@ type Array = Vec<Value>;
 type Struct = HashMap<Name, Value>;
 
 #[derive(Debug)]
-pub enum Error<I: Hash + Eq> {
+pub enum Error<I> {
   Unsupported(&'static str),
   NotStruct(Value, Ident<I>),
   MissingField(Struct, Ident<I>),
@@ -30,7 +29,7 @@ pub enum Error<I: Hash + Eq> {
   IndexOutsideBounds(Vec<Value>, usize, usize),
 }
 
-pub fn interpret_infix<I: Hash + Eq + Clone>(
+pub fn interpret_infix<I: Clone>(
   Infix {
     value, name, other, ..
   }: Infix<I>,
@@ -108,7 +107,7 @@ pub fn interpret_infix<I: Hash + Eq + Clone>(
   }
 }
 
-pub fn interpret_stmt<I: Hash + Eq + Clone>(stmt: Statement<I>) -> Result<Value, Error<I>> {
+pub fn interpret_stmt<I: Clone>(stmt: Statement<I>) -> Result<Value, Error<I>> {
   use Statement::*;
   match stmt {
     TypeDef(_) => Err(Error::Unsupported("Types")),
@@ -116,7 +115,7 @@ pub fn interpret_stmt<I: Hash + Eq + Clone>(stmt: Statement<I>) -> Result<Value,
   }
 }
 
-pub fn interpret_expr<I: Hash + Eq + Clone>(expr: Expression<I>) -> Result<Value, Error<I>> {
+pub fn interpret_expr<I: Clone>(expr: Expression<I>) -> Result<Value, Error<I>> {
   use Expression::*;
   match expr {
     Char(c) => Ok(Value::Char(c.value)),
