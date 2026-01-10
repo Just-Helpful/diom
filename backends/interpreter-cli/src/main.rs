@@ -10,6 +10,7 @@ use diom_lexer::parse_tokens;
 use diom_parser::expressions::parse_expression;
 use diom_syntax::fmt::MultiDisplay;
 use diom_tokens::SpanTokens;
+use nom::{error::Error, Err};
 
 /// Interprets and executes the Diom language
 #[derive(Debug, Parser)]
@@ -88,7 +89,15 @@ fn main() {
     "Input was not fulled lexed, remaining input = {input}",
   );
 
-  let (input, expr) = parse_expression(SpanTokens::from(&tokens)).unwrap();
+  let result = parse_expression::<Error<SpanTokens>>(SpanTokens::from(&tokens));
+  let (input, expr) = match result {
+    Ok(res) => res,
+    Err(Err::Error(err) | Err::Failure(err)) => {
+      // let message = convert_error(code, err);
+      panic!("Input failed to parse, with the errors:\n{}", err)
+    }
+    Err(Err::Incomplete(num)) => panic!("Input required {:?} more tokens", num),
+  };
   assert!(
     input.is_empty(),
     "Input was not fully parsed, remaining input = `{input}`",
