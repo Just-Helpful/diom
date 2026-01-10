@@ -43,6 +43,8 @@ pub enum Token {
   /* Reserved keywords */
   /// A `let` keyword (for variable definition)
   Let,
+  /// A `type` keyword (for type definition)
+  Type,
   /// A `return` keyword (for early returns)
   Return,
 
@@ -117,6 +119,8 @@ impl Token {
         | (Assign, Assign)
         | (Ellipses, Ellipses)
         | (Let, Let)
+        | (Type, Type)
+        | (Return, Return)
         | (Not, Not)
         | (And, And)
         | (Or, Or)

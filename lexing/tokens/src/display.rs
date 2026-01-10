@@ -36,6 +36,7 @@ mod pretty {
 
       /* Reserved keywords */
       Token::Let => "let".style_with(KEYWORD_STYLE).fmt(f),
+      Token::Type => "type".style_with(KEYWORD_STYLE).fmt(f),
       Token::Return => "return".style_with(KEYWORD_STYLE).fmt(f),
 
       /* Operators */
@@ -86,6 +87,7 @@ fn display(tok: &Token, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 
     /* Reserved keywords */
     Token::Let => f.write_str("let"),
+    Token::Type => f.write_str("type"),
     Token::Return => f.write_str("return"),
 
     /* Operators */
@@ -124,7 +126,7 @@ impl Display for Token {
   }
 }
 
-impl Display for SpanToken {
+impl<'a> Display for SpanToken<'a> {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     self.token.fmt(f)
   }
