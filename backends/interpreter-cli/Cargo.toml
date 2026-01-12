@@ -22,3 +22,4 @@ diom-parser = { version = "0.1.0", path = "../../parsing/parser" }
 diom-syntax = { version = "0.1.0", path = "../../parsing/syntax" }
 diom-tokens = { version = "0.1.0", path = "../../lexing/tokens" }
 nom = "8.0.0"
+nom-language = "0.1.0"

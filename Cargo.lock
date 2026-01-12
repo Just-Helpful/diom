@@ -271,6 +271,7 @@ dependencies = [
  "diom-syntax",
  "diom-tokens",
  "nom 8.0.0",
+ "nom-language",
 ]
 
 [[package]]

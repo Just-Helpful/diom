@@ -6,7 +6,8 @@ use diom_lexer::parse_tokens;
 use diom_parser::expressions::parse_expression;
 use diom_syntax::fmt::OptionsDisplay;
 use diom_tokens::SpanTokens;
-use nom::{error::Error, Err};
+use nom::Err;
+use nom_language::error::VerboseError;
 use std::fs::read_to_string;
 use std::io;
 use std::path::Path;
@@ -87,12 +88,12 @@ fn main() {
     input.is_empty(),
     "Input was not fulled lexed, remaining input = {input}",
   );
+  println!("{}", SpanTokens::from(&tokens));
 
-  let result = parse_expression::<Error<SpanTokens>>(SpanTokens::from(&tokens));
+  let result = parse_expression::<VerboseError<SpanTokens>>(SpanTokens::from(&tokens));
   let (input, expr) = match result {
     Ok(res) => res,
     Err(Err::Error(err) | Err::Failure(err)) => {
-      // let message = convert_error(code, err);
       panic!("Input failed to parse, with the errors:\n{}", err)
     }
     Err(Err::Incomplete(num)) => panic!("Input required {:?} more tokens", num),
