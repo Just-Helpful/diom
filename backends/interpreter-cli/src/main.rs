@@ -1,8 +1,10 @@
 //! Diom code evaluation via the `interpreter` backend.
 use clap::{Args, Parser};
+use diom_info_traits::InfoMap;
 use diom_interpreter::interpret_expr;
 use diom_lexer::parse_tokens;
 use diom_parser::expressions::parse_expression;
+use diom_syntax::fmt::OptionsDisplay;
 use diom_tokens::SpanTokens;
 use nom::{error::Error, Err};
 use std::fs::read_to_string;
@@ -77,7 +79,6 @@ impl ProgramSource {
 
 fn main() {
   let args = MainArgs::parse();
-
   let src = ProgramSource::from(args.source);
   let code = src.fetch().unwrap();
 
@@ -100,9 +101,9 @@ fn main() {
     input.is_empty(),
     "Input was not fully parsed, remaining input = `{input}`",
   );
-  // let expr = expr.map(|src| unsafe { SpanTokens::from(&tokens).str_range(&src) }.unwrap());
-  // println!("{code}");
-  // println!("{}", expr.display());
+  let expr = expr.map(|src| unsafe { src.str_range(&code) }.unwrap());
+  println!("{code}");
+  println!("{}", expr.display());
 
   let value = interpret_expr(expr).unwrap();
   println!("{value:?}");
