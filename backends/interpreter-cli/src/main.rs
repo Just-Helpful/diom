@@ -1,16 +1,14 @@
 //! Diom code evaluation via the `interpreter` backend.
-use std::fs::read_to_string;
-use std::io;
-use std::path::Path;
-use std::str::FromStr;
-
 use clap::{Args, Parser};
 use diom_interpreter::interpret_expr;
 use diom_lexer::parse_tokens;
 use diom_parser::expressions::parse_expression;
-use diom_syntax::fmt::MultiDisplay;
 use diom_tokens::SpanTokens;
 use nom::{error::Error, Err};
+use std::fs::read_to_string;
+use std::io;
+use std::path::Path;
+use std::str::FromStr;
 
 /// Interprets and executes the Diom language
 #[derive(Debug, Parser)]
@@ -102,8 +100,9 @@ fn main() {
     input.is_empty(),
     "Input was not fully parsed, remaining input = `{input}`",
   );
-  println!("{code}");
-  println!("{}", expr.display());
+  // let expr = expr.map(|src| unsafe { SpanTokens::from(&tokens).str_range(&src) }.unwrap());
+  // println!("{code}");
+  // println!("{}", expr.display());
 
   let value = interpret_expr(expr).unwrap();
   println!("{value:?}");
