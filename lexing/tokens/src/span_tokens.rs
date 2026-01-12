@@ -40,33 +40,39 @@ impl SpanTokens<'_> {
     Some((last, SpanTokens(initial)))
   }
 
-  /// Finds the char range within the origin `str` of `other`.\
-  /// This will return `None` when `other` is not contained in `self`.
+  /// Returns the pointer range in the source `str`\
+  /// that this collections of tokens was parsed from.
+  fn str_ptr_range(&self) -> Option<Range<*const u8>> {
+    let (fst, lst) = (self.first()?, self.last()?);
+    let start_self = fst.origin.as_ptr();
+    let end_self = lst.origin.as_bytes().as_ptr_range().end;
+    Some(Range {
+      start: start_self,
+      end: end_self,
+    })
+  }
+
+  /// Finds the char range within the origin `str` `source`.\
+  /// This will return `None` when `self` is not contained in `source`.
   ///
   /// # Safety
   ///
-  /// Both `self` and `other` must be within the same allocation.
-  pub unsafe fn str_range(&self, other: &Self) -> Option<Range<usize>> {
-    let (fst, lst) = (self.first()?, self.last()?);
-    let fst_ptr_s = fst.origin.as_ptr();
-    let lst_ptr_s = lst.origin.as_bytes().as_ptr_range().end;
-    let ptrs_s = Range {
-      start: fst_ptr_s,
-      end: lst_ptr_s,
-    };
-
-    let (fst, lst) = (other.first()?, other.last()?);
-    let fst_ptr_o = fst.origin.as_ptr();
-    let lst_ptr_o = lst.origin.as_bytes().as_ptr_range().end;
-    let ptrs_o = Range {
-      start: fst_ptr_o,
-      end: lst_ptr_o,
-    };
+  /// Both `self` and `source` must be within the same allocation.
+  pub unsafe fn str_range(&self, source: impl AsRef<str>) -> Option<Range<usize>> {
+    let source = source.as_ref();
+    let ptrs_self = self.str_ptr_range()?;
+    let ptrs_src = source.as_bytes().as_ptr_range();
 
     // Safety: inherited by the `str_range` function\
     // Given that we're using `offset_from` for `u8`s,\
-    // We can relax the "aligned" the same requirement.
-    index_range(ptrs_s, ptrs_o)
+    // We can relax the "aligned the same" requirement.
+    let range = index_range(ptrs_src, ptrs_self)?;
+    let start = source[..range.start].chars().count();
+    let len = source[range].chars().count();
+    Some(Range {
+      start,
+      end: start + len,
+    })
   }
 }
 
