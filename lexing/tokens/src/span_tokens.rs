@@ -1,6 +1,8 @@
 use nom::FindSubstring;
 use nom::Input;
 use nom::Offset;
+use std::ops::Range;
+use std::ops::RangeInclusive;
 use std::{
   iter::{Cloned, Enumerate},
   ops::Deref,
@@ -37,6 +39,63 @@ impl SpanTokens<'_> {
     let (last, initial) = self.0.split_last()?;
     Some((last, SpanTokens(initial)))
   }
+
+  /// Finds the char range within the origin `str` of `other`.\
+  /// This will return `None` when `other` is not contained in `self`.
+  ///
+  /// # Safety
+  ///
+  /// Both `self` and `other` must be within the same allocation.
+  pub unsafe fn str_range(&self, other: &Self) -> Option<Range<usize>> {
+    let (fst, lst) = (self.first()?, self.last()?);
+    let fst_ptr_s = fst.origin.as_ptr();
+    let lst_ptr_s = lst.origin.as_bytes().as_ptr_range().end;
+    let ptrs_s = Range {
+      start: fst_ptr_s,
+      end: lst_ptr_s,
+    };
+
+    let (fst, lst) = (other.first()?, other.last()?);
+    let fst_ptr_o = fst.origin.as_ptr();
+    let lst_ptr_o = lst.origin.as_bytes().as_ptr_range().end;
+    let ptrs_o = Range {
+      start: fst_ptr_o,
+      end: lst_ptr_o,
+    };
+
+    // Safety: inherited by the `str_range` function\
+    // Given that we're using `offset_from` for `u8`s,\
+    // We can relax the "aligned" the same requirement.
+    index_range(ptrs_s, ptrs_o)
+  }
+}
+
+/// Finds the index range that finds the `items` range within `slice`.\
+/// Returns `None` if `items` range in **not** within `slice`.
+///
+/// # Safety
+///
+/// The pointers in `slice` and `items` must be:
+///
+/// 1. the same pointers or within the same allocation
+/// 2. both aligned to the same alignment `sizeof::<T>()`
+///
+/// See the safety requirements for ptr's offset_from
+unsafe fn index_range<T: Sized>(
+  slice: Range<*const T>,
+  items: Range<*const T>,
+) -> Option<Range<usize>> {
+  // Handle `items` range being outside `slice`
+  let incl_slice = RangeInclusive::new(slice.start, slice.end);
+  if !incl_slice.contains(&items.start) || !incl_slice.contains(&items.end) {
+    return None;
+  }
+
+  // Safety: inherited by the `index_range` function
+  let start = items.start.offset_from(slice.start) as usize;
+  let end = items.end.offset_from(slice.start) as usize;
+
+  Some(Range { start, end })
 }
 
 impl<'a> Deref for SpanTokens<'a> {
