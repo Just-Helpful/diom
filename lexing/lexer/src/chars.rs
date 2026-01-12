@@ -4,7 +4,7 @@ use nom::{
   branch::alt,
   bytes::complete::{tag, take_while_m_n},
   character::complete::{char, multispace1, none_of},
-  combinator::{consumed, value},
+  combinator::{consumed, recognize, value},
   error::Error,
   multi::many0,
   sequence::{delimited, preceded, terminated},
@@ -105,12 +105,37 @@ pub fn parse_span_string(input: &str) -> IResult<&str, Vec<SpanToken<'_>>> {
     origin,
   });
 
-  let parse_content = terminated(
-    many0(preceded(many0(escaped_eol()), parse_single)),
+  let parse_content = preceded(
     many0(escaped_eol()),
+    many0(
+      parse_single.and(recognize(many0(escaped_eol())).map(|origin| SpanToken {
+        token: Token::Comma,
+        origin,
+      })),
+    ),
   );
 
-  delimited(char('"'), parse_content, char('"')).parse(input)
+  let parse_lbrac = recognize(char('"')).map(|origin| SpanToken {
+    token: Token::LBrace,
+    origin,
+  });
+  let parse_rbrac = recognize(char('"')).map(|origin| SpanToken {
+    token: Token::RBrace,
+    origin,
+  });
+
+  let mut parser =
+    parse_lbrac
+      .and(parse_content)
+      .and(parse_rbrac)
+      .map(|((lbrac, content), rbrac)| {
+        std::iter::once(lbrac)
+          .chain(content.into_iter().flat_map(|(tok, com)| [tok, com]))
+          .chain(std::iter::once(rbrac))
+          .collect::<Vec<_>>()
+      });
+
+  parser.parse(input)
 }
 
 #[cfg(test)]

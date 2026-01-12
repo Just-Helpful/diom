@@ -3,7 +3,7 @@ use nom::{
   branch::alt,
   bytes::complete::tag,
   character::{complete::char, complete::multispace0},
-  combinator::{consumed, eof},
+  combinator::consumed,
   error::Error,
   multi::separated_list0,
   number::complete::double,
