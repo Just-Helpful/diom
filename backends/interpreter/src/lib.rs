@@ -20,6 +20,7 @@ type Struct = HashMap<Name, Value>;
 #[derive(Debug)]
 pub enum Error<I> {
   Unsupported(&'static str),
+  Type(&'static str),
   NotStruct(Value, Ident<I>),
   MissingField(Struct, Ident<I>),
   NotArray(Value, Vec<Expression<I>>),
@@ -44,37 +45,37 @@ pub fn interpret_infix<I: Clone>(
     Not => Err(Error::Unsupported("Not as infix")),
     And => {
       let (Bool(lhs), Bool(rhs)) = (value, other) else {
-        return Err(Error::Unsupported("And on non-`bool`s"));
+        return Err(Error::Type("And on non-`bool`s"));
       };
       Ok(Bool(lhs & rhs))
     }
     Or => {
       let (Bool(lhs), Bool(rhs)) = (value, other) else {
-        return Err(Error::Unsupported("Or on non-`bool`s"));
+        return Err(Error::Type("Or on non-`bool`s"));
       };
       Ok(Bool(lhs | rhs))
     }
     Plus => {
       let (Float(lhs), Float(rhs)) = (value, other) else {
-        return Err(Error::Unsupported("Plus on non-`float`s"));
+        return Err(Error::Type("Plus on non-`float`s"));
       };
       Ok(Float(lhs + rhs))
     }
     Minus => {
       let (Float(lhs), Float(rhs)) = (value, other) else {
-        return Err(Error::Unsupported("Minus on non-`float`s"));
+        return Err(Error::Type("Minus on non-`float`s"));
       };
       Ok(Float(lhs - rhs))
     }
     Times => {
       let (Float(lhs), Float(rhs)) = (value, other) else {
-        return Err(Error::Unsupported("Times on non-`float`s"));
+        return Err(Error::Type("Times on non-`float`s"));
       };
       Ok(Float(lhs * rhs))
     }
     Divide => {
       let (Float(lhs), Float(rhs)) = (value, other) else {
-        return Err(Error::Unsupported("Divide on non-`float`s"));
+        return Err(Error::Type("Divide on non-`float`s"));
       };
       Ok(Float(lhs / rhs))
     }
@@ -82,25 +83,25 @@ pub fn interpret_infix<I: Clone>(
     Ne => Ok(Bool(value != other)),
     Lt => {
       let (Float(lhs), Float(rhs)) = (value, other) else {
-        return Err(Error::Unsupported("Lt on non-`float`s"));
+        return Err(Error::Type("Lt on non-`float`s"));
       };
       Ok(Bool(lhs < rhs))
     }
     Gt => {
       let (Float(lhs), Float(rhs)) = (value, other) else {
-        return Err(Error::Unsupported("Gt on non-`float`s"));
+        return Err(Error::Type("Gt on non-`float`s"));
       };
       Ok(Bool(lhs > rhs))
     }
     LtEq => {
       let (Float(lhs), Float(rhs)) = (value, other) else {
-        return Err(Error::Unsupported("LtEq on non-`float`s"));
+        return Err(Error::Type("LtEq on non-`float`s"));
       };
       Ok(Bool(lhs <= rhs))
     }
     GtEq => {
       let (Float(lhs), Float(rhs)) = (value, other) else {
-        return Err(Error::Unsupported("GtEq on non-`float`s"));
+        return Err(Error::Type("GtEq on non-`float`s"));
       };
       Ok(Bool(lhs >= rhs))
     }
