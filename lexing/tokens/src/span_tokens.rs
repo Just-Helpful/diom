@@ -44,12 +44,9 @@ impl SpanTokens<'_> {
   /// that this collections of tokens was parsed from.
   fn str_ptr_range(&self) -> Option<Range<*const u8>> {
     let (fst, lst) = (self.first()?, self.last()?);
-    let start_self = fst.origin.as_ptr();
-    let end_self = lst.origin.as_bytes().as_ptr_range().end;
-    Some(Range {
-      start: start_self,
-      end: end_self,
-    })
+    let start = fst.origin.as_ptr();
+    let end = lst.origin.as_bytes().as_ptr_range().end;
+    Some(Range { start, end })
   }
 
   /// Finds the char range within the origin `str` `source`.\
