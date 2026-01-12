@@ -23,11 +23,16 @@ pub trait InfoRef: InfoSource {
 /// ## Safety
 ///
 /// `Self::GenericSelf<Self::Info>` must equal `Self`.
-pub unsafe trait InfoMap: InfoSource {
+pub unsafe trait InfoMap: InfoSource + Sized {
   /// A generic version of `Self`.<br>
   /// This must fulfill `GenericSelf<Self::Info> == Self`.
-  type GenericSelf<T>: InfoSource<Info = T>;
+  type GenericSelf<T>: InfoSource<Info = T> + Sized;
+
+  /// Implementation of the `InfoMap`, needed to avoid recursive instantiation errors
+  fn map_dyn<R>(self, f: &mut dyn FnMut(Self::Info) -> R) -> Self::GenericSelf<R>;
 
   /// Modifies the information attached to `self`
-  fn map<R>(self, f: impl FnMut(Self::Info) -> R) -> Self::GenericSelf<R>;
+  fn map<R>(self, mut f: impl FnMut(Self::Info) -> R) -> Self::GenericSelf<R> {
+    self.map_dyn(&mut f)
+  }
 }

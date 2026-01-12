@@ -19,7 +19,7 @@ unsafe impl<I: InfoMap> InfoMap for Option<I> {
   /// => Self
   /// ```
   type GenericSelf<T> = Option<<I as InfoMap>::GenericSelf<T>>;
-  fn map<R>(self, f: impl FnMut(Self::Info) -> R) -> Self::GenericSelf<R> {
+  fn map_dyn<R>(self, f: &mut dyn FnMut(Self::Info) -> R) -> Self::GenericSelf<R> {
     self.map(|value| value.map(f))
   }
 }

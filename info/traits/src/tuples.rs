@@ -48,7 +48,7 @@ pub mod tuple1 {
     /// => Self
     /// ```
     type GenericSelf<T> = (<I0 as InfoMap>::GenericSelf<T>,);
-    fn map<R>(self, f: impl FnMut(Self::Info) -> R) -> Self::GenericSelf<R> {
+    fn map_dyn<R>(self, f: &mut dyn FnMut(Self::Info) -> R) -> Self::GenericSelf<R> {
       (self.0.map(f),)
     }
   }
@@ -98,7 +98,7 @@ pub mod tuple2 {
       <I0 as InfoMap>::GenericSelf<T>,
       <I1 as InfoMap>::GenericSelf<T>,
     );
-    fn map<R>(self, mut f: impl FnMut(Self::Info) -> R) -> Self::GenericSelf<R> {
+    fn map_dyn<R>(self, mut f: &mut dyn FnMut(Self::Info) -> R) -> Self::GenericSelf<R> {
       (self.0.map(&mut f), self.1.map(f))
     }
   }
@@ -154,7 +154,7 @@ pub mod tuple3 {
       <I1 as InfoMap>::GenericSelf<T>,
       <I2 as InfoMap>::GenericSelf<T>,
     );
-    fn map<R>(self, mut f: impl FnMut(Self::Info) -> R) -> Self::GenericSelf<R> {
+    fn map_dyn<R>(self, mut f: &mut dyn FnMut(Self::Info) -> R) -> Self::GenericSelf<R> {
       (self.0.map(&mut f), self.1.map(&mut f), self.2.map(f))
     }
   }
@@ -217,7 +217,7 @@ pub mod tuple4 {
       <I2 as InfoMap>::GenericSelf<T>,
       <I3 as InfoMap>::GenericSelf<T>,
     );
-    fn map<R>(self, mut f: impl FnMut(Self::Info) -> R) -> Self::GenericSelf<R> {
+    fn map_dyn<R>(self, mut f: &mut dyn FnMut(Self::Info) -> R) -> Self::GenericSelf<R> {
       (
         self.0.map(&mut f),
         self.1.map(&mut f),
@@ -291,7 +291,7 @@ pub mod tuple5 {
       <I3 as InfoMap>::GenericSelf<T>,
       <I4 as InfoMap>::GenericSelf<T>,
     );
-    fn map<R>(self, mut f: impl FnMut(Self::Info) -> R) -> Self::GenericSelf<R> {
+    fn map_dyn<R>(self, mut f: &mut dyn FnMut(Self::Info) -> R) -> Self::GenericSelf<R> {
       (
         self.0.map(&mut f),
         self.1.map(&mut f),
@@ -372,7 +372,7 @@ pub mod tuple6 {
       <I4 as InfoMap>::GenericSelf<T>,
       <I5 as InfoMap>::GenericSelf<T>,
     );
-    fn map<R>(self, mut f: impl FnMut(Self::Info) -> R) -> Self::GenericSelf<R> {
+    fn map_dyn<R>(self, mut f: &mut dyn FnMut(Self::Info) -> R) -> Self::GenericSelf<R> {
       (
         self.0.map(&mut f),
         self.1.map(&mut f),

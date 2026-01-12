@@ -19,7 +19,7 @@ unsafe impl<I: InfoMap> InfoMap for Vec<I> {
   /// => Self
   /// ```
   type GenericSelf<T> = Vec<<I as InfoMap>::GenericSelf<T>>;
-  fn map<R>(self, mut f: impl FnMut(Self::Info) -> R) -> Self::GenericSelf<R> {
+  fn map_dyn<R>(self, mut f: &mut dyn FnMut(Self::Info) -> R) -> Self::GenericSelf<R> {
     self.into_iter().map(|x| InfoMap::map(x, &mut f)).collect()
   }
 }

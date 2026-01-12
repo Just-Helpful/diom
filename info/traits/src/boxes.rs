@@ -29,7 +29,8 @@ unsafe impl<I: InfoMap> InfoMap for Box<I> {
   /// => Self
   /// ```
   type GenericSelf<T> = Box<<I as InfoMap>::GenericSelf<T>>;
-  fn map<R>(self, f: impl FnMut(Self::Info) -> R) -> Self::GenericSelf<R> {
+
+  fn map_dyn<R>(self, f: &mut dyn FnMut(Self::Info) -> R) -> Self::GenericSelf<R> {
     Box::new(InfoMap::map(*self, f))
   }
 }

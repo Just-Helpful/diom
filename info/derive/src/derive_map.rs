@@ -38,14 +38,14 @@ pub fn enum_fn(name: &Ident, data: &DataEnum) -> TokenStream {
     let variant = &variant.ident;
     let span = variant.span();
     quote_spanned! {span =>
-      #name::#variant(inner) => #name::#variant(InfoMap::map(inner, f))
+      #name::#variant(inner) => #name::#variant(InfoMap::map_dyn(inner, f))
     }
   });
 
   let span = data.variants.span();
   quote_spanned! {span =>
     #[inline]
-    fn map<R>(self, f: impl FnMut(Self::Info) -> R) -> Self::GenericSelf<R> {
+    fn map_dyn<R>(self, f: &mut dyn FnMut(Self::Info) -> R) -> Self::GenericSelf<R> {
       match self {
         #(#arms),*
       }
@@ -67,7 +67,7 @@ pub fn struct_fn(name: &Ident, data: &DataStruct) -> TokenStream {
     });
 
     let value = if !ignored {
-      quote! { InfoMap::map(self.#name, &mut f) }
+      quote! { InfoMap::map_dyn(self.#name, &mut f) }
     } else {
       quote! { self.#name }
     };
@@ -76,7 +76,7 @@ pub fn struct_fn(name: &Ident, data: &DataStruct) -> TokenStream {
 
   quote! {
     #[inline]
-    fn map<R>(self, mut f: impl FnMut(Self::Info) -> R) -> Self::GenericSelf<R> {
+    fn map_dyn<R>(self, mut f: &mut dyn FnMut(Self::Info) -> R) -> Self::GenericSelf<R> {
       #name {
         #(#fields)*
         info: f(self.info)
