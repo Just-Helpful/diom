@@ -186,8 +186,9 @@ impl<T: AsRef<Token>> FindSubstring<T> for SpanTokens<'_> {
 
 impl Offset for SpanTokens<'_> {
   fn offset(&self, second: &Self) -> usize {
-    let self_ptr = self.0.as_ptr() as usize;
-    let snd_ptr = second.0.as_ptr() as usize;
-    snd_ptr - self_ptr
+    let self_ptr = self.0.as_ptr();
+    let snd_ptr = second.0.as_ptr();
+    // Safety: nom is zero-copy, so `self_ptr` and `snd_ptr` come from a shared slice
+    unsafe { snd_ptr.offset_from(self_ptr) as usize }
   }
 }
