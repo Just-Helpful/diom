@@ -5,6 +5,7 @@ pub use updater::Updater;
 mod writer;
 pub use writer::MultiWriter;
 mod str_utils;
+pub use str_utils::bracket;
 
 /// A multiline `Display` trait that supports configurable options.
 ///
@@ -59,17 +60,4 @@ impl<W: Write + Display + Default, D: MultiDisplay<W, Options: Clone>> Display
     self.0.multi_fmt(&mut w, self.1.clone())?;
     w.fmt(f)
   }
-}
-
-pub fn bracket(name: &str, width: usize) -> String {
-  if width == 0 {
-    return "".to_string();
-  }
-  if width == 1 {
-    return '╵'.to_string();
-  }
-  if width < name.len() + 2 {
-    return String::from('╰') + &"─".repeat(width - 2) + "╯";
-  }
-  String::from('╰') + &format!("{:─^1$}", name, width - 2) + "╯"
 }

@@ -19,6 +19,19 @@ pub fn byte_at(s: &str, mut i: usize) -> Result<usize, NonZero<usize>> {
   }
 }
 
+pub fn bracket(name: &str, width: usize) -> String {
+  if width == 0 {
+    return "".to_string();
+  }
+  if width == 1 {
+    return '-'.to_string();
+  }
+  if width < name.len() + 2 {
+    return String::from('(') + &" ".repeat(width - 2) + ")";
+  }
+  String::from('(') + &format!("{: ^1$}", name, width - 2) + ")"
+}
+
 #[cfg(test)]
 mod tests {
   use std::num::NonZero;
