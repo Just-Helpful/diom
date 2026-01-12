@@ -1,5 +1,5 @@
 use super::Expression;
-use crate::fmt::{bracket, MultiDisplay};
+use crate::fmt::{bracket, OptionsDisplay};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use std::ops::Range;
 
@@ -10,12 +10,12 @@ pub struct Assign<I> {
   pub info: I,
 }
 
-impl MultiDisplay for Assign<Range<usize>> {
+impl OptionsDisplay for Assign<Range<usize>> {
   type Options = usize;
-  fn multi_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
+  fn optn_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
     w.write_at([self.info.start, depth], bracket("assign", self.info.len()));
-    self.reference.multi_fmt(w, depth + 1)?;
-    self.value.multi_fmt(w, depth + 1)?;
+    self.reference.optn_fmt(w, depth + 1)?;
+    self.value.optn_fmt(w, depth + 1)?;
     Ok(())
   }
 }

@@ -1,4 +1,4 @@
-use crate::fmt::MultiDisplay;
+use crate::fmt::OptionsDisplay;
 use crate::ident::Ident;
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use std::ops::Range;
@@ -23,15 +23,15 @@ pub enum Pattern<I> {
   Var(Ident<I>),
 }
 
-impl MultiDisplay for Pattern<Range<usize>> {
+impl OptionsDisplay for Pattern<Range<usize>> {
   type Options = usize;
-  fn multi_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
+  fn optn_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
     match self {
-      Pattern::Array(a) => a.multi_fmt(w, depth),
-      Pattern::Struct(s) => s.multi_fmt(w, depth),
-      Pattern::Tuple(t) => t.multi_fmt(w, depth),
-      Pattern::Ignored(i) => i.multi_fmt(w, depth),
-      Pattern::Var(v) => v.multi_fmt(w, depth),
+      Pattern::Array(a) => a.optn_fmt(w, depth),
+      Pattern::Struct(s) => s.optn_fmt(w, depth),
+      Pattern::Tuple(t) => t.optn_fmt(w, depth),
+      Pattern::Ignored(i) => i.optn_fmt(w, depth),
+      Pattern::Var(v) => v.optn_fmt(w, depth),
     }
   }
 }

@@ -1,6 +1,6 @@
 use std::ops::Range;
 
-use crate::{fmt::MultiDisplay, ident::Ident};
+use crate::{fmt::OptionsDisplay, ident::Ident};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 
 mod arrays;
@@ -33,18 +33,18 @@ pub enum Type<I> {
   Function(Function<I>),
 }
 
-impl MultiDisplay for Type<Range<usize>> {
+impl OptionsDisplay for Type<Range<usize>> {
   type Options = usize;
-  fn multi_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
+  fn optn_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
     match self {
-      Self::Var(v) => v.multi_fmt(w, depth),
+      Self::Var(v) => v.optn_fmt(w, depth),
       //
-      Self::Array(a) => a.multi_fmt(w, depth),
-      Self::Struct(s) => s.multi_fmt(w, depth),
-      Self::Tuple(t) => t.multi_fmt(w, depth),
-      Self::Enum(e) => e.multi_fmt(w, depth),
+      Self::Array(a) => a.optn_fmt(w, depth),
+      Self::Struct(s) => s.optn_fmt(w, depth),
+      Self::Tuple(t) => t.optn_fmt(w, depth),
+      Self::Enum(e) => e.optn_fmt(w, depth),
       //
-      Self::Function(f) => f.multi_fmt(w, depth),
+      Self::Function(f) => f.optn_fmt(w, depth),
     }
   }
 }

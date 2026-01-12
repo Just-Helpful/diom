@@ -12,11 +12,11 @@ pub use str_utils::bracket;
 /// # Note
 ///
 /// This doesn't use formatter options as they're currently unstable...
-pub trait MultiDisplay<W: Write + Display = MultiWriter> {
+pub trait OptionsDisplay<W: Write + Display = MultiWriter> {
   type Options;
 
   #[must_use]
-  fn multi_fmt(&self, w: &mut W, options: Self::Options) -> std::fmt::Result;
+  fn optn_fmt(&self, w: &mut W, options: Self::Options) -> std::fmt::Result;
 
   /// Displays a `MultiDisplay`-able type with default options
   fn display(&self) -> DisplayWith<W, &Self>
@@ -36,28 +36,28 @@ pub trait MultiDisplay<W: Write + Display = MultiWriter> {
   }
 }
 
-impl<W: Write + Display, D: MultiDisplay<W>> MultiDisplay<W> for &D {
+impl<W: Write + Display, D: OptionsDisplay<W>> OptionsDisplay<W> for &D {
   type Options = D::Options;
-  fn multi_fmt(&self, w: &mut W, options: Self::Options) -> std::fmt::Result {
-    MultiDisplay::multi_fmt(*self, w, options)
+  fn optn_fmt(&self, w: &mut W, options: Self::Options) -> std::fmt::Result {
+    OptionsDisplay::optn_fmt(*self, w, options)
   }
 }
 
 /// Displays a `MultiDisplay`-able type with custom options
-pub struct DisplayWith<W: Write + Display, D: MultiDisplay<W>>(pub D, pub D::Options);
+pub struct DisplayWith<W: Write + Display, D: OptionsDisplay<W>>(pub D, pub D::Options);
 
-impl<W: Write + Display, D: MultiDisplay<W, Options: Default>> From<D> for DisplayWith<W, D> {
+impl<W: Write + Display, D: OptionsDisplay<W, Options: Default>> From<D> for DisplayWith<W, D> {
   fn from(value: D) -> Self {
     Self(value, Default::default())
   }
 }
 
-impl<W: Write + Display + Default, D: MultiDisplay<W, Options: Clone>> Display
+impl<W: Write + Display + Default, D: OptionsDisplay<W, Options: Clone>> Display
   for DisplayWith<W, D>
 {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     let mut w = W::default();
-    self.0.multi_fmt(&mut w, self.1.clone())?;
+    self.0.optn_fmt(&mut w, self.1.clone())?;
     w.fmt(f)
   }
 }

@@ -1,7 +1,7 @@
 use std::ops::Range;
 
 use crate::{
-  fmt::{bracket, MultiDisplay},
+  fmt::{bracket, OptionsDisplay},
   ident::Ident,
 };
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
@@ -24,15 +24,15 @@ pub struct Tuple<I> {
   pub info: I,
 }
 
-impl MultiDisplay for Tuple<Range<usize>> {
+impl OptionsDisplay for Tuple<Range<usize>> {
   type Options = usize;
-  fn multi_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
+  fn optn_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
     w.write_at([self.info.start, depth], bracket("tuple", self.info.len()));
     if let Some(name) = &self.name {
-      name.multi_fmt(w, depth + 1)?;
+      name.optn_fmt(w, depth + 1)?;
     }
     for ty in &self.fields {
-      ty.multi_fmt(w, depth + 1)?;
+      ty.optn_fmt(w, depth + 1)?;
     }
     Ok(())
   }

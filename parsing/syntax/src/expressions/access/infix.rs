@@ -6,7 +6,7 @@
 //! They will be translated into field calls.
 use super::Expression;
 use crate::{
-  fmt::{bracket, MultiDisplay},
+  fmt::{bracket, OptionsDisplay},
   ident::Ident,
 };
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
@@ -20,13 +20,13 @@ pub struct Infix<I> {
   pub info: I,
 }
 
-impl MultiDisplay for Infix<Range<usize>> {
+impl OptionsDisplay for Infix<Range<usize>> {
   type Options = usize;
-  fn multi_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
+  fn optn_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
     w.write_at([self.info.start, depth], bracket("infix", self.info.len()));
-    self.value.multi_fmt(w, depth + 1)?;
-    self.name.multi_fmt(w, depth + 1)?;
-    self.other.multi_fmt(w, depth + 1)?;
+    self.value.optn_fmt(w, depth + 1)?;
+    self.name.optn_fmt(w, depth + 1)?;
+    self.other.optn_fmt(w, depth + 1)?;
     Ok(())
   }
 }

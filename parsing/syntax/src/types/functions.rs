@@ -1,7 +1,7 @@
 use std::ops::Range;
 
 use crate::{
-  fmt::{bracket, MultiDisplay},
+  fmt::{bracket, OptionsDisplay},
   ident::Ident,
 };
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
@@ -15,15 +15,15 @@ pub struct Argument<I> {
   pub info: I,
 }
 
-impl MultiDisplay for Argument<Range<usize>> {
+impl OptionsDisplay for Argument<Range<usize>> {
   type Options = usize;
-  fn multi_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
+  fn optn_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
     w.write_at(
       [self.info.start, depth],
       bracket("argument", self.info.len()),
     );
-    self.name.multi_fmt(w, depth + 1)?;
-    self.annotation.multi_fmt(w, depth + 1)
+    self.name.optn_fmt(w, depth + 1)?;
+    self.annotation.optn_fmt(w, depth + 1)
   }
 }
 
@@ -44,16 +44,16 @@ pub struct Function<I> {
   pub info: I,
 }
 
-impl MultiDisplay for Function<Range<usize>> {
+impl OptionsDisplay for Function<Range<usize>> {
   type Options = usize;
-  fn multi_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
+  fn optn_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
     w.write_at(
       [self.info.start, depth],
       bracket("function", self.info.len()),
     );
     for arg in &self.arguments {
-      arg.multi_fmt(w, depth + 1)?;
+      arg.optn_fmt(w, depth + 1)?;
     }
-    self.returned.multi_fmt(w, depth + 1)
+    self.returned.optn_fmt(w, depth + 1)
   }
 }

@@ -1,6 +1,6 @@
 use std::ops::Range;
 
-use crate::{fmt::MultiDisplay, ident::Ident};
+use crate::{fmt::OptionsDisplay, ident::Ident};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 mod chars;
 pub use chars::Char;
@@ -38,29 +38,29 @@ pub enum Expression<I> {
   Monad(MonadThen<I>),
 }
 
-impl MultiDisplay for Expression<Range<usize>> {
+impl OptionsDisplay for Expression<Range<usize>> {
   type Options = usize;
-  fn multi_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
+  fn optn_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
     match self {
-      Self::Char(c) => c.multi_fmt(w, depth),
-      Self::Float(f) => f.multi_fmt(w, depth),
-      Self::Var(v) => v.multi_fmt(w, depth),
+      Self::Char(c) => c.optn_fmt(w, depth),
+      Self::Float(f) => f.optn_fmt(w, depth),
+      Self::Var(v) => v.optn_fmt(w, depth),
       //
-      Self::Group(g) => g.multi_fmt(w, depth),
-      Self::Block(b) => b.multi_fmt(w, depth),
-      Self::Assign(a) => a.multi_fmt(w, depth),
-      Self::Declare(d) => d.multi_fmt(w, depth),
-      Self::Return(r) => r.multi_fmt(w, depth),
+      Self::Group(g) => g.optn_fmt(w, depth),
+      Self::Block(b) => b.optn_fmt(w, depth),
+      Self::Assign(a) => a.optn_fmt(w, depth),
+      Self::Declare(d) => d.optn_fmt(w, depth),
+      Self::Return(r) => r.optn_fmt(w, depth),
       //
-      Self::Array(a) => a.multi_fmt(w, depth),
-      Self::Function(f) => f.multi_fmt(w, depth),
-      Self::Struct(s) => s.multi_fmt(w, depth),
+      Self::Array(a) => a.optn_fmt(w, depth),
+      Self::Function(f) => f.optn_fmt(w, depth),
+      Self::Struct(s) => s.optn_fmt(w, depth),
       //
-      Self::Call(c) => c.multi_fmt(w, depth),
-      Self::Field(f) => f.multi_fmt(w, depth),
-      Self::Index(i) => i.multi_fmt(w, depth),
-      Self::Infix(i) => i.multi_fmt(w, depth),
-      Self::Monad(m) => m.multi_fmt(w, depth),
+      Self::Call(c) => c.optn_fmt(w, depth),
+      Self::Field(f) => f.optn_fmt(w, depth),
+      Self::Index(i) => i.optn_fmt(w, depth),
+      Self::Infix(i) => i.optn_fmt(w, depth),
+      Self::Monad(m) => m.optn_fmt(w, depth),
     }
   }
 }

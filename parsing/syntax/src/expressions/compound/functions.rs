@@ -1,5 +1,5 @@
 use super::Expression;
-use crate::fmt::{bracket, MultiDisplay};
+use crate::fmt::{bracket, OptionsDisplay};
 use crate::{patterns::Pattern, types::Type};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use std::ops::Range;
@@ -11,16 +11,16 @@ pub struct Argument<I> {
   pub info: I,
 }
 
-impl MultiDisplay for Argument<Range<usize>> {
+impl OptionsDisplay for Argument<Range<usize>> {
   type Options = usize;
-  fn multi_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
+  fn optn_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
     w.write_at(
       [self.info.start, depth],
       bracket("argument", self.info.len()),
     );
-    self.pattern.multi_fmt(w, depth + 1)?;
+    self.pattern.optn_fmt(w, depth + 1)?;
     if let Some(ty) = &self.annotation {
-      ty.multi_fmt(w, depth + 1)?;
+      ty.optn_fmt(w, depth + 1)?;
     }
     Ok(())
   }
@@ -34,17 +34,17 @@ pub struct FunctionArm<I> {
   pub info: I,
 }
 
-impl MultiDisplay for FunctionArm<Range<usize>> {
+impl OptionsDisplay for FunctionArm<Range<usize>> {
   type Options = usize;
-  fn multi_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
+  fn optn_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
     w.write_at([self.info.start, depth], bracket("arm", self.info.len()));
     for arg in &self.arguments {
-      arg.multi_fmt(w, depth + 1)?;
+      arg.optn_fmt(w, depth + 1)?;
     }
     if let Some(ty) = &self.annotation {
-      ty.multi_fmt(w, depth + 1)?;
+      ty.optn_fmt(w, depth + 1)?;
     }
-    self.returned.multi_fmt(w, depth + 1)
+    self.returned.optn_fmt(w, depth + 1)
   }
 }
 
@@ -54,15 +54,15 @@ pub struct Function<I> {
   pub info: I,
 }
 
-impl MultiDisplay for Function<Range<usize>> {
+impl OptionsDisplay for Function<Range<usize>> {
   type Options = usize;
-  fn multi_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
+  fn optn_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
     w.write_at(
       [self.info.start, depth],
       bracket("function", self.info.len()),
     );
     for arm in &self.arms {
-      arm.multi_fmt(w, depth + 1)?;
+      arm.optn_fmt(w, depth + 1)?;
     }
     Ok(())
   }

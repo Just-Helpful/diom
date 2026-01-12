@@ -1,5 +1,5 @@
 use super::Expression;
-use crate::fmt::{bracket, MultiDisplay};
+use crate::fmt::{bracket, OptionsDisplay};
 use crate::{patterns::Pattern, types::Type};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use std::ops::Range;
@@ -32,17 +32,17 @@ pub struct Declare<I> {
   pub info: I,
 }
 
-impl MultiDisplay for Declare<Range<usize>> {
+impl OptionsDisplay for Declare<Range<usize>> {
   type Options = usize;
-  fn multi_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
+  fn optn_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
     w.write_at(
       [self.info.start, depth],
       bracket("declare", self.info.len()),
     );
-    self.pattern.multi_fmt(w, depth + 1)?;
+    self.pattern.optn_fmt(w, depth + 1)?;
     if let Some(ty) = &self.annotation {
-      ty.multi_fmt(w, depth + 1)?;
+      ty.optn_fmt(w, depth + 1)?;
     }
-    self.value.multi_fmt(w, depth + 1)
+    self.value.optn_fmt(w, depth + 1)
   }
 }

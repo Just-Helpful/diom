@@ -1,5 +1,5 @@
 use super::Expression;
-use crate::fmt::{bracket, MultiDisplay};
+use crate::fmt::{bracket, OptionsDisplay};
 use crate::types::TypeDef;
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use std::ops::Range;
@@ -10,12 +10,12 @@ pub enum Statement<I> {
   TypeDef(TypeDef<I>),
 }
 
-impl MultiDisplay for Statement<Range<usize>> {
+impl OptionsDisplay for Statement<Range<usize>> {
   type Options = usize;
-  fn multi_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
+  fn optn_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
     match self {
-      Statement::Expression(e) => e.multi_fmt(w, depth),
-      Statement::TypeDef(t) => t.multi_fmt(w, depth),
+      Statement::Expression(e) => e.optn_fmt(w, depth),
+      Statement::TypeDef(t) => t.optn_fmt(w, depth),
     }
   }
 }
@@ -26,12 +26,12 @@ pub struct Block<I> {
   pub info: I,
 }
 
-impl MultiDisplay for Block<Range<usize>> {
+impl OptionsDisplay for Block<Range<usize>> {
   type Options = usize;
-  fn multi_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
+  fn optn_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
     w.write_at([self.info.start, depth], bracket("block", self.info.len()));
     for stmt in &self.statements {
-      stmt.multi_fmt(w, depth + 1)?;
+      stmt.optn_fmt(w, depth + 1)?;
     }
     Ok(())
   }

@@ -1,5 +1,5 @@
 use super::Type;
-use crate::fmt::{bracket, MultiDisplay};
+use crate::fmt::{bracket, OptionsDisplay};
 use crate::ident::Ident;
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use std::ops::Range;
@@ -26,14 +26,14 @@ pub struct TypeDef<I> {
   pub info: I,
 }
 
-impl MultiDisplay for TypeDef<Range<usize>> {
+impl OptionsDisplay for TypeDef<Range<usize>> {
   type Options = usize;
-  fn multi_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
+  fn optn_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
     w.write_at(
       [self.info.start, depth],
       bracket("type def", self.info.len()),
     );
-    self.name.multi_fmt(w, depth + 1)?;
-    self.value.multi_fmt(w, depth + 1)
+    self.name.optn_fmt(w, depth + 1)?;
+    self.value.optn_fmt(w, depth + 1)
   }
 }
