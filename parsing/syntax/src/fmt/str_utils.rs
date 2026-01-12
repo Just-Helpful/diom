@@ -24,7 +24,7 @@ pub fn bracket(name: &str, width: usize) -> String {
     return "".to_string();
   }
   if width == 1 {
-    return '-'.to_string();
+    return '^'.to_string();
   }
   if width < name.len() + 2 {
     return String::from('(') + &" ".repeat(width - 2) + ")";
