@@ -2,12 +2,12 @@ use diom_tokens::{SpanToken, Token};
 use nom::{
   branch::alt,
   bytes::complete::tag,
-  character::{complete::char, multispace0},
-  combinator::consumed,
+  character::{complete::char, complete::multispace0},
+  combinator::{consumed, eof},
   error::Error,
-  multi::many0,
+  multi::separated_list0,
   number::complete::double,
-  sequence::delimited,
+  sequence::preceded,
   IResult, Parser,
 };
 
@@ -92,15 +92,11 @@ fn span_wrap<'a>(
 }
 
 pub fn parse_tokens(input: &str) -> IResult<&str, Vec<SpanToken<'_>>> {
-  let parse_item = delimited(
-    multispace0(),
-    alt((
-      span_wrap(parse_token).map(|tok| vec![tok]),
-      parse_span_string,
-    )),
-    multispace0(),
-  );
-  many0(parse_item)
+  let parse_item = alt((
+    span_wrap(parse_token).map(|tok| vec![tok]),
+    parse_span_string,
+  ));
+  preceded(multispace0, separated_list0(multispace0, parse_item))
     .map(|itemss| itemss.into_iter().flatten().collect())
     .parse(input)
 }
