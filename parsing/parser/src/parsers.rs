@@ -1,9 +1,8 @@
 use crate::common::{PResult, SpanToken, SpanTokens, Token};
 use crate::errors::SyntaxError;
 use crate::In;
-use diom_info_traits::InfoRef;
 use nom::combinator::eof;
-use nom::error::ParseError;
+use nom::error::{context, ParseError};
 use nom::{
   combinator::opt,
   error::{Error, ErrorKind},
@@ -33,12 +32,12 @@ pub fn matches<'a, E: ParseError<SpanTokens<'a>>>(
   }
 }
 
-pub fn group<'a, E: ParseError<In<'a>>>(
+pub fn group<'a, E: SyntaxError<'a>>(
   lbrac: Token,
   rbrac: Token,
 ) -> impl Fn(In<'a>) -> PResult<In<'a>, E> {
   move |input: In<'a>| {
-    let (input, _) = matches(lbrac.clone())(input)?;
+    let (input, _) = context("group open", matches(lbrac.clone())).parse(input)?;
     let mut scope = 1usize;
 
     // bracket counting and scope detection
@@ -62,20 +61,8 @@ pub fn group<'a, E: ParseError<In<'a>>>(
     };
 
     let (input, inner) = input.take_split(i);
-    let (input, _) = matches(rbrac.clone())(input)?;
+    let (input, _) = context("group close", matches(rbrac.clone())).parse(input)?;
     Ok((input, inner))
-  }
-}
-
-pub fn opt_tag_group<'a, T: InfoRef<Info = In<'a>>, E: ParseError<In<'a>>>(
-  parse_tag: impl Fn(In<'a>) -> PResult<'a, T, E>,
-  lbrac: Token,
-  rbrac: Token,
-) -> impl Fn(In<'a>) -> PResult<(Option<T>, In<'a>), E> {
-  move |input| {
-    let (input, tag) = opt(&parse_tag).parse(input)?;
-    let (input, inner) = group(lbrac.clone(), rbrac.clone())(input)?;
-    Ok((input, (tag, inner)))
   }
 }
 
@@ -90,11 +77,12 @@ where
     let mut result = vec![];
 
     while let Ok((tail, init)) = input.split_at_position::<_, Error<_>>(|t| tok.matches(t)) {
-      let (init, value) = parser(init)?;
+      let (init, value) = opt(&parser).parse(init)?;
+      let Some(value) = value else { break };
       eof(init)?;
 
       result.push(value);
-      input = tail;
+      input = tail.take_from(1usize); // skip split token
     }
 
     // allow for trailing separator

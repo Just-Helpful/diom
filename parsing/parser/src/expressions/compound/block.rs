@@ -10,6 +10,7 @@ use diom_tokens::Token;
 use nom::{
   branch::alt,
   combinator::{consumed, eof},
+  error::context,
   multi::separated_list0,
   sequence::terminated,
   Parser,
@@ -24,8 +25,14 @@ pub fn parse_statement<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Sta
 }
 
 pub fn parse_block<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Block<In<'a>>, E> {
-  let parse_inner = terminated(separated_list0(matches(Token::Semi), parse_statement), eof);
-  let parser = group(Token::LParen, Token::RParen).and_then(parse_inner);
+  let parse_inner = context(
+    "block inner",
+    terminated(separated_list0(matches(Token::Semi), parse_statement), eof),
+  );
+  let parser = context(
+    "block outer",
+    group(Token::LParen, Token::RParen).and_then(parse_inner),
+  );
 
   let (input, (info, statements)) = consumed(parser).parse(input)?;
   Ok((input, Block { statements, info }))

@@ -12,6 +12,7 @@ use diom_syntax::{
 use diom_tokens::Token;
 use nom::{
   combinator::{consumed, eof, opt},
+  error::context,
   multi::separated_list0,
   sequence::{preceded, terminated},
   Parser,
@@ -24,9 +25,9 @@ pub fn parse_struct_field<'a, E: SyntaxError<'a>>(
   input: In<'a>,
 ) -> PResult<'a, (Ident<In<'a>>, Expression<In<'a>>), E> {
   let parse_value = preceded(matches::<E>(Token::Colon), parse_expression);
-  let mut parser = parse_ident.and(opt(parse_value));
+  let parser = parse_ident.and(opt(parse_value));
 
-  let (input, (field, value)) = parser.parse(input)?;
+  let (input, (field, value)) = context("struct field", parser).parse(input)?;
   let value = value.unwrap_or_else(|| Expression::Var(field.clone()));
   Ok((input, (field, value)))
 }

@@ -13,6 +13,7 @@ use diom_tokens::Token;
 use nom::{
   branch::alt,
   combinator::{consumed, eof, opt},
+  error::context,
   multi::{many0, separated_list0},
   sequence::{preceded, separated_pair, terminated},
   Parser,
@@ -22,7 +23,8 @@ use nom::{
 /// `x: int`, `[x]: [int]`, `{x: name}: {x: number}`
 pub fn parse_parameter<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Argument<In<'a>>, E> {
   let parser = parse_pattern.and(opt(preceded(matches(Token::Colon), parse_type)));
-  let (input, (info, (pattern, annotation))) = consumed(parser).parse(input)?;
+  let (input, (info, (pattern, annotation))) =
+    context("parameter", consumed(parser)).parse(input)?;
   Ok((
     input,
     Argument {
@@ -47,7 +49,7 @@ pub fn parse_arm<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, FunctionA
   );
 
   let (input, (info, ((arguments, annotation), returned))) =
-    consumed(parse_function).parse(input)?;
+    context("function arm", consumed(parse_function)).parse(input)?;
   Ok((
     input,
     FunctionArm {
