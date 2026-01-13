@@ -38,15 +38,16 @@ pub enum Type<I> {
 
 impl CustomDisplay<SpanWriter> for Type<Range<usize>> {
   fn write(&self, w: &mut SpanWriter) -> std::fmt::Result {
+    use Type::*;
     match self {
-      Self::Var(v) => v.write(w),
+      Var(v) => v.write(w),
       //
-      Self::Array(a) => a.write(w),
-      Self::Struct(s) => s.write(w),
-      Self::Tuple(t) => t.write(w),
-      Self::Enum(e) => e.write(w),
+      Array(a) => a.write(w),
+      Struct(s) => s.write(w),
+      Tuple(t) => t.write(w),
+      Enum(e) => e.write(w),
       //
-      Self::Function(f) => f.write(w),
+      Function(f) => f.write(w),
     }
   }
 }

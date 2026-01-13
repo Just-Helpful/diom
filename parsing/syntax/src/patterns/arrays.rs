@@ -13,8 +13,8 @@ pub enum ArrayItem<I> {
 impl CustomDisplay<SpanWriter> for ArrayItem<Range<usize>> {
   fn write(&self, w: &mut SpanWriter) -> std::fmt::Result {
     match self {
-      ArrayItem::Item(i) => i.write(w),
-      ArrayItem::Rest(r) => r.write(w),
+      Self::Item(i) => i.write(w),
+      Self::Rest(r) => r.write(w),
     }
   }
 }

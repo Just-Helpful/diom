@@ -25,12 +25,13 @@ pub enum Pattern<I> {
 
 impl CustomDisplay<SpanWriter> for Pattern<Range<usize>> {
   fn write(&self, w: &mut SpanWriter) -> std::fmt::Result {
+    use Pattern::*;
     match self {
-      Pattern::Array(a) => a.write(w),
-      Pattern::Struct(s) => s.write(w),
-      Pattern::Tuple(t) => t.write(w),
-      Pattern::Ignored(i) => i.write(w),
-      Pattern::Var(v) => v.write(w),
+      Array(a) => a.write(w),
+      Struct(s) => s.write(w),
+      Tuple(t) => t.write(w),
+      Ignored(i) => i.write(w),
+      Var(v) => v.write(w),
     }
   }
 }

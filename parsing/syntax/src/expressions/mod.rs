@@ -43,26 +43,27 @@ pub enum Expression<I> {
 
 impl CustomDisplay<SpanWriter> for Expression<Range<usize>> {
   fn write(&self, w: &mut SpanWriter) -> std::fmt::Result {
+    use Expression::*;
     match self {
-      Self::Char(c) => c.write(w),
-      Self::Float(f) => f.write(w),
-      Self::Var(v) => v.write(w),
+      Char(c) => c.write(w),
+      Float(f) => f.write(w),
+      Var(v) => v.write(w),
       //
-      Self::Group(g) => g.write(w),
-      Self::Block(b) => b.write(w),
-      Self::Assign(a) => a.write(w),
-      Self::Declare(d) => d.write(w),
-      Self::Return(r) => r.write(w),
+      Group(g) => g.write(w),
+      Block(b) => b.write(w),
+      Assign(a) => a.write(w),
+      Declare(d) => d.write(w),
+      Return(r) => r.write(w),
       //
-      Self::Array(a) => a.write(w),
-      Self::Function(f) => f.write(w),
-      Self::Struct(s) => s.write(w),
+      Array(a) => a.write(w),
+      Function(f) => f.write(w),
+      Struct(s) => s.write(w),
       //
-      Self::Call(c) => c.write(w),
-      Self::Field(f) => f.write(w),
-      Self::Index(i) => i.write(w),
-      Self::Infix(i) => i.write(w),
-      Self::Monad(m) => m.write(w),
+      Call(c) => c.write(w),
+      Field(f) => f.write(w),
+      Index(i) => i.write(w),
+      Infix(i) => i.write(w),
+      Monad(m) => m.write(w),
     }
   }
 }
