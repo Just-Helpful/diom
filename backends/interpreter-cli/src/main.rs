@@ -1,7 +1,7 @@
 //! Diom code evaluation via the `interpreter` backend.
 use clap::{Args, Parser};
 use diom_info_traits::InfoMap;
-use diom_interpreter::interpret_expr;
+use diom_interpreter::Eval;
 use diom_lexer::parse_tokens;
 use diom_parser::expressions::parse_expression;
 use diom_syntax::fmt::OptionsDisplay;
@@ -106,6 +106,6 @@ fn main() {
   println!("{code}");
   println!("{}", expr.display());
 
-  let value = interpret_expr(expr).unwrap();
+  let value = expr.eval().unwrap();
   println!("{value:?}");
 }
