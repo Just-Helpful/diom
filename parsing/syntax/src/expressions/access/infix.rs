@@ -6,11 +6,11 @@
 //! They will be translated into field calls.
 use super::Expression;
 use crate::{
-  fmt::{bracket, OptionsDisplay},
+  fmt::{CustomDisplay, SpanWriter},
   ident::Ident,
 };
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
-use std::ops::Range;
+use std::{fmt::Debug, ops::Range};
 
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
 pub struct Infix<I> {
@@ -20,13 +20,11 @@ pub struct Infix<I> {
   pub info: I,
 }
 
-impl OptionsDisplay for Infix<Range<usize>> {
-  type Options = usize;
-  fn optn_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
-    w.write_at([self.info.start, depth], bracket("infix", self.info.len()));
-    self.value.optn_fmt(w, depth + 1)?;
-    self.name.optn_fmt(w, depth + 1)?;
-    self.other.optn_fmt(w, depth + 1)?;
-    Ok(())
+impl CustomDisplay<SpanWriter> for Infix<Range<usize>> {
+  fn write(&self, w: &mut SpanWriter) -> std::fmt::Result {
+    w.bracket("infix", &self.info)?;
+    self.value.write(&mut w.child())?;
+    self.name.write(&mut w.child())?;
+    self.other.write(&mut w.child())
   }
 }

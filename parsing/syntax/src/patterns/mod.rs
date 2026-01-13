@@ -1,4 +1,4 @@
-use crate::fmt::OptionsDisplay;
+use crate::fmt::{CustomDisplay, SpanWriter};
 use crate::ident::Ident;
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use std::ops::Range;
@@ -23,15 +23,14 @@ pub enum Pattern<I> {
   Var(Ident<I>),
 }
 
-impl OptionsDisplay for Pattern<Range<usize>> {
-  type Options = usize;
-  fn optn_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
+impl CustomDisplay<SpanWriter> for Pattern<Range<usize>> {
+  fn write(&self, w: &mut SpanWriter) -> std::fmt::Result {
     match self {
-      Pattern::Array(a) => a.optn_fmt(w, depth),
-      Pattern::Struct(s) => s.optn_fmt(w, depth),
-      Pattern::Tuple(t) => t.optn_fmt(w, depth),
-      Pattern::Ignored(i) => i.optn_fmt(w, depth),
-      Pattern::Var(v) => v.optn_fmt(w, depth),
+      Pattern::Array(a) => a.write(w),
+      Pattern::Struct(s) => s.write(w),
+      Pattern::Tuple(t) => t.write(w),
+      Pattern::Ignored(i) => i.write(w),
+      Pattern::Var(v) => v.write(w),
     }
   }
 }

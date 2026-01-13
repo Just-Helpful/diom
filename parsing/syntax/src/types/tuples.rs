@@ -1,7 +1,7 @@
 use std::ops::Range;
 
 use crate::{
-  fmt::{bracket, OptionsDisplay},
+  fmt::{CustomDisplay, SpanWriter},
   ident::Ident,
 };
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
@@ -24,16 +24,10 @@ pub struct Tuple<I> {
   pub info: I,
 }
 
-impl OptionsDisplay for Tuple<Range<usize>> {
-  type Options = usize;
-  fn optn_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
-    w.write_at([self.info.start, depth], bracket("tuple", self.info.len()));
-    if let Some(name) = &self.name {
-      name.optn_fmt(w, depth + 1)?;
-    }
-    for ty in &self.fields {
-      ty.optn_fmt(w, depth + 1)?;
-    }
-    Ok(())
+impl CustomDisplay<SpanWriter> for Tuple<Range<usize>> {
+  fn write(&self, w: &mut SpanWriter) -> std::fmt::Result {
+    w.bracket("tuple", &self.info)?;
+    self.name.write(&mut w.child())?;
+    self.fields.write(&mut w.child())
   }
 }

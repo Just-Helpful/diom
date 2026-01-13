@@ -1,5 +1,5 @@
 use super::{Pattern, Rest};
-use crate::fmt::{bracket, OptionsDisplay};
+use crate::fmt::{CustomDisplay, SpanWriter};
 use crate::{ident::Ident, path::Path};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use std::ops::Range;
@@ -11,13 +11,11 @@ pub struct StructField<I> {
   pub info: I,
 }
 
-impl OptionsDisplay for StructField<Range<usize>> {
-  type Options = usize;
-  fn optn_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
-    w.write_at([self.info.start, depth], bracket("field", self.info.len()));
-    self.name.optn_fmt(w, depth + 1)?;
-    self.pattern.optn_fmt(w, depth + 1)?;
-    Ok(())
+impl CustomDisplay<SpanWriter> for StructField<Range<usize>> {
+  fn write(&self, w: &mut SpanWriter) -> std::fmt::Result {
+    w.bracket("field", &self.info)?;
+    self.name.write(&mut w.child())?;
+    self.pattern.write(&mut w.child())
   }
 }
 
@@ -27,12 +25,11 @@ pub enum StructItem<I> {
   Rest(Rest<I>),
 }
 
-impl OptionsDisplay for StructItem<Range<usize>> {
-  type Options = usize;
-  fn optn_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
+impl CustomDisplay<SpanWriter> for StructItem<Range<usize>> {
+  fn write(&self, w: &mut SpanWriter) -> std::fmt::Result {
     match self {
-      StructItem::Field(f) => f.optn_fmt(w, depth),
-      StructItem::Rest(r) => r.optn_fmt(w, depth),
+      Self::Field(f) => f.write(w),
+      Self::Rest(r) => r.write(w),
     }
   }
 }
@@ -44,16 +41,10 @@ pub struct Struct<I> {
   pub info: I,
 }
 
-impl OptionsDisplay for Struct<Range<usize>> {
-  type Options = usize;
-  fn optn_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
-    w.write_at([self.info.start, depth], bracket("struct", self.info.len()));
-    if let Some(n) = &self.name {
-      n.optn_fmt(w, depth + 1)?;
-    }
-    for field in &self.fields {
-      field.optn_fmt(w, depth + 1)?;
-    }
-    Ok(())
+impl CustomDisplay<SpanWriter> for Struct<Range<usize>> {
+  fn write(&self, w: &mut SpanWriter) -> std::fmt::Result {
+    w.bracket("struct", &self.info)?;
+    self.name.write(&mut w.child())?;
+    self.fields.write(&mut w.child())
   }
 }

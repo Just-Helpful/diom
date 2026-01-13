@@ -2,7 +2,7 @@ use std::ops::Range;
 
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 
-use crate::fmt::{bracket, OptionsDisplay};
+use crate::fmt::{CustomDisplay, SpanWriter};
 
 /// The type for single characters
 ///
@@ -15,10 +15,8 @@ pub struct Char<I> {
   pub info: I,
 }
 
-impl OptionsDisplay for Char<Range<usize>> {
-  type Options = usize;
-  fn optn_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
-    w.write_at([self.info.start, depth], bracket("", self.info.len()));
-    Ok(())
+impl CustomDisplay<SpanWriter> for Char<Range<usize>> {
+  fn write(&self, w: &mut SpanWriter) -> std::fmt::Result {
+    w.bracket("char", &self.info)
   }
 }

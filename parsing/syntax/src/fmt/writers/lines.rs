@@ -1,7 +1,6 @@
-use crate::fmt::str_utils::byte_at;
-
-use super::Updater;
+use crate::fmt::Updater;
 use std::fmt::{Debug, Display, Write};
+use std::num::NonZero;
 
 /// A variant of a `Write` implementation\
 /// that supports writing and seeking to multiple lines of text
@@ -10,7 +9,7 @@ use std::fmt::{Debug, Display, Write};
 ///
 /// Increment to next line when a newline `\n` is written
 #[derive(Clone, Debug, Default)]
-pub struct MultiWriter<const FILL: char = ' '> {
+pub struct LineWriter<const FILL: char = ' '> {
   /// The line number that is currently being written to
   line: usize,
   /// The column number that is currently being written to
@@ -23,7 +22,7 @@ pub struct MultiWriter<const FILL: char = ' '> {
   lines: Vec<String>,
 }
 
-impl<const FILL: char> MultiWriter<FILL> {
+impl<const FILL: char> LineWriter<FILL> {
   /// Pushes a single character to the end of the current line
   /// SAFETY: should be used when the cursor is at the end of the line
   unsafe fn push_char(&mut self, c: char) {
@@ -90,7 +89,7 @@ impl<const FILL: char> MultiWriter<FILL> {
   }
 }
 
-impl<const FILL: char> Write for MultiWriter<FILL> {
+impl<const FILL: char> Write for LineWriter<FILL> {
   fn write_char(&mut self, c: char) -> std::fmt::Result {
     let line = &mut self.lines[self.line];
     if self.byte == line.len() {
@@ -135,7 +134,7 @@ impl<const FILL: char> Write for MultiWriter<FILL> {
   }
 }
 
-impl<const FILL: char> MultiWriter<FILL> {
+impl<const FILL: char> LineWriter<FILL> {
   /// Writes `text` to the specified cursor position, overwriting text present
   pub fn write_at(&mut self, loc: impl Updater<[usize; 2]> + Debug, text: impl AsRef<str>) {
     self.seek(loc);
@@ -143,7 +142,7 @@ impl<const FILL: char> MultiWriter<FILL> {
   }
 }
 
-impl<const FILL: char> Display for MultiWriter<FILL> {
+impl<const FILL: char> Display for LineWriter<FILL> {
   fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
     let mut iter = self.lines.iter().rev();
     let Some(line) = iter.next() else {
@@ -156,5 +155,47 @@ impl<const FILL: char> Display for MultiWriter<FILL> {
       Display::fmt(&line, f)?;
     }
     Ok(())
+  }
+}
+
+/// Returns the byte at the given character index\
+/// or the remainder of `i` after the bytes have been exhausted.
+pub fn byte_at(s: &str, mut i: usize) -> Result<usize, NonZero<usize>> {
+  let mut bytes = s
+    .char_indices()
+    .map(|idx| idx.0)
+    .chain(std::iter::once(s.len()));
+
+  loop {
+    let Some(byte) = bytes.next() else {
+      return Err(NonZero::try_from(i + 1).expect("i is a `usize`"));
+    };
+    if i == 0 {
+      return Ok(byte);
+    }
+    i -= 1;
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use std::num::NonZero;
+
+  use super::byte_at;
+
+  #[test]
+  fn test_byte_at() {
+    assert_eq!(byte_at("", 0), Ok(0));
+    assert_eq!(byte_at("s", 0), Ok(0));
+    assert_eq!(byte_at("s", 1), Ok(1));
+
+    for i in 0..(2 << 24) {
+      let Some(c) = char::from_u32(i) else { continue };
+      assert_eq!(byte_at(&c.to_string(), 1), Ok(c.len_utf8()));
+    }
+
+    for i in 1..(2 << 12) {
+      assert_eq!(byte_at("", i), Err(NonZero::try_from(i).unwrap()))
+    }
   }
 }

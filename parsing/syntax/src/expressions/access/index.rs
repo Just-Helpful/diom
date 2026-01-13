@@ -1,5 +1,5 @@
 use super::Expression;
-use crate::fmt::{bracket, OptionsDisplay};
+use crate::fmt::{CustomDisplay, SpanWriter};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use std::ops::Range;
 
@@ -10,14 +10,10 @@ pub struct Index<I> {
   pub info: I,
 }
 
-impl OptionsDisplay for Index<Range<usize>> {
-  type Options = usize;
-  fn optn_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
-    w.write_at([self.info.start, depth], bracket("index", self.info.len()));
-    self.value.optn_fmt(w, depth + 1)?;
-    for key in &self.key {
-      key.optn_fmt(w, depth + 1)?;
-    }
-    Ok(())
+impl CustomDisplay<SpanWriter> for Index<Range<usize>> {
+  fn write(&self, w: &mut SpanWriter) -> std::fmt::Result {
+    w.bracket("index", &self.info)?;
+    self.value.write(&mut w.child())?;
+    self.key.write(&mut w.child())
   }
 }

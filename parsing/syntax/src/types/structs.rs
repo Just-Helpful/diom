@@ -1,7 +1,7 @@
 use std::ops::Range;
 
 use crate::{
-  fmt::{bracket, OptionsDisplay},
+  fmt::{CustomDisplay, SpanWriter},
   ident::Ident,
 };
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
@@ -30,17 +30,11 @@ pub struct Struct<I> {
   pub info: I,
 }
 
-impl OptionsDisplay for Struct<Range<usize>> {
-  type Options = usize;
-  fn optn_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
-    w.write_at([self.info.start, depth], bracket("struct", self.info.len()));
-    if let Some(name) = &self.name {
-      name.optn_fmt(w, depth + 1)?;
-    }
-    for (name, ty) in &self.fields {
-      name.optn_fmt(w, depth + 1)?;
-      ty.optn_fmt(w, depth + 1)?;
-    }
+impl CustomDisplay<SpanWriter> for Struct<Range<usize>> {
+  fn write(&self, w: &mut SpanWriter) -> std::fmt::Result {
+    w.bracket("struct", &self.info)?;
+    self.name.write(&mut w.child())?;
+    self.fields.write(&mut w.child())?;
     Ok(())
   }
 }

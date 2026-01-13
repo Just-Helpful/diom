@@ -1,5 +1,5 @@
 use super::{Pattern, Rest};
-use crate::fmt::{bracket, OptionsDisplay};
+use crate::fmt::{CustomDisplay, SpanWriter};
 use crate::path::Path;
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use std::ops::Range;
@@ -10,12 +10,11 @@ pub enum ArrayItem<I> {
   Rest(Rest<I>),
 }
 
-impl OptionsDisplay for ArrayItem<Range<usize>> {
-  type Options = usize;
-  fn optn_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
+impl CustomDisplay<SpanWriter> for ArrayItem<Range<usize>> {
+  fn write(&self, w: &mut SpanWriter) -> std::fmt::Result {
     match self {
-      ArrayItem::Item(i) => i.optn_fmt(w, depth),
-      ArrayItem::Rest(r) => r.optn_fmt(w, depth),
+      ArrayItem::Item(i) => i.write(w),
+      ArrayItem::Rest(r) => r.write(w),
     }
   }
 }
@@ -27,16 +26,10 @@ pub struct Array<I> {
   pub info: I,
 }
 
-impl OptionsDisplay for Array<Range<usize>> {
-  type Options = usize;
-  fn optn_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
-    w.write_at([self.info.start, depth], bracket("array", self.info.len()));
-    if let Some(name) = &self.name {
-      name.optn_fmt(w, depth + 1)?;
-    }
-    for item in &self.items {
-      item.optn_fmt(w, depth + 1)?;
-    }
-    Ok(())
+impl CustomDisplay<SpanWriter> for Array<Range<usize>> {
+  fn write(&self, w: &mut SpanWriter) -> std::fmt::Result {
+    w.bracket("array", &self.info)?;
+    self.name.write(&mut w.child())?;
+    self.items.write(&mut w.child())
   }
 }

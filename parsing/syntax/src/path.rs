@@ -1,4 +1,4 @@
-use crate::fmt::{bracket, OptionsDisplay};
+use crate::fmt::{CustomDisplay, SpanWriter};
 use crate::ident::Ident;
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use std::ops::Range;
@@ -9,13 +9,9 @@ pub struct Path<I> {
   pub info: I,
 }
 
-impl OptionsDisplay for Path<Range<usize>> {
-  type Options = usize;
-  fn optn_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
-    w.write_at([self.info.start, depth], bracket("path", self.info.len()));
-    for seg in &self.segments {
-      seg.optn_fmt(w, depth + 1)?;
-    }
-    Ok(())
+impl CustomDisplay<SpanWriter> for Path<Range<usize>> {
+  fn write(&self, w: &mut SpanWriter) -> std::fmt::Result {
+    w.bracket("path", &self.info)?;
+    self.segments.write(&mut w.child())
   }
 }

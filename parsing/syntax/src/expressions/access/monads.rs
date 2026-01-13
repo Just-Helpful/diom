@@ -1,5 +1,5 @@
 use super::Expression;
-use crate::fmt::{bracket, OptionsDisplay};
+use crate::fmt::{CustomDisplay, SpanWriter};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use std::ops::Range;
 
@@ -48,14 +48,10 @@ pub struct MonadThen<I> {
   pub info: I,
 }
 
-impl OptionsDisplay for MonadThen<Range<usize>> {
-  type Options = usize;
-  fn optn_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
-    w.write_at(
-      [self.info.start, depth],
-      bracket("monad unwrap", self.info.len()),
-    );
-    Ok(())
+impl CustomDisplay<SpanWriter> for MonadThen<Range<usize>> {
+  fn write(&self, w: &mut SpanWriter) -> std::fmt::Result {
+    w.bracket("monad unwrap", &self.info)?;
+    self.value.write(&mut w.child())
   }
 }
 
@@ -97,13 +93,9 @@ pub struct MonadResult<I> {
   pub info: I,
 }
 
-impl OptionsDisplay for MonadResult<Range<usize>> {
-  type Options = usize;
-  fn optn_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
-    w.write_at(
-      [self.info.start, depth],
-      bracket("monad result", self.info.len()),
-    );
-    self.value.optn_fmt(w, depth + 1)
+impl CustomDisplay<SpanWriter> for MonadResult<Range<usize>> {
+  fn write(&self, w: &mut SpanWriter) -> std::fmt::Result {
+    w.bracket("monad result", &self.info)?;
+    self.value.write(&mut w.child())
   }
 }

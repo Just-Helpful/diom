@@ -1,6 +1,9 @@
 use std::ops::Range;
 
-use crate::{fmt::OptionsDisplay, ident::Ident};
+use crate::{
+  fmt::{CustomDisplay, SpanWriter},
+  ident::Ident,
+};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 
 mod arrays;
@@ -33,18 +36,17 @@ pub enum Type<I> {
   Function(Function<I>),
 }
 
-impl OptionsDisplay for Type<Range<usize>> {
-  type Options = usize;
-  fn optn_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
+impl CustomDisplay<SpanWriter> for Type<Range<usize>> {
+  fn write(&self, w: &mut SpanWriter) -> std::fmt::Result {
     match self {
-      Self::Var(v) => v.optn_fmt(w, depth),
+      Self::Var(v) => v.write(w),
       //
-      Self::Array(a) => a.optn_fmt(w, depth),
-      Self::Struct(s) => s.optn_fmt(w, depth),
-      Self::Tuple(t) => t.optn_fmt(w, depth),
-      Self::Enum(e) => e.optn_fmt(w, depth),
+      Self::Array(a) => a.write(w),
+      Self::Struct(s) => s.write(w),
+      Self::Tuple(t) => t.write(w),
+      Self::Enum(e) => e.write(w),
       //
-      Self::Function(f) => f.optn_fmt(w, depth),
+      Self::Function(f) => f.write(w),
     }
   }
 }

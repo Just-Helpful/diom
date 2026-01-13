@@ -1,5 +1,5 @@
 use super::{Pattern, Rest};
-use crate::fmt::{bracket, OptionsDisplay};
+use crate::fmt::{CustomDisplay, SpanWriter};
 use crate::path::Path;
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use std::ops::Range;
@@ -10,12 +10,11 @@ pub enum TupleItem<I> {
   Rest(Rest<I>),
 }
 
-impl OptionsDisplay for TupleItem<Range<usize>> {
-  type Options = usize;
-  fn optn_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
+impl CustomDisplay<SpanWriter> for TupleItem<Range<usize>> {
+  fn write(&self, w: &mut SpanWriter) -> std::fmt::Result {
     match self {
-      TupleItem::Field(f) => f.optn_fmt(w, depth),
-      TupleItem::Rest(r) => r.optn_fmt(w, depth),
+      Self::Field(f) => f.write(w),
+      Self::Rest(r) => r.write(w),
     }
   }
 }
@@ -27,16 +26,10 @@ pub struct Tuple<I> {
   pub info: I,
 }
 
-impl OptionsDisplay for Tuple<Range<usize>> {
-  type Options = usize;
-  fn optn_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
-    w.write_at([self.info.start, depth], bracket("tuple", self.info.len()));
-    if let Some(name) = &self.name {
-      name.optn_fmt(w, depth + 1)?;
-    }
-    for field in &self.fields {
-      field.optn_fmt(w, depth + 1)?;
-    }
-    Ok(())
+impl CustomDisplay<SpanWriter> for Tuple<Range<usize>> {
+  fn write(&self, w: &mut SpanWriter) -> std::fmt::Result {
+    w.bracket("tuple", &self.info)?;
+    self.name.write(&mut w.child())?;
+    self.fields.write(&mut w.child())
   }
 }

@@ -1,7 +1,7 @@
 use std::ops::Range;
 
 use crate::{
-  fmt::{bracket, OptionsDisplay},
+  fmt::{CustomDisplay, SpanWriter},
   ident::Ident,
 };
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
@@ -15,15 +15,11 @@ pub struct Argument<I> {
   pub info: I,
 }
 
-impl OptionsDisplay for Argument<Range<usize>> {
-  type Options = usize;
-  fn optn_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
-    w.write_at(
-      [self.info.start, depth],
-      bracket("argument", self.info.len()),
-    );
-    self.name.optn_fmt(w, depth + 1)?;
-    self.annotation.optn_fmt(w, depth + 1)
+impl CustomDisplay<SpanWriter> for Argument<Range<usize>> {
+  fn write(&self, w: &mut SpanWriter) -> std::fmt::Result {
+    w.bracket("argument", &self.info)?;
+    self.name.write(&mut w.child())?;
+    self.annotation.write(&mut w.child())
   }
 }
 
@@ -44,16 +40,10 @@ pub struct Function<I> {
   pub info: I,
 }
 
-impl OptionsDisplay for Function<Range<usize>> {
-  type Options = usize;
-  fn optn_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
-    w.write_at(
-      [self.info.start, depth],
-      bracket("function", self.info.len()),
-    );
-    for arg in &self.arguments {
-      arg.optn_fmt(w, depth + 1)?;
-    }
-    self.returned.optn_fmt(w, depth + 1)
+impl CustomDisplay<SpanWriter> for Function<Range<usize>> {
+  fn write(&self, w: &mut SpanWriter) -> std::fmt::Result {
+    w.bracket("function", &self.info)?;
+    self.arguments.write(&mut w.child())?;
+    self.returned.write(&mut w.child())
   }
 }

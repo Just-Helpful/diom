@@ -1,7 +1,7 @@
 use std::ops::Range;
 
 use crate::{
-  fmt::{bracket, OptionsDisplay},
+  fmt::{CustomDisplay, SpanWriter},
   ident::Ident,
 };
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
@@ -34,17 +34,10 @@ pub struct Enum<I> {
   pub info: I,
 }
 
-impl OptionsDisplay for Enum<Range<usize>> {
-  type Options = usize;
-  fn optn_fmt(&self, w: &mut crate::fmt::MultiWriter, depth: Self::Options) -> std::fmt::Result {
-    w.write_at([self.info.start, depth], bracket("enum", self.info.len()));
-    if let Some(name) = &self.name {
-      name.optn_fmt(w, depth + 1)?;
-    }
-    for (name, ty) in &self.variants {
-      name.optn_fmt(w, depth + 1)?;
-      ty.optn_fmt(w, depth + 1)?;
-    }
-    Ok(())
+impl CustomDisplay<SpanWriter> for Enum<Range<usize>> {
+  fn write(&self, w: &mut SpanWriter) -> std::fmt::Result {
+    w.bracket("enum", &self.info)?;
+    self.name.write(&mut w.child())?;
+    self.variants.write(&mut w.child())
   }
 }
