@@ -16,11 +16,19 @@ This is mostly a language written because:
     if we support string conversion on these, we can solve most\
     of the standard string injection attacks by not converting to\
     strings until the last possible second.
-- [ ] pretty printing for Tokens
-- [ ] pretty printing for ASTs
+
+### Lexing
+
+- [x] pretty printing for Tokens
+
+### Parsing
+
+- [x] pretty printing for ASTs
+- [ ] printing ASTs as code
 
 ### Interpreter
 
 - [x] create a basic interpreter backend
-- [ ] add block / group evaluation
-- [ ] add variable definitions
+- [x] add block / group evaluation
+- [x] add variable definitions
+- [ ] add function calls
