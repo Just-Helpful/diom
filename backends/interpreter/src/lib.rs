@@ -1,8 +1,9 @@
 use diom_syntax::{
   expressions::{Expression, Infix, Statement},
   ident::{Ident, Name},
+  patterns::Pattern,
 };
-use std::collections::HashMap;
+use std::{collections::HashMap, ops::Deref};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Value {
@@ -23,6 +24,7 @@ type Scope = HashMap<Name, Value>;
 pub enum Error<I> {
   Unsupported(&'static str),
   Type(&'static str),
+  MissingVar(Ident<I>),
   NotStruct(Value, Ident<I>),
   MissingField(Struct, Ident<I>),
   NotArray(Value, Vec<Expression<I>>),
@@ -154,7 +156,12 @@ impl<I: Clone> Eval<Scope> for Expression<I> {
     match self {
       Char(c) => Ok(Value::Char(c.value)),
       Float(f) => Ok(Value::Float(f.value)),
-      Var(_) => Err(Error::Unsupported("Variables")),
+      Var(v) => {
+        let Some(value) = state.get(&v.name) else {
+          return Err(Error::MissingVar(v.clone()));
+        };
+        Ok(value.clone())
+      }
       Group(group) => group.value.eval_with(state),
       Block(block) => {
         let mut inner = state.clone();
@@ -163,8 +170,38 @@ impl<I: Clone> Eval<Scope> for Expression<I> {
           .iter()
           .try_fold(Value::Unit, |_, stmt| stmt.eval_with(&mut inner))
       }
-      Assign(_) => Err(Error::Unsupported("Assignments")),
-      Declare(_) => Err(Error::Unsupported("Declarations")),
+      Assign(a) => {
+        let Expression::Var(v) = a.reference.deref() else {
+          return Err(Error::Unsupported("Assignments to non-variables"));
+        };
+        let value = a.value.eval_with(state)?;
+        let Some(entry) = state.get_mut(&v.name) else {
+          return Err(Error::Unsupported("Assignment to non-existant variables"));
+        };
+        // @todo this breaks reference updates, i.e. this fails:
+        // `(x = {value: 5}).value = 3; assert(x.value == 3)`
+        // You'll probably want to an `Rc<RefCell<...>>` or similar
+        *entry = value.clone();
+        Ok(value)
+      }
+      Declare(d) => {
+        let Pattern::Var(v) = &d.pattern else {
+          return Err(Error::Unsupported("`let` for non-variables"));
+        };
+        let value = d.value.eval_with(state)?;
+        state.insert(v.name.clone(), value);
+        Ok(Value::Bool(true)) // pattern matching succeeded
+
+        // @todo I probably need to consider what `let` statements / pattern matching
+        // should "return" as a value. Currently a `bool` doesn't really work too well
+        // with the type system when we try to use:
+        // ```
+        // let Some(x) = value else { return None }
+        // // or
+        // if let Some(x) = value { x + 1 }
+        // ```
+        // because we don't have type guarantees that `x` exists with a `bool`
+      }
       Return(_) => Err(Error::Unsupported("Returns")),
       Array(arr) => arr
         .contents
