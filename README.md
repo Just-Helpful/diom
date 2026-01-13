@@ -25,6 +25,8 @@ This is mostly a language written because:
 
 - [x] pretty printing for ASTs
 - [ ] printing ASTs as code
+- [ ] property testing on AST -> code -> AST round trip
+- [ ] use `nom-language`'s `precedence` parser
 
 ### Interpreter
 
