@@ -18,14 +18,19 @@ use nom::sequence::{preceded, terminated};
 use nom::{branch::alt, combinator::eof, error::context, multi::separated_list0, Parser};
 
 mod compound;
-mod literals;
-mod scopes;
 use compound::parse_compound_value;
+mod literals;
 use literals::parse_literal_value;
+mod scopes;
+use scopes::parse_scope_value;
 
 /// Values that have clear start + end delimiters
 pub fn parse_value<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Expression<In<'a>>, E> {
-  context("value", alt((parse_literal_value, parse_compound_value))).parse(input)
+  context(
+    "value",
+    alt((parse_scope_value, parse_literal_value, parse_compound_value)),
+  )
+  .parse(input)
 }
 
 /// Merges two slices into one
