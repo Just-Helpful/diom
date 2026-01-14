@@ -237,6 +237,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "diom-fmt"
+version = "0.1.0"
+
+[[package]]
 name = "diom-info-derive"
 version = "0.1.0"
 dependencies = [
@@ -264,6 +268,7 @@ name = "diom-interpreter-main"
 version = "0.1.0"
 dependencies = [
  "clap",
+ "diom-fmt",
  "diom-info-traits",
  "diom-interpreter",
  "diom-lexer",
@@ -303,6 +308,7 @@ dependencies = [
 name = "diom-syntax"
 version = "0.1.0"
 dependencies = [
+ "diom-fmt",
  "diom-info-derive",
  "diom-info-traits",
 ]

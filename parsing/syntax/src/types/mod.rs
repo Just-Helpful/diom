@@ -1,10 +1,7 @@
-use std::ops::Range;
-
-use crate::{
-  fmt::{CustomDisplay, SpanWriter},
-  ident::Ident,
-};
+use crate::ident::Ident;
+use diom_fmt::{CustomDisplay, SpanWriter};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
+use std::ops::Range;
 
 mod arrays;
 pub use arrays::Array;

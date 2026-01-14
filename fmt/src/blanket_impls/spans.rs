@@ -1,4 +1,4 @@
-use crate::fmt::{CustomDisplay, SpanWriter};
+use crate::{CustomDisplay, SpanWriter};
 
 impl<T: CustomDisplay<SpanWriter>> CustomDisplay<SpanWriter> for Option<T> {
   fn write(&self, w: &mut SpanWriter) -> std::fmt::Result {

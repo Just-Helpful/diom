@@ -4,7 +4,6 @@
 /// 1. nodes for Diom typing
 /// 2. nodes for Diom values
 pub mod expressions;
-pub mod fmt;
 pub mod ident;
 pub mod path;
 pub mod patterns;

@@ -1,8 +1,6 @@
-use std::ops::Range;
-
+use diom_fmt::{CustomDisplay, SpanWriter};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
-
-use crate::fmt::{CustomDisplay, SpanWriter};
+use std::ops::Range;
 
 /// The type for floating point numbers
 ///

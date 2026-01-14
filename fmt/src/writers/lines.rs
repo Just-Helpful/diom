@@ -1,4 +1,4 @@
-use crate::fmt::Updater;
+use crate::Updater;
 use std::fmt::{Debug, Display, Write};
 use std::num::NonZero;
 

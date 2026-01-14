@@ -15,6 +15,7 @@ readme.workspace = true
 
 [dependencies]
 clap = { version = "4.5.53", features = ["derive"] }
+diom-fmt = { version = "0.1.0", path = "../../fmt" }
 diom-info-traits = { version = "0.1.0", path = "../../info/traits" }
 diom-interpreter = { version = "0.1.0", path = "../interpreter" }
 diom-lexer = { version = "0.1.0", path = "../../lexing/lexer" }

@@ -9,6 +9,7 @@ members = [
   "backends/interpreter",
   "backends/interpreter-cli",
   "typing",
+  "fmt",
 ]
 resolver = "2"
 

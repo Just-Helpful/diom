@@ -1,0 +1,5 @@
+[package]
+name = "diom-fmt"
+version = "0.1.0"
+description = "Custom formatters for Diom syntax"
+edition = "2021"

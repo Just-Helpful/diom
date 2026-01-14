@@ -4,8 +4,6 @@ version = "0.1.0"
 description = "Parses the Diom language to produce an AST"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 cached = "0.51.3"
 cargo-readme = "3.3.1"

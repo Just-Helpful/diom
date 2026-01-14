@@ -1,6 +1,6 @@
 use super::{Pattern, Rest};
-use crate::fmt::{CustomDisplay, SpanWriter};
 use crate::path::Path;
+use diom_fmt::{CustomDisplay, SpanWriter};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use std::ops::Range;
 

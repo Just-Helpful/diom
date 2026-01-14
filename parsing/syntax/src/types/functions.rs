@@ -1,12 +1,8 @@
-use std::ops::Range;
-
-use crate::{
-  fmt::{CustomDisplay, SpanWriter},
-  ident::Ident,
-};
-use diom_info_traits::{InfoMap, InfoRef, InfoSource};
-
 use super::Type;
+use crate::ident::Ident;
+use diom_fmt::{CustomDisplay, SpanWriter};
+use diom_info_traits::{InfoMap, InfoRef, InfoSource};
+use std::ops::Range;
 
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
 pub struct Argument<I> {

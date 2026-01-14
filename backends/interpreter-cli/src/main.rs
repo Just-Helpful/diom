@@ -1,10 +1,10 @@
 //! Diom code evaluation via the `interpreter` backend.
 use clap::{Args, Parser};
+use diom_fmt::CustomDisplay;
 use diom_info_traits::InfoMap;
 use diom_interpreter::Eval;
 use diom_lexer::parse_tokens;
 use diom_parser::expressions::parse_expression;
-use diom_syntax::fmt::CustomDisplay;
 use diom_tokens::SpanTokens;
 use nom::Err;
 use nom_language::error::VerboseError;
