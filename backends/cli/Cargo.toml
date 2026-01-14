@@ -1,5 +1,5 @@
 [package]
-name = "diom-interpreter-main"
+name = "diom-cli"
 rust-version.workspace = true
 version.workspace = true
 edition.workspace = true

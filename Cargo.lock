@@ -237,6 +237,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "diom-cli"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "diom-fmt",
+ "diom-info-traits",
+ "diom-interpreter",
+ "diom-lexer",
+ "diom-parser",
+ "diom-syntax",
+ "diom-tokens",
+ "nom 8.0.0",
+ "nom-language",
+]
+
+[[package]]
 name = "diom-fmt"
 version = "0.1.0"
 
@@ -261,22 +277,6 @@ name = "diom-interpreter"
 version = "0.1.0"
 dependencies = [
  "diom-syntax",
-]
-
-[[package]]
-name = "diom-interpreter-main"
-version = "0.1.0"
-dependencies = [
- "clap",
- "diom-fmt",
- "diom-info-traits",
- "diom-interpreter",
- "diom-lexer",
- "diom-parser",
- "diom-syntax",
- "diom-tokens",
- "nom 8.0.0",
- "nom-language",
 ]
 
 [[package]]

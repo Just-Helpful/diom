@@ -7,7 +7,7 @@ members = [
   "parsing/parser",
   "parsing/syntax",
   "backends/interpreter",
-  "backends/interpreter-cli",
+  "backends/cli",
   "typing",
   "fmt",
 ]
