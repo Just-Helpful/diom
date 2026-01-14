@@ -88,6 +88,7 @@ fn main() {
     input.is_empty(),
     "Input was not fulled lexed, remaining input = {input}",
   );
+  println!("\n# Lexed Tokens");
   println!("{}", SpanTokens::from(&tokens));
 
   let result = parse_expression::<VerboseError<SpanTokens>>(SpanTokens::from(&tokens));
@@ -103,6 +104,7 @@ fn main() {
     "Input was not fully parsed, remaining input = `{input}`",
   );
   let expr = expr.map(|src| unsafe { src.str_range(&code) }.unwrap());
+  println!("\n# Parsed Syntax");
   println!("{code}");
   println!("{}", expr.display());
 
