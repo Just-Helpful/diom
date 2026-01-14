@@ -9,7 +9,7 @@ mod floats;
 pub use floats::Float;
 
 mod access;
-pub use access::{Call, Field, Index, Infix, MonadThen};
+pub use access::{Call, Field, Index, Infix, MonadResult, MonadThen};
 mod blocks;
 pub use blocks::{Assign, Block, Declare, Group, Return, Statement};
 mod compound;
@@ -37,6 +37,7 @@ pub enum Expression<I> {
   Index(Index<I>),
   Infix(Infix<I>),
   Monad(MonadThen<I>),
+  Result(MonadResult<I>),
 }
 
 impl CustomDisplay<SpanWriter> for Expression<Range<usize>> {
@@ -62,6 +63,7 @@ impl CustomDisplay<SpanWriter> for Expression<Range<usize>> {
       Index(i) => i.write(w),
       Infix(i) => i.write(w),
       Monad(m) => m.write(w),
+      Result(r) => r.write(w),
     }
   }
 }

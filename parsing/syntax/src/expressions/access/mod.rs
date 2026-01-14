@@ -9,4 +9,4 @@ pub use index::Index;
 pub mod infix;
 pub use infix::Infix;
 pub mod monads;
-pub use monads::MonadThen;
+pub use monads::{MonadResult, MonadThen};

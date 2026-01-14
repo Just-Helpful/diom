@@ -87,7 +87,7 @@ impl CustomDisplay<SpanWriter> for MonadThen<Range<usize>> {
 /// };
 /// assert optn_x == Some [5];
 /// ```
-#[derive(Clone, InfoSource, InfoRef, InfoMap)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
 pub struct MonadResult<I> {
   pub value: Box<Expression<I>>,
   pub info: I,

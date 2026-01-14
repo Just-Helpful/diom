@@ -152,25 +152,24 @@ impl<I: Clone> Eval<Scope> for Expression<I> {
   type Error = Error<I>;
 
   fn eval_with(&self, state: &mut Scope) -> Result<Self::Output, Self::Error> {
-    use Expression::*;
     match self {
-      Char(c) => Ok(Value::Char(c.value)),
-      Float(f) => Ok(Value::Float(f.value)),
-      Var(v) => {
+      Self::Char(c) => Ok(Value::Char(c.value)),
+      Self::Float(f) => Ok(Value::Float(f.value)),
+      Self::Var(v) => {
         let Some(value) = state.get(&v.name) else {
           return Err(Error::MissingVar(v.clone()));
         };
         Ok(value.clone())
       }
-      Group(group) => group.value.eval_with(state),
-      Block(block) => {
+      Self::Group(group) => group.value.eval_with(state),
+      Self::Block(block) => {
         let mut inner = state.clone();
         block
           .statements
           .iter()
           .try_fold(Value::Unit, |_, stmt| stmt.eval_with(&mut inner))
       }
-      Assign(a) => {
+      Self::Assign(a) => {
         let Expression::Var(v) = a.reference.deref() else {
           return Err(Error::Unsupported("Assignments to non-variables"));
         };
@@ -184,7 +183,7 @@ impl<I: Clone> Eval<Scope> for Expression<I> {
         *entry = value.clone();
         Ok(value)
       }
-      Declare(d) => {
+      Self::Declare(d) => {
         let Pattern::Var(v) = &d.pattern else {
           return Err(Error::Unsupported("`let` for non-variables"));
         };
@@ -202,22 +201,22 @@ impl<I: Clone> Eval<Scope> for Expression<I> {
         // ```
         // because we don't have type guarantees that `x` exists with a `bool`
       }
-      Return(_) => Err(Error::Unsupported("Returns")),
-      Array(arr) => arr
+      Self::Return(_) => Err(Error::Unsupported("Returns")),
+      Self::Array(arr) => arr
         .contents
         .iter()
         .map(|e| e.eval_with(state))
         .collect::<Result<Vec<Value>, _>>()
         .map(Value::Array),
-      Function(_) => Err(Error::Unsupported("Functions")),
-      Struct(data) => data
+      Self::Function(_) => Err(Error::Unsupported("Functions")),
+      Self::Struct(data) => data
         .fields
         .iter()
         .map(|(ident, item)| item.eval_with(state).map(|val| (ident.name.clone(), val)))
         .collect::<Result<HashMap<Name, Value>, _>>()
         .map(Value::Struct),
-      Call(_) => Err(Error::Unsupported("Functions")),
-      Field(field) => {
+      Self::Call(_) => Err(Error::Unsupported("Functions")),
+      Self::Field(field) => {
         let value = field.value.eval_with(state)?;
         let Value::Struct(value) = value else {
           return Err(Error::NotStruct(value, field.name.clone()));
@@ -227,7 +226,7 @@ impl<I: Clone> Eval<Scope> for Expression<I> {
         };
         Ok(value.clone())
       }
-      Index(index) => {
+      Self::Index(index) => {
         let mut index = index.clone();
         let value = index.value.eval_with(state)?;
         let Value::Array(value) = value else {
@@ -253,8 +252,9 @@ impl<I: Clone> Eval<Scope> for Expression<I> {
         }
         return Ok(value[idx].clone());
       }
-      Infix(infix) => infix.eval_with(state),
-      Monad(_) => Err(Error::Unsupported("Monads")),
+      Self::Infix(infix) => infix.eval_with(state),
+      Self::Monad(_) => Err(Error::Unsupported("Monads")),
+      Self::Result(_) => Err(Error::Unsupported("Monads")),
     }
   }
 }
