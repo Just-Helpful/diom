@@ -109,5 +109,6 @@ fn main() {
   println!("{}", expr.display());
 
   let value = expr.eval().unwrap();
+  println!("\n# Evaluated Value");
   println!("{value:?}");
 }
