@@ -10,6 +10,10 @@ This is mostly a language written because:
 
 ## Todo
 
+### Parsing
+
+- [ ] property testing on AST -> code -> AST round trip
+- [ ] use `nom-language`'s `precedence` parser
 - [ ] f-string support
   - I'll need to update how strings are parsed...
   - maybe consider having f-strings create templates not strings\
@@ -17,20 +21,12 @@ This is mostly a language written because:
     of the standard string injection attacks by not converting to\
     strings until the last possible second.
 
-### Lexing
+### Formatting
 
-- [x] pretty printing for Tokens
-
-### Parsing
-
-- [x] pretty printing for ASTs
+- [ ] add a custom formatter for indented structures
 - [ ] printing ASTs as code
-- [ ] property testing on AST -> code -> AST round trip
-- [ ] use `nom-language`'s `precedence` parser
+- [ ] add a custom formatting for creating boxes
 
 ### Interpreter
 
-- [x] create a basic interpreter backend
-- [x] add block / group evaluation
-- [x] add variable definitions
 - [ ] add function calls
