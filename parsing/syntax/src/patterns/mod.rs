@@ -1,7 +1,7 @@
 use crate::ident::Ident;
-use diom_fmt::{CustomDisplay, SpanWriter};
+use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
-use std::ops::Range;
+use std::{fmt::Write, ops::Range};
 
 pub mod arrays;
 use arrays::Array;
@@ -23,8 +23,8 @@ pub enum Pattern<I> {
   Var(Ident<I>),
 }
 
-impl CustomDisplay<SpanWriter> for Pattern<Range<usize>> {
-  fn write(&self, w: &mut SpanWriter) -> std::fmt::Result {
+impl DisplayAs<Spans> for Pattern<Range<usize>> {
+  fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
     use Pattern::*;
     match self {
       Array(a) => a.write(w),

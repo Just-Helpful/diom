@@ -1,8 +1,8 @@
 use super::Type;
 use crate::ident::Ident;
-use diom_fmt::{CustomDisplay, SpanWriter};
+use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
-use std::ops::Range;
+use std::{fmt::Write, ops::Range};
 
 /// The definition for a type alias
 ///
@@ -26,8 +26,8 @@ pub struct TypeDef<I> {
   pub info: I,
 }
 
-impl CustomDisplay<SpanWriter> for TypeDef<Range<usize>> {
-  fn write(&self, w: &mut SpanWriter) -> std::fmt::Result {
+impl DisplayAs<Spans> for TypeDef<Range<usize>> {
+  fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
     w.bracket("type def", &self.info)?;
     self.name.write(&mut w.child())?;
     self.value.write(&mut w.child())

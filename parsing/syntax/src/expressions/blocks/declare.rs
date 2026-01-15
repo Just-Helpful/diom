@@ -1,8 +1,8 @@
 use super::Expression;
 use crate::{patterns::Pattern, types::Type};
-use diom_fmt::{CustomDisplay, SpanWriter};
+use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
-use std::ops::Range;
+use std::{fmt::Write, ops::Range};
 
 /// Decleration should allow for pattern matching in its syntax
 ///
@@ -32,8 +32,8 @@ pub struct Declare<I> {
   pub info: I,
 }
 
-impl CustomDisplay<SpanWriter> for Declare<Range<usize>> {
-  fn write(&self, w: &mut SpanWriter) -> std::fmt::Result {
+impl DisplayAs<Spans> for Declare<Range<usize>> {
+  fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
     w.bracket("declare", &self.info)?;
     self.pattern.write(&mut w.child())?;
     self.annotation.write(&mut w.child())?;

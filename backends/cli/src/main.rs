@@ -1,6 +1,6 @@
 //! Diom code evaluation via the `interpreter` backend.
 use clap::{Args, Parser};
-use diom_fmt::CustomDisplay;
+use diom_fmt::DisplayAs;
 use diom_info_traits::InfoMap;
 use diom_interpreter::Eval;
 use diom_lexer::parse_tokens;

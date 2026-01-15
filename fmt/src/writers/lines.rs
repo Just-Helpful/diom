@@ -1,6 +1,24 @@
-use crate::Updater;
-use std::fmt::{Debug, Display, Write};
+use crate::{Flush, Format, Updater};
+use std::fmt::{Debug, Write};
 use std::num::NonZero;
+
+/// A format that supports writing to multiple lines at once
+#[derive(Default, Clone, Copy)]
+pub struct Lines;
+
+impl Format for Lines {
+  type Writer<W: Write> = LineWriter<W>;
+
+  fn writer<W: Write>(&self, w: W) -> Self::Writer<W> {
+    LineWriter {
+      line: 0,
+      col: 0,
+      byte: 0,
+      lines: vec![],
+      write: w,
+    }
+  }
+}
 
 /// A variant of a `Write` implementation\
 /// that supports writing and seeking to multiple lines of text
@@ -8,8 +26,8 @@ use std::num::NonZero;
 /// ## TODO
 ///
 /// Increment to next line when a newline `\n` is written
-#[derive(Clone, Debug, Default)]
-pub struct LineWriter<const FILL: char = ' '> {
+#[derive(Clone, Debug)]
+pub struct LineWriter<W, const FILL: char = ' '> {
   /// The line number that is currently being written to
   line: usize,
   /// The column number that is currently being written to
@@ -20,9 +38,11 @@ pub struct LineWriter<const FILL: char = ' '> {
   byte: usize,
   /// The string content of each line
   lines: Vec<String>,
+  /// The wrapped writer
+  write: W,
 }
 
-impl<const FILL: char> LineWriter<FILL> {
+impl<W, const FILL: char> LineWriter<W, FILL> {
   /// Pushes a single character to the end of the current line
   /// SAFETY: should be used when the cursor is at the end of the line
   unsafe fn push_char(&mut self, c: char) {
@@ -40,13 +60,8 @@ impl<const FILL: char> LineWriter<FILL> {
     self.col += len;
   }
 
-  /// Seeks the cursor to a specific point in the line
   #[inline]
-  fn seek_line(&mut self, loc: usize) {
-    if loc == self.col {
-      return; // early return on no change
-    }
-
+  fn unchecked_seek_col(&mut self, loc: usize) {
     let line = &mut self.lines[self.line];
     let rem = match byte_at(&line, loc) {
       Ok(byte) => {
@@ -60,6 +75,40 @@ impl<const FILL: char> LineWriter<FILL> {
     line.push_str(&FILL.to_string().repeat(rem.get()));
     self.byte = line.len();
     self.col = loc;
+  }
+
+  /// Seeks the cursor to a specific column in the current line
+  #[inline]
+  pub fn seek_col(&mut self, loc: usize) {
+    if loc != self.col {
+      self.unchecked_seek_col(loc);
+    }
+  }
+
+  #[inline]
+  fn unchecked_seek_line(&mut self, loc: usize) {
+    // if the line number is outside the buffer
+    if self.lines.len() <= loc {
+      let len = loc - self.lines.len();
+      self.lines.extend(vec![String::from(""); len]);
+      self.lines.push(FILL.to_string().repeat(self.col));
+
+      self.byte = FILL.len_utf8() * self.col;
+      self.line = loc;
+      return;
+    }
+  }
+
+  /// Seeks the cursor to a specific line in the block
+  pub fn seek_line(&mut self, loc: usize) {
+    if loc != self.line {
+      self.unchecked_seek_line(loc);
+      // By moving to a different line we might either be:
+      // 1. off of the end of the line
+      // 2. at the incorrect `self.byte`
+      // this fixes both of these cases
+      self.unchecked_seek_col(self.col);
+    }
   }
 
   /// Moves the cursor to a given position in the lines
@@ -85,11 +134,11 @@ impl<const FILL: char> LineWriter<FILL> {
     }
 
     self.line = j;
-    self.seek_line(i);
+    self.seek_col(i);
   }
 }
 
-impl<const FILL: char> Write for LineWriter<FILL> {
+impl<W, const FILL: char> Write for LineWriter<W, FILL> {
   fn write_char(&mut self, c: char) -> std::fmt::Result {
     let line = &mut self.lines[self.line];
     if self.byte == line.len() {
@@ -134,7 +183,7 @@ impl<const FILL: char> Write for LineWriter<FILL> {
   }
 }
 
-impl<const FILL: char> LineWriter<FILL> {
+impl<W, const FILL: char> LineWriter<W, FILL> {
   /// Writes `text` to the specified cursor position, overwriting text present
   pub fn write_at(&mut self, loc: impl Updater<[usize; 2]> + Debug, text: impl AsRef<str>) {
     self.seek(loc);
@@ -142,17 +191,17 @@ impl<const FILL: char> LineWriter<FILL> {
   }
 }
 
-impl<const FILL: char> Display for LineWriter<FILL> {
-  fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+impl<W: Write, const FILL: char> Flush for LineWriter<W, FILL> {
+  fn flush(&mut self) -> std::fmt::Result {
     let mut iter = self.lines.iter().rev();
     let Some(line) = iter.next() else {
       return Ok(());
     };
 
-    Display::fmt(&line, f)?;
+    self.write.write_str(&line)?;
     for line in iter {
-      f.write_char('\n')?;
-      Display::fmt(&line, f)?;
+      self.write.write_char('\n')?;
+      self.write.write_str(&line)?;
     }
     Ok(())
   }

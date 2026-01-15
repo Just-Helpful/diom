@@ -1,6 +1,6 @@
-use diom_fmt::{CustomDisplay, SpanWriter};
+use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
-use std::ops::Range;
+use std::{fmt::Write, ops::Range};
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Name {
@@ -27,8 +27,8 @@ pub struct Ident<I> {
   pub info: I,
 }
 
-impl CustomDisplay<SpanWriter> for Ident<Range<usize>> {
-  fn write(&self, w: &mut SpanWriter) -> std::fmt::Result {
+impl DisplayAs<Spans> for Ident<Range<usize>> {
+  fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
     w.bracket("ident", &self.info)
   }
 }

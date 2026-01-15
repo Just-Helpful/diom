@@ -1,7 +1,7 @@
-use std::ops::Range;
+use std::{fmt::Write, ops::Range};
 
 use crate::ident::Ident;
-use diom_fmt::{CustomDisplay, SpanWriter};
+use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 
 use super::Type;
@@ -32,8 +32,8 @@ pub struct Enum<I> {
   pub info: I,
 }
 
-impl CustomDisplay<SpanWriter> for Enum<Range<usize>> {
-  fn write(&self, w: &mut SpanWriter) -> std::fmt::Result {
+impl DisplayAs<Spans> for Enum<Range<usize>> {
+  fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
     w.bracket("enum", &self.info)?;
     self.name.write(&mut w.child())?;
     self.variants.write(&mut w.child())

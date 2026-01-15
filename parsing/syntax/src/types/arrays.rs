@@ -1,8 +1,8 @@
 use super::Type;
 use crate::ident::Ident;
-use diom_fmt::{CustomDisplay, SpanWriter};
+use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
-use std::ops::Range;
+use std::{fmt::Write, ops::Range};
 
 /// A type for arrays of items.
 ///
@@ -20,8 +20,8 @@ pub struct Array<I> {
   pub info: I,
 }
 
-impl CustomDisplay<SpanWriter> for Array<Range<usize>> {
-  fn write(&self, w: &mut SpanWriter) -> std::fmt::Result {
+impl DisplayAs<Spans> for Array<Range<usize>> {
+  fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
     w.bracket("array", &self.info)?;
     self.name.write(&mut w.child())?;
     self.item.write(&mut w.child())

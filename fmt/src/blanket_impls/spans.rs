@@ -1,21 +1,20 @@
-use crate::{CustomDisplay, SpanWriter};
+use crate::{writers::SpanWriter, DisplayAs, Spans};
+use std::fmt::Write;
 
-impl<T: CustomDisplay<SpanWriter>> CustomDisplay<SpanWriter> for Option<T> {
-  fn write(&self, w: &mut SpanWriter) -> std::fmt::Result {
+impl<T: DisplayAs<Spans>> DisplayAs<Spans> for Option<T> {
+  fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
     self.as_ref().map_or(Ok(()), |value| value.write(w))
   }
 }
 
-impl<'a, T: CustomDisplay<SpanWriter>> CustomDisplay<SpanWriter> for Vec<T> {
-  fn write(&self, w: &mut SpanWriter) -> std::fmt::Result {
+impl<T: DisplayAs<Spans>> DisplayAs<Spans> for Vec<T> {
+  fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
     self.iter().try_for_each(move |value| value.write(w))
   }
 }
 
-impl<'a, T0: CustomDisplay<SpanWriter>, T1: CustomDisplay<SpanWriter>> CustomDisplay<SpanWriter>
-  for (T0, T1)
-{
-  fn write(&self, w: &mut SpanWriter) -> std::fmt::Result {
+impl<T0: DisplayAs<Spans>, T1: DisplayAs<Spans>> DisplayAs<Spans> for (T0, T1) {
+  fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
     self.0.write(w)?;
     self.1.write(w)
   }

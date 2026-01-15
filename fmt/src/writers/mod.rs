@@ -1,4 +1,5 @@
-mod spans;
-pub use spans::SpanWriter;
-mod lines;
-pub use lines::LineWriter;
+pub mod spans;
+pub use spans::{SpanWriter, Spans};
+pub mod lines;
+pub use lines::{LineWriter, Lines};
+pub mod indent;

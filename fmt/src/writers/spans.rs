@@ -1,8 +1,22 @@
 use super::LineWriter;
-use std::{cell::RefCell, fmt::Display, ops::Range, rc::Rc};
+use crate::{writers::lines::Lines, Flush, Format, Write};
+use std::{cell::RefCell, ops::Range, rc::Rc};
 
-#[derive(Default, Clone)]
-pub struct SpanWriter {
+#[derive(Default, Clone, Copy)]
+pub struct Spans;
+
+impl Format for Spans {
+  type Writer<W: Write> = SpanWriter<W>;
+
+  fn writer<W: Write>(&self, w: W) -> Self::Writer<W> {
+    SpanWriter {
+      lines: Rc::new(RefCell::new(Lines::default().writer(w))),
+      depth: 0,
+    }
+  }
+}
+
+pub struct SpanWriter<W> {
   /// The lines that the should be displayed
   ///
   /// ## Todo
@@ -26,13 +40,27 @@ pub struct SpanWriter {
   ///   lifetimes polluting the `CustomDisplay` trait.
   /// 2. be rather tricky to implement\
   ///   and likely include some unsafe tricks...
-  lines: Rc<RefCell<LineWriter>>,
+  lines: Rc<RefCell<LineWriter<W>>>,
   /// The depth of the current syntax node being written
   depth: usize,
 }
 
-impl<'a> SpanWriter {
-  pub fn child(&mut self) -> SpanWriter {
+impl<W> Write for SpanWriter<W> {
+  fn write_str(&mut self, s: &str) -> std::fmt::Result {
+    let mut lines = self.lines.borrow_mut();
+    lines.seek_line(self.depth);
+    lines.write_str(s)
+  }
+}
+
+impl<W: Write> Flush for SpanWriter<W> {
+  fn flush(&mut self) -> std::fmt::Result {
+    self.lines.borrow_mut().flush()
+  }
+}
+
+impl<W: Write> SpanWriter<W> {
+  pub fn child(&mut self) -> SpanWriter<W> {
     SpanWriter {
       lines: self.lines.clone(),
       depth: self.depth + 1,
@@ -60,10 +88,4 @@ pub fn bracket_str(name: &str, width: usize) -> String {
     return String::from('(') + &" ".repeat(width - 2) + ")";
   }
   format!("({: ^1$})", name, width - 2)
-}
-
-impl<'a> Display for SpanWriter {
-  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    self.lines.borrow().fmt(f)
-  }
 }

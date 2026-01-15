@@ -1,8 +1,8 @@
-use std::ops::Range;
-
 use crate::ident::Ident;
-use diom_fmt::{CustomDisplay, SpanWriter};
+use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
+use std::{fmt::Write, ops::Range};
+
 mod chars;
 pub use chars::Char;
 mod floats;
@@ -40,8 +40,8 @@ pub enum Expression<I> {
   Result(MonadResult<I>),
 }
 
-impl CustomDisplay<SpanWriter> for Expression<Range<usize>> {
-  fn write(&self, w: &mut SpanWriter) -> std::fmt::Result {
+impl DisplayAs<Spans> for Expression<Range<usize>> {
+  fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
     use Expression::*;
     match self {
       Char(c) => c.write(w),

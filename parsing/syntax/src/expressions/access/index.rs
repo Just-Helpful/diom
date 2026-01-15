@@ -1,7 +1,7 @@
 use super::Expression;
-use diom_fmt::{CustomDisplay, SpanWriter};
+use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
-use std::ops::Range;
+use std::{fmt::Write, ops::Range};
 
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
 pub struct Index<I> {
@@ -10,8 +10,8 @@ pub struct Index<I> {
   pub info: I,
 }
 
-impl CustomDisplay<SpanWriter> for Index<Range<usize>> {
-  fn write(&self, w: &mut SpanWriter) -> std::fmt::Result {
+impl DisplayAs<Spans> for Index<Range<usize>> {
+  fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
     w.bracket("index", &self.info)?;
     self.value.write(&mut w.child())?;
     self.key.write(&mut w.child())
