@@ -5,16 +5,12 @@ description = "Parses the Diom language to produce an AST"
 edition = "2021"
 
 [dependencies]
-cached = "0.51.3"
-cargo-readme = "3.3.1"
 diom-info-traits = { version = "0.1.0", path = "../../info/traits" }
 diom-tokens = { version = "0.1.0", path = "../../lexing/tokens" }
 diom-syntax = { version = "0.1.0", path = "../syntax" }
-nom = "8.0.0"
-nom_locate = "4.2.0"
-take_mut = "0.2.2"
-nom-language = "0.1.0"
 diom-lexer = { path = "../../lexing/lexer" }
+nom = "8.0.0"
+nom-language = "0.1.0"
 
 [dev-dependencies]
 diom-lexer = { path = "../../lexing/lexer" }

@@ -11,6 +11,5 @@ repository.workspace = true
 documentation.workspace = true
 
 [dependencies]
-derivative = "2.2.0"
-nom = "8.0.0"
 diom-tokens = { version = "0.1.0", path = "../tokens" }
+nom = "8.0.0"
