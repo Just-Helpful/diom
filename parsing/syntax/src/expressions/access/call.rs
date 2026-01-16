@@ -1,5 +1,5 @@
 use super::Expression;
-use diom_fmt::{writers::SpanWriter, DisplayAs, Spans};
+use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use std::{
   fmt::{Debug, Write},

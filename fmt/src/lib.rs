@@ -4,8 +4,8 @@ use std::fmt::{Display, Formatter, Write};
 mod blanket_impls;
 mod updater;
 pub use updater::Updater;
-pub mod writers;
-pub use writers::{LineWriter, Lines, SpanWriter, Spans};
+pub mod formats;
+pub use formats::{LineWriter, Lines, SpanWriter, Spans};
 
 /// A `Write` trait that can be flushed.\
 /// This is similar to `std::io::Write`,\
@@ -23,10 +23,10 @@ impl<W: Flush> Flush for &mut W {
   }
 }
 impl Flush for String {}
-impl<'a> Flush for Formatter<'a> {}
+impl Flush for Formatter<'_> {}
 
-/// A type that can create custom writers.\
-/// This can be used to create wrappers that handle:
+/// A `Format` with an associated `Writer` that handles displaying values.\
+/// This can be used to custom formats that handle:
 ///
 /// 1. multiline writing
 /// 2. indented writing for nested structures

@@ -1,5 +1,5 @@
 use super::LineWriter;
-use crate::{writers::lines::Lines, Flush, Format, Write};
+use crate::{formats::lines::Lines, Flush, Format, Write};
 use std::{cell::RefCell, ops::Range, rc::Rc};
 
 #[derive(Default, Clone, Copy)]

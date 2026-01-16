@@ -1,4 +1,4 @@
-use crate::{writers::SpanWriter, DisplayAs, Spans};
+use crate::{DisplayAs, SpanWriter, Spans};
 use std::fmt::Write;
 
 impl<T: DisplayAs<Spans>> DisplayAs<Spans> for Option<T> {
