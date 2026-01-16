@@ -1,8 +1,4 @@
-use super::Type;
-use crate::ident::Ident;
-use diom_fmt::{DisplayAs, SpanWriter, Spans};
-use diom_info_traits::{InfoMap, InfoRef, InfoSource};
-use std::{fmt::Write, ops::Range};
+use crate::scope::SyntaxScope;
 
 /// The definition for a type alias
 ///
@@ -19,17 +15,16 @@ use std::{fmt::Write, ops::Range};
 /// type VecN_0 = [Float; _];
 /// type VecN_1 [Float; _];
 /// ```
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
-pub struct TypeDef<I> {
-  pub name: Ident<I>,
-  pub value: Box<Type<I>>,
-  pub info: I,
+#[derive(Clone, Debug)]
+pub struct TypeDef<S: SyntaxScope> {
+  pub name: S::Ident,
+  pub value: Box<S::Type>,
 }
 
-impl DisplayAs<Spans> for TypeDef<Range<usize>> {
-  fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
-    w.bracket("type def", &self.info)?;
-    self.name.write(&mut w.child())?;
-    self.value.write(&mut w.child())
-  }
-}
+// impl DisplayAs<Spans> for TypeDef<Range<usize>> {
+//   fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
+//     w.bracket("type def", &self.info)?;
+//     self.name.write(&mut w.child())?;
+//     self.value.write(&mut w.child())
+//   }
+// }

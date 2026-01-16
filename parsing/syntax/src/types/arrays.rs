@@ -1,8 +1,4 @@
-use super::Type;
-use crate::ident::Ident;
-use diom_fmt::{DisplayAs, SpanWriter, Spans};
-use diom_info_traits::{InfoMap, InfoRef, InfoSource};
-use std::{fmt::Write, ops::Range};
+use crate::scope::SyntaxScope;
 
 /// A type for arrays of items.
 ///
@@ -13,17 +9,16 @@ use std::{fmt::Write, ops::Range};
 /// let greeting: String = "Hello!";
 /// let xs: Nums = [1, 2, 3];
 /// ```
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
-pub struct Array<I> {
-  pub name: Option<Ident<I>>,
-  pub item: Box<Type<I>>,
-  pub info: I,
+#[derive(Clone, Debug)]
+pub struct Array<S: SyntaxScope> {
+  pub name: Option<S::Ident>,
+  pub item: S::Type,
 }
 
-impl DisplayAs<Spans> for Array<Range<usize>> {
-  fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
-    w.bracket("array", &self.info)?;
-    self.name.write(&mut w.child())?;
-    self.item.write(&mut w.child())
-  }
-}
+// impl DisplayAs<Spans> for Array<Range<usize>> {
+//   fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
+//     w.bracket("array", &self.info)?;
+//     self.name.write(&mut w.child())?;
+//     self.item.write(&mut w.child())
+//   }
+// }

@@ -1,50 +1,43 @@
-use super::Expression;
-use crate::{patterns::Pattern, types::Type};
-use diom_fmt::{DisplayAs, SpanWriter, Spans};
-use diom_info_traits::{InfoMap, InfoRef, InfoSource};
-use std::{fmt::Write, ops::Range};
+use crate::scope::SyntaxScope;
 
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
-pub struct Argument<I> {
-  pub pattern: Pattern<I>,
-  pub annotation: Option<Type<I>>,
-  pub info: I,
+#[derive(Clone, Debug)]
+pub struct Argument<S: SyntaxScope> {
+  pub pattern: S::Pattern,
+  pub annotation: Option<S::Type>,
 }
 
-impl DisplayAs<Spans> for Argument<Range<usize>> {
-  fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
-    w.bracket("argument", &self.info)?;
-    self.pattern.write(&mut w.child())?;
-    self.annotation.write(&mut w.child())
-  }
+// impl DisplayAs<Spans> for Argument<Range<usize>> {
+//   fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
+//     w.bracket("argument", &self.info)?;
+//     self.pattern.write(&mut w.child())?;
+//     self.annotation.write(&mut w.child())
+//   }
+// }
+
+#[derive(Clone, Debug)]
+pub struct FunctionArm<S: SyntaxScope> {
+  pub arguments: Vec<Argument<S>>,
+  pub annotation: Option<S::Type>,
+  pub returned: Box<S::Expression>,
 }
 
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
-pub struct FunctionArm<I> {
-  pub arguments: Vec<Argument<I>>,
-  pub annotation: Option<Type<I>>,
-  pub returned: Box<Expression<I>>,
-  pub info: I,
+// impl DisplayAs<Spans> for FunctionArm<Range<usize>> {
+//   fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
+//     w.bracket("arm", &self.info)?;
+//     self.arguments.write(&mut w.child())?;
+//     self.annotation.write(&mut w.child())?;
+//     self.returned.write(&mut w.child())
+//   }
+// }
+
+#[derive(Clone, Debug)]
+pub struct Function<S: SyntaxScope> {
+  pub arms: Vec<FunctionArm<S>>,
 }
 
-impl DisplayAs<Spans> for FunctionArm<Range<usize>> {
-  fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
-    w.bracket("arm", &self.info)?;
-    self.arguments.write(&mut w.child())?;
-    self.annotation.write(&mut w.child())?;
-    self.returned.write(&mut w.child())
-  }
-}
-
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
-pub struct Function<I> {
-  pub arms: Vec<FunctionArm<I>>,
-  pub info: I,
-}
-
-impl DisplayAs<Spans> for Function<Range<usize>> {
-  fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
-    w.bracket("function", &self.info)?;
-    self.arms.write(&mut w.child())
-  }
-}
+// impl DisplayAs<Spans> for Function<Range<usize>> {
+//   fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
+//     w.bracket("function", &self.info)?;
+//     self.arms.write(&mut w.child())
+//   }
+// }

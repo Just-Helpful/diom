@@ -1,10 +1,4 @@
-use std::{fmt::Write, ops::Range};
-
-use crate::ident::Ident;
-use diom_fmt::{DisplayAs, SpanWriter, Spans};
-use diom_info_traits::{InfoMap, InfoRef, InfoSource};
-
-use super::Type;
+use crate::scope::SyntaxScope;
 
 /// A type for combinations of possible types
 ///
@@ -25,17 +19,16 @@ use super::Type;
 /// let bool = Boolean.True;
 /// let bool = Boolean.False;
 /// ```
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
-pub struct Enum<I> {
-  pub name: Option<Ident<I>>,
-  pub variants: Vec<(Ident<I>, Type<I>)>,
-  pub info: I,
+#[derive(Clone, Debug)]
+pub struct Enum<S: SyntaxScope> {
+  pub name: Option<S::Ident>,
+  pub variants: Vec<(S::Ident, S::Type)>,
 }
 
-impl DisplayAs<Spans> for Enum<Range<usize>> {
-  fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
-    w.bracket("enum", &self.info)?;
-    self.name.write(&mut w.child())?;
-    self.variants.write(&mut w.child())
-  }
-}
+// impl DisplayAs<Spans> for Enum<Range<usize>> {
+//   fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
+//     w.bracket("enum", &self.info)?;
+//     self.name.write(&mut w.child())?;
+//     self.variants.write(&mut w.child())
+//   }
+// }

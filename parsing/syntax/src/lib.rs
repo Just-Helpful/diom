@@ -7,4 +7,5 @@ pub mod expressions;
 pub mod ident;
 pub mod path;
 pub mod patterns;
+pub mod scope;
 pub mod types;

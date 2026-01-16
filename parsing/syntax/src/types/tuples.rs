@@ -1,9 +1,4 @@
-use crate::ident::Ident;
-use diom_fmt::{DisplayAs, SpanWriter, Spans};
-use diom_info_traits::{InfoMap, InfoRef, InfoSource};
-use std::{fmt::Write, ops::Range};
-
-use super::Type;
+use crate::scope::SyntaxScope;
 
 /// The type for a combination of indexed fields
 ///
@@ -14,17 +9,16 @@ use super::Type;
 /// let vec2: Vec2 = Vec2 [1.2, 3.0];
 /// let bobs_email: Email = ["bob.jones", "hotmail.com"];
 /// ```
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
-pub struct Tuple<I> {
-  pub name: Option<Ident<I>>,
-  pub fields: Vec<Type<I>>,
-  pub info: I,
+#[derive(Clone, Debug)]
+pub struct Tuple<S: SyntaxScope> {
+  pub name: Option<S::Ident>,
+  pub fields: Vec<S::Type>,
 }
 
-impl DisplayAs<Spans> for Tuple<Range<usize>> {
-  fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
-    w.bracket("tuple", &self.info)?;
-    self.name.write(&mut w.child())?;
-    self.fields.write(&mut w.child())
-  }
-}
+// impl DisplayAs<Spans> for Tuple<Range<usize>> {
+//   fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
+//     w.bracket("tuple", &self.info)?;
+//     self.name.write(&mut w.child())?;
+//     self.fields.write(&mut w.child())
+//   }
+// }

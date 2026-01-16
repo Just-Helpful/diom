@@ -1,8 +1,4 @@
-use super::Expression;
-use crate::{patterns::Pattern, types::Type};
-use diom_fmt::{DisplayAs, SpanWriter, Spans};
-use diom_info_traits::{InfoMap, InfoRef, InfoSource};
-use std::{fmt::Write, ops::Range};
+use crate::scope::SyntaxScope;
 
 /// Decleration should allow for pattern matching in its syntax
 ///
@@ -24,19 +20,18 @@ use std::{fmt::Write, ops::Range};
 /// If the type checker can prove that this value will always be `True`,
 /// then it will allow the return value to remain unused, otherwise if the
 /// return value is not used, it'll throw an compiler error.
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
-pub struct Declare<I> {
-  pub pattern: Pattern<I>,
-  pub annotation: Option<Type<I>>,
-  pub value: Box<Expression<I>>,
-  pub info: I,
+#[derive(Clone, Debug)]
+pub struct Declare<S: SyntaxScope> {
+  pub pattern: S::Pattern,
+  pub annotation: Option<S::Type>,
+  pub value: Box<S::Expression>,
 }
 
-impl DisplayAs<Spans> for Declare<Range<usize>> {
-  fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
-    w.bracket("declare", &self.info)?;
-    self.pattern.write(&mut w.child())?;
-    self.annotation.write(&mut w.child())?;
-    self.value.write(&mut w.child())
-  }
-}
+// impl DisplayAs<Spans> for Declare<Range<usize>> {
+//   fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
+//     w.bracket("declare", &self.info)?;
+//     self.pattern.write(&mut w.child())?;
+//     self.annotation.write(&mut w.child())?;
+//     self.value.write(&mut w.child())
+//   }
+// }

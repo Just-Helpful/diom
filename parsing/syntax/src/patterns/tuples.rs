@@ -1,35 +1,31 @@
-use super::{Pattern, Rest};
-use crate::path::Path;
-use diom_fmt::{DisplayAs, SpanWriter, Spans};
-use diom_info_traits::{InfoMap, InfoRef, InfoSource};
-use std::{fmt::Write, ops::Range};
+use super::Rest;
+use crate::scope::SyntaxScope;
 
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
-pub enum TupleItem<I> {
-  Field(Pattern<I>),
-  Rest(Rest<I>),
+#[derive(Clone, Debug)]
+pub enum TupleItem<S: SyntaxScope> {
+  Field(S::Pattern),
+  Rest(Rest<S>),
 }
 
-impl DisplayAs<Spans> for TupleItem<Range<usize>> {
-  fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
-    match self {
-      Self::Field(f) => f.write(w),
-      Self::Rest(r) => r.write(w),
-    }
-  }
+// impl DisplayAs<Spans> for TupleItem<Range<usize>> {
+//   fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
+//     match self {
+//       Self::Field(f) => f.write(w),
+//       Self::Rest(r) => r.write(w),
+//     }
+//   }
+// }
+
+#[derive(Clone, Debug)]
+pub struct Tuple<S: SyntaxScope> {
+  pub name: Option<S::Path>,
+  pub fields: Vec<TupleItem<S>>,
 }
 
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
-pub struct Tuple<I> {
-  pub name: Option<Path<I>>,
-  pub fields: Vec<TupleItem<I>>,
-  pub info: I,
-}
-
-impl DisplayAs<Spans> for Tuple<Range<usize>> {
-  fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
-    w.bracket("tuple", &self.info)?;
-    self.name.write(&mut w.child())?;
-    self.fields.write(&mut w.child())
-  }
-}
+// impl DisplayAs<Spans> for Tuple<Range<usize>> {
+//   fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
+//     w.bracket("tuple", &self.info)?;
+//     self.name.write(&mut w.child())?;
+//     self.fields.write(&mut w.child())
+//   }
+// }

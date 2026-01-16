@@ -1,23 +1,18 @@
-use super::Type;
-use crate::ident::Ident;
-use diom_fmt::{DisplayAs, SpanWriter, Spans};
-use diom_info_traits::{InfoMap, InfoRef, InfoSource};
-use std::{fmt::Write, ops::Range};
+use crate::scope::SyntaxScope;
 
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
-pub struct Argument<I> {
-  pub name: Ident<I>,
-  pub annotation: Type<I>,
-  pub info: I,
+#[derive(Clone, Debug)]
+pub struct Argument<S: SyntaxScope> {
+  pub name: S::Ident,
+  pub annotation: S::Type,
 }
 
-impl DisplayAs<Spans> for Argument<Range<usize>> {
-  fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
-    w.bracket("argument", &self.info)?;
-    self.name.write(&mut w.child())?;
-    self.annotation.write(&mut w.child())
-  }
-}
+// impl DisplayAs<Spans> for Argument<Range<usize>> {
+//   fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
+//     w.bracket("argument", &self.info)?;
+//     self.name.write(&mut w.child())?;
+//     self.annotation.write(&mut w.child())
+//   }
+// }
 
 /// The type for a callable function
 ///
@@ -29,17 +24,16 @@ impl DisplayAs<Spans> for Argument<Range<usize>> {
 /// let add: Binary = (x)(y) => x + y;
 /// let add: Binary = (x) => {(y) => {x + y}};
 /// ```
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
-pub struct Function<I> {
-  pub arguments: Vec<Argument<I>>,
-  pub returned: Box<Type<I>>,
-  pub info: I,
+#[derive(Clone, Debug)]
+pub struct Function<S: SyntaxScope> {
+  pub arguments: Vec<Argument<S>>,
+  pub returned: S::Expression,
 }
 
-impl DisplayAs<Spans> for Function<Range<usize>> {
-  fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
-    w.bracket("function", &self.info)?;
-    self.arguments.write(&mut w.child())?;
-    self.returned.write(&mut w.child())
-  }
-}
+// impl DisplayAs<Spans> for Function<Range<usize>> {
+//   fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
+//     w.bracket("function", &self.info)?;
+//     self.arguments.write(&mut w.child())?;
+//     self.returned.write(&mut w.child())
+//   }
+// }

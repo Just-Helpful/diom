@@ -1,7 +1,4 @@
-use super::Expression;
-use diom_fmt::{DisplayAs, SpanWriter, Spans};
-use diom_info_traits::{InfoMap, InfoRef, InfoSource};
-use std::{fmt::Write, ops::Range};
+use crate::scope::SyntaxScope;
 
 /// The syntax for unwrapping a monad inline, looks like `?`.
 ///
@@ -42,18 +39,17 @@ use std::{fmt::Write, ops::Range};
 /// };
 /// assert optn_x == None;
 /// ```
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
-pub struct MonadThen<I> {
-  pub value: Box<Expression<I>>,
-  pub info: I,
+#[derive(Clone, Debug)]
+pub struct MonadThen<S: SyntaxScope> {
+  pub value: S::Expression,
 }
 
-impl DisplayAs<Spans> for MonadThen<Range<usize>> {
-  fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
-    w.bracket("monad unwrap", &self.info)?;
-    self.value.write(&mut w.child())
-  }
-}
+// impl DisplayAs<Spans> for MonadThen<Range<usize>> {
+//   fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
+//     w.bracket("monad unwrap", &self.info)?;
+//     self.value.write(&mut w.child())
+//   }
+// }
 
 /// The syntax for wrapping a value in a monad, looks like `!`.
 ///
@@ -87,15 +83,14 @@ impl DisplayAs<Spans> for MonadThen<Range<usize>> {
 /// };
 /// assert optn_x == Some [5];
 /// ```
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
-pub struct MonadResult<I> {
-  pub value: Box<Expression<I>>,
-  pub info: I,
+#[derive(Clone, Debug)]
+pub struct MonadResult<S: SyntaxScope> {
+  pub value: S::Expression,
 }
 
-impl DisplayAs<Spans> for MonadResult<Range<usize>> {
-  fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
-    w.bracket("monad result", &self.info)?;
-    self.value.write(&mut w.child())
-  }
-}
+// impl DisplayAs<Spans> for MonadResult<Range<usize>> {
+//   fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
+//     w.bracket("monad result", &self.info)?;
+//     self.value.write(&mut w.child())
+//   }
+// }

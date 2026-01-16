@@ -1,7 +1,4 @@
-use crate::ident::Ident;
-use diom_fmt::{DisplayAs, SpanWriter, Spans};
-use diom_info_traits::{InfoMap, InfoRef, InfoSource};
-use std::{fmt::Write, ops::Range};
+use crate::scope::SyntaxScope;
 
 /// A pattern that captures the remaining contents of a structure.
 /// For example:
@@ -24,15 +21,14 @@ use std::{fmt::Write, ops::Range};
 /// // gives a compiler error (whilst type checking)
 /// // that `sx` cannot be bound to an empty structure
 /// ```
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
-pub struct Rest<I> {
-  pub name: Option<Ident<I>>,
-  pub info: I,
+#[derive(Clone, Debug)]
+pub struct Rest<S: SyntaxScope> {
+  pub name: Option<S::Ident>,
 }
 
-impl DisplayAs<Spans> for Rest<Range<usize>> {
-  fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
-    w.bracket("rest", &self.info)?;
-    self.name.write(&mut w.child())
-  }
-}
+// impl DisplayAs<Spans> for Rest<Range<usize>> {
+//   fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
+//     w.bracket("rest", &self.info)?;
+//     self.name.write(&mut w.child())
+//   }
+// }

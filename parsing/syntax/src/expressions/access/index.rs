@@ -1,19 +1,15 @@
-use super::Expression;
-use diom_fmt::{DisplayAs, SpanWriter, Spans};
-use diom_info_traits::{InfoMap, InfoRef, InfoSource};
-use std::{fmt::Write, ops::Range};
+use crate::scope::SyntaxScope;
 
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
-pub struct Index<I> {
-  pub value: Box<Expression<I>>,
-  pub key: Vec<Expression<I>>,
-  pub info: I,
+#[derive(Clone, Debug)]
+pub struct Index<S: SyntaxScope> {
+  pub value: S::Expression,
+  pub key: Vec<S::Expression>,
 }
 
-impl DisplayAs<Spans> for Index<Range<usize>> {
-  fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
-    w.bracket("index", &self.info)?;
-    self.value.write(&mut w.child())?;
-    self.key.write(&mut w.child())
-  }
-}
+// impl DisplayAs<Spans> for Index<Range<usize>> {
+//   fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
+//     w.bracket("index", &self.info)?;
+//     self.value.write(&mut w.child())?;
+//     self.key.write(&mut w.child())
+//   }
+// }
