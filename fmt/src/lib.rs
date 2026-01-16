@@ -11,7 +11,9 @@ pub use writers::{LineWriter, Lines, SpanWriter, Spans};
 /// This is similar to `std::io::Write`,\
 /// but doesn't include vectorised writing.
 pub trait Flush {
-  fn flush(&mut self) -> std::fmt::Result;
+  fn flush(&mut self) -> std::fmt::Result {
+    Ok(())
+  }
 }
 
 // Default implementations for common types
@@ -20,16 +22,8 @@ impl<W: Flush> Flush for &mut W {
     <W as Flush>::flush(self)
   }
 }
-impl Flush for String {
-  fn flush(&mut self) -> std::fmt::Result {
-    Ok(())
-  }
-}
-impl<'a> Flush for Formatter<'a> {
-  fn flush(&mut self) -> std::fmt::Result {
-    Ok(())
-  }
-}
+impl Flush for String {}
+impl<'a> Flush for Formatter<'a> {}
 
 /// A type that can create custom writers.\
 /// This can be used to create wrappers that handle:
