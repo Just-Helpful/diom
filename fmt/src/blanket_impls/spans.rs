@@ -1,5 +1,11 @@
 use crate::{DisplayAs, SpanWriter, Spans};
-use std::fmt::Write;
+use std::{fmt::Write, ops::Deref};
+
+impl<T: DisplayAs<Spans>> DisplayAs<Spans> for Box<T> {
+  fn write<W: Write>(&self, w: &mut <Spans as crate::Format>::Writer<W>) -> std::fmt::Result {
+    self.deref().write(w)
+  }
+}
 
 impl<T: DisplayAs<Spans>> DisplayAs<Spans> for Option<T> {
   fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
