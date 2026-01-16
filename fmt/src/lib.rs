@@ -5,7 +5,7 @@ mod blanket_impls;
 mod updater;
 pub use updater::Updater;
 pub mod formats;
-pub use formats::{LineWriter, Lines, SpanWriter, Spans};
+pub use formats::{IndentWriter, Indented, LineWriter, Lines, SpanWriter, Spans};
 
 /// A `Write` trait that can be flushed.\
 /// This is similar to `std::io::Write`,\
