@@ -1,18 +1,10 @@
-use crate::derive_source::source_clause;
+use crate::{derive_source::source_clause, utils::info_generic};
 use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
-use syn::{spanned::Spanned, Data, DataEnum, DataStruct, DeriveInput, GenericParam, Ident};
+use syn::{spanned::Spanned, Data, DataEnum, DataStruct, DeriveInput, Ident};
 
 pub fn derive_map(input: DeriveInput) -> TokenStream {
-  assert!(
-    input.generics.params.len() == 1,
-    "can only `derive` InfoMap for types with 1 generic"
-  );
-  let param = &input.generics.params[0];
-  let GenericParam::Type(gen_type) = param else {
-    panic!("cannot `derive` InfoMap for types with a generic const or lifetime")
-  };
-  let type_name = &gen_type.ident;
+  let type_name = info_generic(&input);
 
   let name = &input.ident;
   let info_fn = match &input.data {
@@ -22,7 +14,7 @@ pub fn derive_map(input: DeriveInput) -> TokenStream {
   };
 
   let (impl_gens, ty_gens, optn_clause) = input.generics.split_for_impl();
-  let where_clause = source_clause(type_name, optn_clause);
+  let where_clause = source_clause(&type_name, optn_clause);
 
   quote_spanned! {input.span()=>
     #[automatically_derived]

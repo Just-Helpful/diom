@@ -7,18 +7,19 @@ mod derive_ref;
 use derive_ref::derive_ref;
 mod derive_source;
 use derive_source::derive_source;
+mod utils;
 
 #[proc_macro_derive(InfoSource)]
 pub fn derive_info_source(input: TokenStream) -> TokenStream {
   derive_source(parse_macro_input!(input as DeriveInput)).into()
 }
 
-#[proc_macro_derive(InfoRef)]
+#[proc_macro_derive(InfoRef, attributes(info))]
 pub fn derive_info_ref(input: TokenStream) -> TokenStream {
   derive_ref(parse_macro_input!(input as DeriveInput)).into()
 }
 
-#[proc_macro_derive(InfoMap, attributes(map_ignore))]
+#[proc_macro_derive(InfoMap, attributes(info, map_ignore))]
 pub fn derive_info_map(input: TokenStream) -> TokenStream {
   derive_map(parse_macro_input!(input as DeriveInput)).into()
 }
