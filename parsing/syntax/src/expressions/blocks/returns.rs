@@ -1,8 +1,8 @@
-use crate::scope::SyntaxScope;
+use crate::{expressions::Expression, scope::SyntaxScope};
 
 #[derive(Clone, Debug)]
 pub struct Return<S: SyntaxScope> {
-  pub value: S::Expression,
+  pub value: S::Single<Expression<S>>,
 }
 
 // impl DisplayAs<Spans> for Return<Range<usize>> {

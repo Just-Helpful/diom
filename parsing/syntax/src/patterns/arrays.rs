@@ -1,10 +1,10 @@
 use super::Rest;
-use crate::scope::SyntaxScope;
+use crate::{path::Path, patterns::Pattern, scope::SyntaxScope};
 
 #[derive(Clone, Debug)]
 pub enum ArrayItem<S: SyntaxScope> {
-  Item(S::Pattern),
-  Rest(Rest<S>),
+  Item(Pattern<S>),
+  Rest(Rest),
 }
 
 // impl DisplayAs<Spans> for ArrayItem<Range<usize>> {
@@ -18,8 +18,8 @@ pub enum ArrayItem<S: SyntaxScope> {
 
 #[derive(Clone, Debug)]
 pub struct Array<S: SyntaxScope> {
-  pub name: Option<S::Path>,
-  pub items: Vec<ArrayItem<S>>,
+  pub name: Option<S::Single<Path<S>>>,
+  pub items: S::Multi<ArrayItem<S>>,
 }
 
 // impl DisplayAs<Spans> for Array<Range<usize>> {

@@ -1,8 +1,8 @@
-use crate::{scope::SyntaxScope, types::TypeDef};
+use crate::{expressions::Expression, scope::SyntaxScope, types::TypeDef};
 
 #[derive(Clone, Debug)]
 pub enum Statement<S: SyntaxScope> {
-  Expression(S::Expression),
+  Expression(Expression<S>),
   TypeDef(TypeDef<S>),
 }
 
@@ -17,7 +17,7 @@ pub enum Statement<S: SyntaxScope> {
 
 #[derive(Clone, Debug)]
 pub struct Block<S: SyntaxScope> {
-  pub statements: Vec<Statement<S>>,
+  pub statements: S::Multi<Statement<S>>,
 }
 
 // impl DisplayAs<Spans> for Block<Range<usize>> {

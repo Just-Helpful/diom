@@ -1,4 +1,4 @@
-use crate::scope::SyntaxScope;
+use crate::{ident::Name, scope::SyntaxScope, types::Type};
 
 /// A type for arrays of items.
 ///
@@ -11,8 +11,8 @@ use crate::scope::SyntaxScope;
 /// ```
 #[derive(Clone, Debug)]
 pub struct Array<S: SyntaxScope> {
-  pub name: Option<S::Ident>,
-  pub item: S::Type,
+  pub name: Option<S::Single<Name>>,
+  pub item: S::Multi<Type<S>>,
 }
 
 // impl DisplayAs<Spans> for Array<Range<usize>> {

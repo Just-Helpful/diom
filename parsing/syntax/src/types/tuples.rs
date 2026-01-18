@@ -1,4 +1,4 @@
-use crate::scope::SyntaxScope;
+use crate::{ident::Name, scope::SyntaxScope, types::Type};
 
 /// The type for a combination of indexed fields
 ///
@@ -11,8 +11,8 @@ use crate::scope::SyntaxScope;
 /// ```
 #[derive(Clone, Debug)]
 pub struct Tuple<S: SyntaxScope> {
-  pub name: Option<S::Ident>,
-  pub fields: Vec<S::Type>,
+  pub name: Option<S::Single<Name>>,
+  pub fields: S::Multi<Type<S>>,
 }
 
 // impl DisplayAs<Spans> for Tuple<Range<usize>> {

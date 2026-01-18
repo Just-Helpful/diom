@@ -1,8 +1,8 @@
-use crate::scope::SyntaxScope;
+use crate::{expressions::Expression, scope::SyntaxScope};
 
 #[derive(Clone, Debug)]
 pub struct Group<S: SyntaxScope> {
-  pub value: S::Expression,
+  pub value: S::Single<Expression<S>>,
 }
 
 // impl DisplayAs<Spans> for Group<Range<usize>> {

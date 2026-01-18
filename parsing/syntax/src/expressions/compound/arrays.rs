@@ -1,8 +1,8 @@
-use crate::scope::SyntaxScope;
+use crate::{expressions::Expression, scope::SyntaxScope};
 
 #[derive(Clone, Debug)]
 pub struct Array<S: SyntaxScope> {
-  pub contents: Vec<S::Expression>,
+  pub contents: S::Multi<Expression<S>>,
 }
 
 // impl DisplayAs<Spans> for Array<Range<usize>> {

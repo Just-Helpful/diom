@@ -1,9 +1,9 @@
-use crate::scope::SyntaxScope;
+use crate::{ident::Name, scope::SyntaxScope, types::Type};
 
 #[derive(Clone, Debug)]
 pub struct Argument<S: SyntaxScope> {
-  pub name: S::Ident,
-  pub annotation: S::Type,
+  pub name: S::Single<Name>,
+  pub annotation: S::Single<Type<S>>,
 }
 
 // impl DisplayAs<Spans> for Argument<Range<usize>> {
@@ -26,8 +26,8 @@ pub struct Argument<S: SyntaxScope> {
 /// ```
 #[derive(Clone, Debug)]
 pub struct Function<S: SyntaxScope> {
-  pub arguments: Vec<Argument<S>>,
-  pub returned: S::Expression,
+  pub arguments: S::Multi<Argument<S>>,
+  pub returned: S::Single<Type<S>>,
 }
 
 // impl DisplayAs<Spans> for Function<Range<usize>> {

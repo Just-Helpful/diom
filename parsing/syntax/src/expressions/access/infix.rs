@@ -4,13 +4,13 @@
 //!
 //! These are only used during parsing!<br>
 //! They will be translated into field calls.
-use crate::scope::SyntaxScope;
+use crate::{expressions::Expression, ident::Name, scope::SyntaxScope};
 
 #[derive(Clone, Debug)]
 pub struct Infix<S: SyntaxScope> {
-  pub value: S::Expression,
-  pub name: S::Ident,
-  pub other: S::Expression,
+  pub value: S::Single<Expression<S>>,
+  pub name: S::Single<Name>,
+  pub other: S::Single<Expression<S>>,
 }
 
 // impl DisplayAs<Spans> for Infix<Range<usize>> {

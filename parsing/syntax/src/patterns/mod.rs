@@ -1,4 +1,4 @@
-use crate::scope::SyntaxScope;
+use crate::{ident::Name, scope::SyntaxScope};
 
 pub mod arrays;
 use arrays::Array;
@@ -14,7 +14,7 @@ pub enum Pattern<S: SyntaxScope> {
   Array(Array<S>),
   Struct(Struct<S>),
   Tuple(Tuple<S>),
-  Var(S::Ident),
+  Var(Name),
   Ignored,
 }
 

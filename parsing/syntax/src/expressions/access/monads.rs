@@ -1,4 +1,4 @@
-use crate::scope::SyntaxScope;
+use crate::{expressions::Expression, scope::SyntaxScope};
 
 /// The syntax for unwrapping a monad inline, looks like `?`.
 ///
@@ -41,7 +41,7 @@ use crate::scope::SyntaxScope;
 /// ```
 #[derive(Clone, Debug)]
 pub struct MonadThen<S: SyntaxScope> {
-  pub value: S::Expression,
+  pub value: S::Single<Expression<S>>,
 }
 
 // impl DisplayAs<Spans> for MonadThen<Range<usize>> {
@@ -85,7 +85,7 @@ pub struct MonadThen<S: SyntaxScope> {
 /// ```
 #[derive(Clone, Debug)]
 pub struct MonadResult<S: SyntaxScope> {
-  pub value: S::Expression,
+  pub value: S::Single<Expression<S>>,
 }
 
 // impl DisplayAs<Spans> for MonadResult<Range<usize>> {

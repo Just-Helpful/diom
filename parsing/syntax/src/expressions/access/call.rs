@@ -1,9 +1,9 @@
-use crate::scope::SyntaxScope;
+use crate::{expressions::Expression, scope::SyntaxScope};
 
 #[derive(Clone, Debug)]
 pub struct Call<S: SyntaxScope> {
-  pub value: S::Expression,
-  pub args: Vec<S::Expression>,
+  pub value: S::Single<Expression<S>>,
+  pub args: S::Multi<Expression<S>>,
 }
 
 // impl DisplayAs<Spans> for Call<Range<usize>> {

@@ -1,4 +1,4 @@
-use crate::scope::SyntaxScope;
+use crate::ident::Name;
 
 /// A pattern that captures the remaining contents of a structure.
 /// For example:
@@ -22,8 +22,8 @@ use crate::scope::SyntaxScope;
 /// // that `sx` cannot be bound to an empty structure
 /// ```
 #[derive(Clone, Debug)]
-pub struct Rest<S: SyntaxScope> {
-  pub name: Option<S::Ident>,
+pub struct Rest {
+  pub name: Option<Name>,
 }
 
 // impl DisplayAs<Spans> for Rest<Range<usize>> {

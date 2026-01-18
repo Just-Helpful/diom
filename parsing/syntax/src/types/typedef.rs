@@ -1,4 +1,4 @@
-use crate::scope::SyntaxScope;
+use crate::{ident::Name, scope::SyntaxScope, types::Type};
 
 /// The definition for a type alias
 ///
@@ -17,8 +17,8 @@ use crate::scope::SyntaxScope;
 /// ```
 #[derive(Clone, Debug)]
 pub struct TypeDef<S: SyntaxScope> {
-  pub name: S::Ident,
-  pub value: Box<S::Type>,
+  pub name: S::Single<Name>,
+  pub value: S::Single<Type<S>>,
 }
 
 // impl DisplayAs<Spans> for TypeDef<Range<usize>> {

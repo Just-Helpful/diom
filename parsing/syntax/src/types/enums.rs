@@ -1,4 +1,4 @@
-use crate::scope::SyntaxScope;
+use crate::{ident::Name, scope::SyntaxScope, types::Type};
 
 /// A type for combinations of possible types
 ///
@@ -21,8 +21,8 @@ use crate::scope::SyntaxScope;
 /// ```
 #[derive(Clone, Debug)]
 pub struct Enum<S: SyntaxScope> {
-  pub name: Option<S::Ident>,
-  pub variants: Vec<(S::Ident, S::Type)>,
+  pub name: Option<S::Single<Name>>,
+  pub variants: S::Multi<(Name, Type<S>)>,
 }
 
 // impl DisplayAs<Spans> for Enum<Range<usize>> {

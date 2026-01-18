@@ -1,10 +1,10 @@
 use super::Rest;
-use crate::scope::SyntaxScope;
+use crate::{ident::Name, path::Path, patterns::Pattern, scope::SyntaxScope};
 
 #[derive(Clone, Debug)]
 pub struct StructField<S: SyntaxScope> {
-  pub name: S::Ident,
-  pub pattern: S::Pattern,
+  pub name: S::Single<Name>,
+  pub pattern: S::Single<Pattern<S>>,
 }
 
 // impl DisplayAs<Spans> for StructField<Range<usize>> {
@@ -18,7 +18,7 @@ pub struct StructField<S: SyntaxScope> {
 #[derive(Clone, Debug)]
 pub enum StructItem<S: SyntaxScope> {
   Field(StructField<S>),
-  Rest(Rest<S>),
+  Rest(Rest),
 }
 
 // impl DisplayAs<Spans> for StructItem<Range<usize>> {
@@ -32,8 +32,8 @@ pub enum StructItem<S: SyntaxScope> {
 
 #[derive(Clone, Debug)]
 pub struct Struct<S: SyntaxScope> {
-  pub name: Option<S::Path>,
-  pub fields: Vec<StructItem<S>>,
+  pub name: Option<S::Single<Path<S>>>,
+  pub fields: S::Multi<StructItem<S>>,
 }
 
 // impl DisplayAs<Spans> for Struct<Range<usize>> {

@@ -1,4 +1,4 @@
-use crate::scope::SyntaxScope;
+use crate::{expressions::Expression, patterns::Pattern, scope::SyntaxScope, types::Type};
 
 /// Decleration should allow for pattern matching in its syntax
 ///
@@ -22,9 +22,9 @@ use crate::scope::SyntaxScope;
 /// return value is not used, it'll throw an compiler error.
 #[derive(Clone, Debug)]
 pub struct Declare<S: SyntaxScope> {
-  pub pattern: S::Pattern,
-  pub annotation: Option<S::Type>,
-  pub value: Box<S::Expression>,
+  pub pattern: S::Single<Pattern<S>>,
+  pub annotation: Option<S::Single<Type<S>>>,
+  pub value: S::Single<Expression<S>>,
 }
 
 // impl DisplayAs<Spans> for Declare<Range<usize>> {

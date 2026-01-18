@@ -1,9 +1,9 @@
-use crate::scope::SyntaxScope;
+use crate::{expressions::Expression, ident::Name, scope::SyntaxScope};
 
 #[derive(Clone, Debug)]
 pub struct Field<S: SyntaxScope> {
-  pub value: Box<S::Expression>,
-  pub name: S::Ident,
+  pub value: S::Single<Expression<S>>,
+  pub name: S::Single<Name>,
 }
 
 // impl DisplayAs<Spans> for Field<Range<usize>> {

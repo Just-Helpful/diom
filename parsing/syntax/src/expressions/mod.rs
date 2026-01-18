@@ -1,4 +1,4 @@
-use crate::scope::SyntaxScope;
+use crate::{ident::Name, scope::SyntaxScope};
 
 mod access;
 pub use access::{Call, Field, Index, Infix, MonadResult, MonadThen};
@@ -16,7 +16,7 @@ pub enum Expression<S: SyntaxScope> {
   /* base values in the language */
   Char(Char),
   Float(Float<S>),
-  Var(S::Ident),
+  Var(Name),
   /* block expressions */
   Group(Group<S>),
   Block(Block<S>),

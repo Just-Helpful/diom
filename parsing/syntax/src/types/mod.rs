@@ -1,4 +1,4 @@
-use crate::scope::SyntaxScope;
+use crate::{ident::Name, scope::SyntaxScope};
 
 mod arrays;
 pub use arrays::Array;
@@ -16,7 +16,7 @@ pub use typedef::TypeDef;
 #[derive(Clone, Debug)]
 pub enum Type<S: SyntaxScope> {
   /* type variables */
-  Var(S::Ident),
+  Var(Name),
   Char,
   Float,
   /* structural types for composition */

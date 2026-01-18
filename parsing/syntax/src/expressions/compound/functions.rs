@@ -1,9 +1,9 @@
-use crate::scope::SyntaxScope;
+use crate::{expressions::Expression, patterns::Pattern, scope::SyntaxScope, types::Type};
 
 #[derive(Clone, Debug)]
 pub struct Argument<S: SyntaxScope> {
-  pub pattern: S::Pattern,
-  pub annotation: Option<S::Type>,
+  pub pattern: S::Single<Pattern<S>>,
+  pub annotation: Option<S::Single<Type<S>>>,
 }
 
 // impl DisplayAs<Spans> for Argument<Range<usize>> {
@@ -16,9 +16,9 @@ pub struct Argument<S: SyntaxScope> {
 
 #[derive(Clone, Debug)]
 pub struct FunctionArm<S: SyntaxScope> {
-  pub arguments: Vec<Argument<S>>,
-  pub annotation: Option<S::Type>,
-  pub returned: Box<S::Expression>,
+  pub arguments: S::Multi<Argument<S>>,
+  pub annotation: Option<S::Single<Type<S>>>,
+  pub returned: S::Single<Expression<S>>,
 }
 
 // impl DisplayAs<Spans> for FunctionArm<Range<usize>> {
@@ -32,7 +32,7 @@ pub struct FunctionArm<S: SyntaxScope> {
 
 #[derive(Clone, Debug)]
 pub struct Function<S: SyntaxScope> {
-  pub arms: Vec<FunctionArm<S>>,
+  pub arms: S::Multi<FunctionArm<S>>,
 }
 
 // impl DisplayAs<Spans> for Function<Range<usize>> {

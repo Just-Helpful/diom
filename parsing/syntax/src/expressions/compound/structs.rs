@@ -1,8 +1,8 @@
-use crate::scope::SyntaxScope;
+use crate::{expressions::Expression, ident::Name, scope::SyntaxScope};
 
 #[derive(Clone, Debug)]
 pub struct Struct<S: SyntaxScope> {
-  pub fields: Vec<(S::Ident, S::Expression)>,
+  pub fields: S::Multi<(Name, Expression<S>)>,
 }
 
 // impl DisplayAs<Spans> for Struct<Range<usize>> {

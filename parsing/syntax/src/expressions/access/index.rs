@@ -1,9 +1,9 @@
-use crate::scope::SyntaxScope;
+use crate::{expressions::Expression, scope::SyntaxScope};
 
 #[derive(Clone, Debug)]
 pub struct Index<S: SyntaxScope> {
-  pub value: S::Expression,
-  pub key: Vec<S::Expression>,
+  pub value: S::Single<Expression<S>>,
+  pub key: S::Multi<Expression<S>>,
 }
 
 // impl DisplayAs<Spans> for Index<Range<usize>> {

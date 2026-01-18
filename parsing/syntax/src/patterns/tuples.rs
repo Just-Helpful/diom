@@ -1,10 +1,10 @@
 use super::Rest;
-use crate::scope::SyntaxScope;
+use crate::{path::Path, patterns::Pattern, scope::SyntaxScope};
 
 #[derive(Clone, Debug)]
 pub enum TupleItem<S: SyntaxScope> {
-  Field(S::Pattern),
-  Rest(Rest<S>),
+  Field(Pattern<S>),
+  Rest(Rest),
 }
 
 // impl DisplayAs<Spans> for TupleItem<Range<usize>> {
@@ -18,8 +18,8 @@ pub enum TupleItem<S: SyntaxScope> {
 
 #[derive(Clone, Debug)]
 pub struct Tuple<S: SyntaxScope> {
-  pub name: Option<S::Path>,
-  pub fields: Vec<TupleItem<S>>,
+  pub name: Option<S::Single<Path<S>>>,
+  pub fields: S::Multi<TupleItem<S>>,
 }
 
 // impl DisplayAs<Spans> for Tuple<Range<usize>> {
