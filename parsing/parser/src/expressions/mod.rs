@@ -9,7 +9,7 @@ use crate::{
   In,
 };
 use diom_syntax::expressions::Expression;
-use diom_tokens::{SpanTokens, Token};
+use diom_tokens::Token;
 use nom::{branch::alt, error::context, Parser};
 use nom_language::precedence::{binary_op, precedence, unary_op, Assoc, Operation};
 
@@ -25,37 +25,6 @@ mod literals;
 use literals::parse_literal_value;
 mod scopes;
 use scopes::parse_scope_value;
-
-/// Values that have clear start + end delimiters
-pub fn parse_value<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Expression<In<'a>>, E> {
-  context(
-    "value",
-    alt((parse_scope_value, parse_literal_value, parse_compound_value)),
-  )
-  .parse(input)
-}
-
-/// Merges two slices into one
-///
-/// # Safety
-///
-/// Boths `a` and `b` must come from the same original slice
-const unsafe fn merge_slices<'a, T>(a: &'a [T], b: &'a [T]) -> &'a [T] {
-  let start = a.as_ptr();
-  let end = b.as_ptr().add(b.len());
-  let len = end.offset_from(start) as usize;
-  std::slice::from_raw_parts(start, len)
-}
-
-/// Merges two spans into one
-///
-/// # Safety
-///
-/// Boths `a` and `b` must come from the same original input span
-unsafe fn merge_spans<'a>(a: SpanTokens<'a>, b: SpanTokens<'a>) -> SpanTokens<'a> {
-  let merged = merge_slices(a.0, b.0);
-  SpanTokens::from(merged)
-}
 
 /// When parsing expressions, we need to actually be somewhat careful
 /// about the order that we parse different expression types in.
@@ -133,7 +102,10 @@ pub fn parse_expression<'a, E: SyntaxError<'a>>(
         ])),
       ),
     )),
-    parse_value,
+    context(
+      "value",
+      alt((parse_scope_value, parse_literal_value, parse_compound_value)),
+    ),
     apply_operation,
   );
 

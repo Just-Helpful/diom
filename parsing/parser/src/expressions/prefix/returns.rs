@@ -1,4 +1,4 @@
-use crate::{errors::SyntaxError, expressions::merge_spans, parsers::matches, In};
+use crate::{errors::SyntaxError, parsers::matches, utils::merge_spans, In};
 use diom_info_traits::InfoRef;
 use diom_syntax::expressions::{Expression, Return};
 use diom_tokens::Token;

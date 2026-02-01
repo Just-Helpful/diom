@@ -5,7 +5,7 @@ use diom_syntax::{
 };
 use nom::{combinator::recognize, Parser};
 
-use crate::{errors::SyntaxError, expressions::merge_spans, ident::parse_ident, In, Item};
+use crate::{errors::SyntaxError, ident::parse_ident, utils::merge_spans, In, Item};
 
 pub struct PartialInfix<I> {
   pub name: Ident<I>,

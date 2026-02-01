@@ -1,6 +1,6 @@
 use crate::{
-  errors::SyntaxError, expressions::merge_spans, parsers::matches, patterns::parse_pattern,
-  types::parse_type, In,
+  errors::SyntaxError, parsers::matches, patterns::parse_pattern, types::parse_type,
+  utils::merge_spans, In,
 };
 use diom_info_traits::InfoRef;
 use diom_syntax::{

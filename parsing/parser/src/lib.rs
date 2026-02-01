@@ -2,7 +2,6 @@
 //!
 //! All parsers here are complete and expect to be parsing the complete input
 //! at once, i.e. they are parsing a slice and not an iterator.
-mod common;
 use common::PResult;
 use diom_syntax::expressions::Expression;
 use diom_tokens::{SpanToken, SpanTokens};
@@ -11,6 +10,7 @@ use nom::Parser;
 
 use crate::errors::SyntaxError;
 
+mod common;
 pub mod errors;
 pub mod expressions;
 pub mod ident;
@@ -18,6 +18,7 @@ pub mod parsers;
 pub mod path;
 pub mod patterns;
 pub mod types;
+mod utils;
 
 /// Top level syntax nodes
 pub enum SyntaxNode<I> {

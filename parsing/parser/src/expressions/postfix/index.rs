@@ -1,8 +1,9 @@
 use crate::{
   common::PResult,
   errors::SyntaxError,
-  expressions::{merge_spans, parse_expression},
+  expressions::parse_expression,
   parsers::{token, token_separated_list},
+  utils::merge_spans,
   In,
 };
 use diom_info_traits::InfoRef as _;
