@@ -16,7 +16,7 @@ use nom::{
 pub fn parse_array<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Array<In<'a>>, E> {
   let parse_inner = context(
     "array inner",
-    terminated(token_separated_list(Token::Comma, parse_expression), eof),
+    terminated(token_separated_list(Token::Comma, parse_expression()), eof),
   );
   let parser = context(
     "array outer",

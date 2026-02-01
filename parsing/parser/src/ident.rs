@@ -29,6 +29,21 @@ pub fn try_into_name<'a>(tok: Item<'a>) -> Result<Name, Token> {
   Ok(name)
 }
 
+#[derive(Debug)]
+pub enum Error {
+  Len(usize),
+  Token(Token),
+}
+
+pub fn try_into_ident<'a>(input: In<'a>) -> Result<Ident<In<'a>>, Error> {
+  if input.len() != 1 {
+    return Err(Error::Len(input.len()));
+  }
+  try_into_name(input[0].clone())
+    .map(|name| Ident { name, info: input })
+    .map_err(Error::Token)
+}
+
 pub fn parse_ident<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Ident<In<'a>>, E> {
   let (input, (info, toks)) = consumed(take(1usize)).parse(input)?;
   let Ok(name) = try_into_name(toks[0].clone()) else {

@@ -49,7 +49,7 @@ pub fn parse_let<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Declare<I
     separated_pair(
       parse_pattern.and(opt(parse_annotation)),
       matches(Token::Assign),
-      parse_expression,
+      parse_expression(),
     ),
   );
 

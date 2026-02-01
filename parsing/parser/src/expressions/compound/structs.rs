@@ -24,7 +24,7 @@ use nom::{
 pub fn parse_struct_field<'a, E: SyntaxError<'a>>(
   input: In<'a>,
 ) -> PResult<'a, (Ident<In<'a>>, Expression<In<'a>>), E> {
-  let parse_value = preceded(matches::<E>(Token::Colon), parse_expression);
+  let parse_value = preceded(matches::<E>(Token::Colon), parse_expression());
   let parser = parse_ident.and(opt(parse_value));
 
   let (input, (field, value)) = context("struct field", parser).parse(input)?;

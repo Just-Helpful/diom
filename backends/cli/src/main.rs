@@ -6,7 +6,7 @@ use diom_interpreter::Eval;
 use diom_lexer::parse_tokens;
 use diom_parser::expressions::parse_expression;
 use diom_tokens::SpanTokens;
-use nom::Err;
+use nom::{Err, Parser as _};
 use nom_language::error::VerboseError;
 use std::fs::read_to_string;
 use std::io;
@@ -91,7 +91,7 @@ fn main() {
   println!("\n# Lexed Tokens");
   println!("{}", SpanTokens::from(&tokens));
 
-  let result = parse_expression::<VerboseError<SpanTokens>>(SpanTokens::from(&tokens));
+  let result = parse_expression::<VerboseError<SpanTokens>>().parse(SpanTokens::from(&tokens));
   let (input, expr) = match result {
     Ok(res) => res,
     Err(Err::Error(err) | Err::Failure(err)) => {

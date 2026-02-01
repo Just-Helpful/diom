@@ -1,9 +1,13 @@
-use crate::{errors::PResult, parsers::matches, In};
+use crate::{
+  errors::{PResult, SyntaxError},
+  parsers::matches,
+  In,
+};
 use diom_syntax::expressions::Float;
 use diom_tokens::Token;
-use nom::{combinator::consumed, error::ParseError, Parser};
+use nom::{combinator::consumed, Parser};
 
-pub fn parse_float<'a, E: ParseError<In<'a>>>(input: In<'a>) -> PResult<'a, Float<In<'a>>, E> {
+pub fn parse_float<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Float<In<'a>>, E> {
   let parser = matches(Token::Float(0.0));
   let (input, (info, v)) = consumed(parser).parse(input)?;
   Ok((

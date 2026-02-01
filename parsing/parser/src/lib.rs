@@ -25,7 +25,7 @@ pub enum SyntaxNode<I> {
 }
 
 pub fn parse_node<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, SyntaxNode<In<'a>>, E> {
-  parse_expression.map(SyntaxNode::Expression).parse(input)
+  parse_expression().map(SyntaxNode::Expression).parse(input)
 }
 
 type In<'a> = SpanTokens<'a>;

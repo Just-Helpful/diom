@@ -13,7 +13,7 @@ use nom::{combinator::consumed, sequence::preceded, Parser};
 /// let x = (return 2; 3)
 /// ```
 pub fn parse_return<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Return<In<'a>>, E> {
-  let parser = preceded(matches(Token::Return), parse_expression);
+  let parser = preceded(matches(Token::Return), parse_expression());
   let (input, (info, value)) = consumed(parser).parse(input)?;
   Ok((
     input,

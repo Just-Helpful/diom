@@ -17,7 +17,7 @@ use nom::{
 
 pub fn parse_statement<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Statement<In<'a>>, E> {
   alt((
-    context("expression", parse_expression).map(Statement::Expression),
+    context("expression", parse_expression()).map(Statement::Expression),
     context("type def", parse_typedef).map(Statement::TypeDef),
   ))
   .parse(input)

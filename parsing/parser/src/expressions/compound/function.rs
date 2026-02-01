@@ -45,7 +45,7 @@ pub fn parse_arm<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, FunctionA
   let parse_function = separated_pair(
     parse_params.and(parse_annotation), // parameters `(...): ...`
     matches(Token::Function),           // arrow      `=>`
-    parse_expression.map(Box::new),     // expression `...`
+    parse_expression().map(Box::new),   // expression `...`
   );
 
   let (input, (info, ((arguments, annotation), returned))) =

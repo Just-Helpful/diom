@@ -1,34 +1,64 @@
-use crate::common::{PResult, SpanToken, SpanTokens, Token};
+use crate::common::{PResult, SpanToken, Token};
 use crate::errors::SyntaxError;
-use crate::In;
-use nom::combinator::eof;
+use crate::{In, Item};
+use nom::combinator::{eof, verify};
 use nom::error::{context, ParseError};
 use nom::{
   combinator::opt,
   error::{Error, ErrorKind},
-  Err,
 };
 use nom::{Input, Parser};
 use std::num::NonZero;
-use std::ops::Deref;
 
-pub fn token<'a, E: SyntaxError<'a>>(
-  tok: Token,
-) -> impl Fn(SpanTokens<'a>) -> PResult<SpanToken, E> {
-  move |input| match input.first() {
-    Some(t) if t.deref() == &tok => Ok((input.take_from(1usize), t.clone())),
-    Some(_) => Err(nom::Err::Error(E::from_error_kind(input, ErrorKind::Tag))),
+#[inline]
+pub fn single_item<'a, E: SyntaxError<'a>>() -> impl Parser<In<'a>, Output = Item<'a>, Error = E> {
+  move |input: In<'a>| match input.first() {
+    Some(t) => Ok((input.take_from(1usize), t.clone())),
     None => Err(nom::Err::Error(E::from_error_kind(input, ErrorKind::Eof))),
   }
 }
 
-pub fn matches<'a, E: ParseError<SpanTokens<'a>>>(
-  tok: Token,
-) -> impl Fn(SpanTokens<'a>) -> PResult<SpanToken, E> {
-  move |input| match input.first() {
-    Some(t) if t.matches(tok.as_ref()) => Ok((input.take_from(1usize), t.clone())),
-    Some(_) => Err(nom::Err::Error(E::from_error_kind(input, ErrorKind::Tag))),
-    None => Err(nom::Err::Error(E::from_error_kind(input, ErrorKind::Eof))),
+pub fn token<'a, E: SyntaxError<'a>>(
+  tok: impl ExactMatch<Token>,
+) -> impl Parser<In<'a>, Output = Item<'a>, Error = E> {
+  verify(single_item(), move |item| tok.exact(item))
+}
+
+pub trait ExactMatch<T> {
+  fn exact(&self, other: &T) -> bool;
+}
+impl ExactMatch<Token> for Token {
+  #[inline]
+  fn exact(&self, other: &Token) -> bool {
+    self == other
+  }
+}
+impl<const N: usize> ExactMatch<Token> for [Token; N] {
+  #[inline]
+  fn exact(&self, other: &Token) -> bool {
+    self.into_iter().any(|tok| tok == other)
+  }
+}
+
+pub fn matches<'a, E: SyntaxError<'a>>(
+  tok: impl ApproxMatch<Token>,
+) -> impl Parser<In<'a>, Output = Item<'a>, Error = E> {
+  verify(single_item(), move |item| tok.approx(item))
+}
+
+pub trait ApproxMatch<T> {
+  fn approx(&self, other: &T) -> bool;
+}
+impl ApproxMatch<Token> for Token {
+  #[inline]
+  fn approx(&self, other: &Token) -> bool {
+    self.matches(other)
+  }
+}
+impl<const N: usize> ApproxMatch<Token> for [Token; N] {
+  #[inline]
+  fn approx(&self, other: &Token) -> bool {
+    self.into_iter().any(|tok| tok == other)
   }
 }
 
@@ -68,16 +98,16 @@ pub fn group<'a, E: SyntaxError<'a>>(
 
 pub fn token_separated_list<'a, I, R, E: ParseError<I>>(
   tok: Token,
-  parser: impl Fn(I) -> Result<(I, R), Err<E>>,
-) -> impl Fn(I) -> Result<(I, Vec<R>), Err<E>>
+  mut parser: impl Parser<I, Output = R, Error = E>,
+) -> impl Parser<I, Output = Vec<R>, Error = E>
 where
   I: Input<Item = SpanToken<'a>> + Clone,
 {
-  move |mut input| {
+  move |mut input: I| {
     let mut result = vec![];
 
     while let Ok((tail, init)) = input.split_at_position::<_, Error<_>>(|t| tok.matches(t)) {
-      let (init, value) = opt(&parser).parse(init)?;
+      let (init, value) = opt(|input| parser.parse(input)).parse(init)?;
       let Some(value) = value else { break };
       eof(init)?;
 
@@ -90,7 +120,7 @@ where
       return Ok((input, result));
     }
 
-    let (input, value) = parser(input)?;
+    let (input, value) = parser.parse(input)?;
     result.push(value);
     Ok((input, result))
   }
