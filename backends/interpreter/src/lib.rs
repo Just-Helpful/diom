@@ -230,12 +230,12 @@ impl<I: Clone> Eval<Scope> for Expression<I> {
         let mut index = index.clone();
         let value = index.value.eval_with(state)?;
         let Value::Array(value) = value else {
-          return Err(Error::NotArray(value, index.key));
+          return Err(Error::NotArray(value, index.keys));
         };
-        if index.key.len() > 1 {
-          return Err(Error::TooManyKeys(value, index.key));
+        if index.keys.len() > 1 {
+          return Err(Error::TooManyKeys(value, index.keys));
         }
-        let Some(key) = index.key.pop() else {
+        let Some(key) = index.keys.pop() else {
           return Err(Error::IndexMissing(value));
         };
         let idx = key.eval_with(state)?;
