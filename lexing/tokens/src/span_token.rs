@@ -12,14 +12,14 @@ impl<'a> SpanToken<'a> {
   ///
   /// ```
   /// # use diom_tokens::{SpanToken, Token::*};
-  /// let lbrac = SpanToken { token: LParen, span: 4..5 };
+  /// let lbrac = SpanToken { token: LParen, origin: "(" };
   /// assert_eq!(
   ///   lbrac.with_token(LCurly),
-  ///   SpanToken { token: LCurly, span: 4..5 }
+  ///   SpanToken { token: LCurly, origin: "(" }
   /// );
   /// assert_eq!(
   ///   lbrac.with_token(Comma),
-  ///   SpanToken { token: Comma, span: 4..5 }
+  ///   SpanToken { token: Comma, origin: "(" }
   /// );
   /// ```
   pub fn with_token(&self, token: Token) -> Self {
