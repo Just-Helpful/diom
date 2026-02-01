@@ -4,7 +4,7 @@
 //! This means that if there is any remaining input after each parse,
 //! they will fail.
 use crate::{
-  errors::{Never, PResult, SyntaxError},
+  errors::{BuildError, SyntaxError},
   parsers::{matches, token},
   In,
 };
@@ -119,7 +119,7 @@ fn apply_operation<'a>(
     PartialInfix<In<'a>>,
     Expression<In<'a>>,
   >,
-) -> Result<Expression<In<'a>>, Never> {
+) -> Result<Expression<In<'a>>, BuildError> {
   // SAFETY: `value` and `other` are produced from the same input slice
   Ok(match op {
     Operation::Prefix(pre, value) => unsafe { pre.apply(value) },

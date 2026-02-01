@@ -6,16 +6,19 @@ pub use nom::{
   Err,
 };
 
-pub enum Never {}
+/// An error raised when building prefix, infix and postfix operations
+pub enum BuildError {}
 
 /// A trait alias for syntax errors used in parsing Diom syntax nodes
-pub trait SyntaxError<'a, E = Never>:
-  ParseError<In<'a>> + ContextError<In<'a>> + FromExternalError<In<'a>, E> + 'a
+pub trait SyntaxError<'a>:
+  ParseError<In<'a>> + ContextError<In<'a>> + FromExternalError<In<'a>, BuildError> + 'a
 {
 }
 
-impl<'a, E0, E: ParseError<In<'a>> + ContextError<In<'a>> + FromExternalError<In<'a>, E0> + 'a>
-  SyntaxError<'a, E0> for E
+impl<
+    'a,
+    E: ParseError<In<'a>> + ContextError<In<'a>> + FromExternalError<In<'a>, BuildError> + 'a,
+  > SyntaxError<'a> for E
 {
 }
 
