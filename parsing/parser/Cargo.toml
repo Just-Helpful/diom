@@ -14,3 +14,4 @@ nom-language = "0.1.0"
 
 [dev-dependencies]
 diom-lexer = { path = "../../lexing/lexer" }
+insta = "1.46.3"
