@@ -36,7 +36,7 @@ pub mod tuple1 {
   {
     /// ## Safety
     ///
-    /// ```ignore
+    /// ```_
     /// Self::GenericSelf<Self::Info>
     ///   "`InfoMap` implementation"
     /// => (<I0 as InfoMap>::GenericSelf<Self::Info>,)
@@ -71,7 +71,7 @@ pub mod tuple2 {
   {
     /// ## Safety
     ///
-    /// ```ignore
+    /// ```_
     /// Self::GenericSelf<Self::Info>
     ///   "`InfoMap` implementation"
     /// => (
@@ -123,7 +123,7 @@ pub mod tuple3 {
   {
     /// ## Safety
     ///
-    /// ```ignore
+    /// ```_
     /// Self::GenericSelf<Self::Info>
     ///   "`InfoMap` implementation"
     /// => (
@@ -181,7 +181,7 @@ pub mod tuple4 {
   {
     /// ## Safety
     ///
-    /// ```ignore
+    /// ```_
     /// Self::GenericSelf<Self::Info>
     ///   "`InfoMap` implementation"
     /// => (
@@ -251,7 +251,7 @@ pub mod tuple5 {
   {
     /// ## Safety
     ///
-    /// ```ignore
+    /// ```_
     /// Self::GenericSelf<Self::Info>
     ///   "`InfoMap` implementation"
     /// => (
@@ -328,7 +328,7 @@ pub mod tuple6 {
   {
     /// ## Safety
     ///
-    /// ```ignore
+    /// ```_
     /// Self::GenericSelf<Self::Info>
     ///   "`InfoMap` implementation"
     /// => (

@@ -17,7 +17,7 @@ impl<I: InfoRef + ?Sized> InfoRef for Box<I> {
 unsafe impl<I: InfoMap> InfoMap for Box<I> {
   /// ## Safety
   ///
-  /// ```ignore
+  /// ```_
   /// Self::GenericSelf<Self::Info>
   ///   "`InfoMap` implementation"
   /// => Box<<I as InfoMap>::GenericSelf<Self::Info>>

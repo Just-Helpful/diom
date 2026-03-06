@@ -6,7 +6,7 @@ use std::{fmt::Write, ops::Range};
 
 /// Decleration should allow for pattern matching in its syntax
 ///
-/// ```ignore
+/// ```_
 /// let Vec2D { x: Float, y: Float };
 /// let Vec2D {x, y} = vec0;
 /// ```
@@ -16,7 +16,7 @@ use std::{fmt::Write, ops::Range};
 /// `Boolean` value (`True` if the `let` statement matches, `False` otherwise).
 /// For example:
 ///
-/// ```ignore
+/// ```_
 /// assert (let Some(x) = Some(5)) == True
 /// assert (let Some(x) = None) == False
 /// ```

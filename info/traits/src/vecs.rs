@@ -7,7 +7,7 @@ impl<I: InfoSource> InfoSource for Vec<I> {
 unsafe impl<I: InfoMap> InfoMap for Vec<I> {
   /// ## Safety
   ///
-  /// ```ignore
+  /// ```_
   /// Self::GenericSelf<Self::Info>
   ///   "`InfoMap` implementation"
   /// => Vec<<I as InfoMap>::GenericSelf<Self::Info>>

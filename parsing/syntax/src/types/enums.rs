@@ -8,7 +8,7 @@ use super::Type;
 
 /// A type for combinations of possible types
 ///
-/// ```ignore
+/// ```_
 /// type CharOption {
 ///   Some(Char),
 ///   None,

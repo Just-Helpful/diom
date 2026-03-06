@@ -4,7 +4,7 @@ use std::{fmt::Write, ops::Range};
 
 /// The type for single characters
 ///
-/// ```ignore
+/// ```_
 /// let SingleString: Char;
 /// let c: Char = 'v';
 /// ```

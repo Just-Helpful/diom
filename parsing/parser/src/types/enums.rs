@@ -38,7 +38,7 @@ fn parse_variant<'a, E: SyntaxError<'a>>(
 /// Parses a enum-like type.
 ///
 /// For example:
-/// ```ignore
+/// ```_
 /// // named
 /// AwaitableNumber {
 ///   Pending,

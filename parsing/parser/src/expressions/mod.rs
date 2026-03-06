@@ -30,7 +30,7 @@ use scopes::parse_scope_value;
 /// about the order that we parse different expression types in.
 ///
 /// We need to parse in the rough order so that bracketing ends up "correct":
-/// ```ignore
+/// ```_
 /// 3 > 4 - 2 + [() => 5][0]() * Some(3)? / 5 <= !False != True
 /// ==
 /// ((3 > ((4 - 2) + (((([() => 5])[0])()) * ((Some(3))?) / 5))) <= !False) != True

@@ -7,7 +7,7 @@ use super::Type;
 
 /// The type for a combination of named fields.
 ///
-/// ```ignore
+/// ```_
 /// let Vec2 {
 ///   x: Float,
 ///   y: Float,

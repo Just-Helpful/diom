@@ -7,7 +7,7 @@ use super::Type;
 
 /// The type for a combination of indexed fields
 ///
-/// ```ignore
+/// ```_
 /// let Vec2 [Float, Float];
 /// let Email: [String, String];
 ///

@@ -6,7 +6,7 @@ use std::{fmt::Write, ops::Range};
 
 /// A type for arrays of items.
 ///
-/// ```ignore
+/// ```_
 /// type String [Char; _];
 /// type Nums = [Float];
 ///

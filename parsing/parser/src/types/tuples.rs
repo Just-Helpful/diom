@@ -18,7 +18,7 @@ use nom::{
 /// Parses a tuple-like type.
 ///
 /// These follow the general form of:
-/// ```ignore
+/// ```_
 /// // named
 /// Vec3D (
 ///   Number,

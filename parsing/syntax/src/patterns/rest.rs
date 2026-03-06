@@ -5,7 +5,7 @@ use std::{fmt::Write, ops::Range};
 
 /// A pattern that captures the remaining contents of a structure.
 /// For example:
-/// ```ignore
+/// ```_
 /// let [1, *xs] = [1, 2, 3];
 /// assert(xs == [2, 3]);
 ///
@@ -19,7 +19,7 @@ use std::{fmt::Write, ops::Range};
 /// @note as diom doesn't allow empty structs, attempting to bind a rest<br>
 /// parameter that would create one is a compiler error:
 ///
-/// ```ignore
+/// ```_
 /// let {x: 1, *sx} = {x: 1};
 /// // gives a compiler error (whilst type checking)
 /// // that `sx` cannot be bound to an empty structure

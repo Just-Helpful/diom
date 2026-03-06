@@ -4,7 +4,7 @@ use std::{fmt::Write, ops::Range};
 
 /// The type for floating point numbers
 ///
-/// ```ignore
+/// ```_
 /// let Number: Float;
 /// let x: Float = 1;
 /// let x: Float = 1.0;

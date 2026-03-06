@@ -21,7 +21,7 @@ impl DisplayAs<Spans> for Argument<Range<usize>> {
 
 /// The type for a callable function
 ///
-/// ```ignore
+/// ```_
 /// # function types can be simplified a bit
 /// type Binary = (x: Float): (y: Float): Float;
 /// type Binary = (x: Float)(y: Float): Float;

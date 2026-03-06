@@ -7,7 +7,7 @@ impl<I: InfoSource> InfoSource for Option<I> {
 unsafe impl<I: InfoMap> InfoMap for Option<I> {
   /// ## Safety
   ///
-  /// ```ignore
+  /// ```_
   /// Self::GenericSelf<Self::Info>
   ///   "`InfoMap` implementation"
   /// => Option<<I as InfoMap>::GenericSelf<Self::Info>>

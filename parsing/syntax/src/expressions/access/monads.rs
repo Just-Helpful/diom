@@ -6,7 +6,7 @@ use std::{fmt::Write, ops::Range};
 /// The syntax for unwrapping a monad inline, looks like `?`.
 ///
 /// For the `Monad` trait defined as so:
-/// ```ignore
+/// ```_
 /// let Monad<T> {
 ///   then<R>(self)(f: (v: T): Monad<R>): Monad<R>,
 ///   result(v: T): Self,
@@ -14,7 +14,7 @@ use std::{fmt::Write, ops::Range};
 /// ```
 ///
 /// and an `Option` type defined as so:
-/// ```ignore
+/// ```_
 /// let Option<T>: Some [T] | None;
 ///
 /// use Option.*;
@@ -29,7 +29,7 @@ use std::{fmt::Write, ops::Range};
 ///
 /// `?` can be used as follows:
 ///
-/// ```ignore
+/// ```_
 /// let optn_x: Option<Float> = {
 ///   let x: Float = Some [5]?;
 ///   Some [x + 1]
@@ -58,7 +58,7 @@ impl DisplayAs<Spans> for MonadThen<Range<usize>> {
 /// The syntax for wrapping a value in a monad, looks like `!`.
 ///
 /// For the `Monad` trait defined as so:
-/// ```ignore
+/// ```_
 /// let Monad<T> {
 ///   then<R>(self)(f: (v: T): Monad<R>): Monad<R>,
 ///   result(v: T): Self,
@@ -66,7 +66,7 @@ impl DisplayAs<Spans> for MonadThen<Range<usize>> {
 /// ```
 ///
 /// and an `Option` type defined as so:
-/// ```ignore
+/// ```_
 /// let Option<T>: Some [T] | None;
 ///
 /// use Option.*;
@@ -81,7 +81,7 @@ impl DisplayAs<Spans> for MonadThen<Range<usize>> {
 ///
 /// `!` can be used as follows:
 ///
-/// ```ignore
+/// ```_
 /// let optn_x: Option<Float> = {
 ///   5!
 /// };
