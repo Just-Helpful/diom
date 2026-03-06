@@ -44,53 +44,57 @@ use scopes::parse_scope_value;
 ///
 /// As these expressions effectively "capture" the whole input.
 ///
-/// The reason that `function`s need to be parsed before `=`<br>
-/// is that there is a slight ambiguity between functions and assignments<br>
-/// which is resolved by parsing functions first.
+/// ## Parsing order
 ///
-/// Parses infix operators i.e. `<value> <op> <other>`\
-/// with the following precedences:
+/// 1. *"value-like"*s with unambiguous bounds
+/// 1. `let` declerations
+/// 1. `return` statements
+/// 1. field accesses
+/// 1. indexing
+/// 1. explicit function calls
 /// 1. *"method-like"* operators
 /// 1. `*` and `/`
 /// 1. `+` and `-`
 /// 1. `&` and `|`
 /// 1. `<`, `>`, `<=`, `>=`, `==` and `!=`
+/// 1. `=` assignment
+/// 1. implicit function calls
 pub fn parse_expression<'a, E: SyntaxError<'a>>(
 ) -> impl Parser<In<'a>, Output = Expression<In<'a>>, Error = E> {
   let parser = precedence(
     alt((
-      unary_op(0, parse_let.map(PartialPrefix::Declare)),
-      unary_op(0, parse_return.map(PartialPrefix::Return)),
+      unary_op(1, parse_let.map(PartialPrefix::Declare)),
+      unary_op(1, parse_return.map(PartialPrefix::Return)),
     )),
     alt((
-      unary_op(0, parse_implicit_call.map(PartialPostFix::Call)),
-      unary_op(0, parse_explicit_call.map(PartialPostFix::Call)),
-      unary_op(0, parse_field.map(PartialPostFix::Field)),
-      unary_op(0, parse_index.map(PartialPostFix::Index)),
+      unary_op(2, parse_field.map(PartialPostFix::Field)),
+      unary_op(2, parse_index.map(PartialPostFix::Index)),
+      unary_op(2, parse_explicit_call.map(PartialPostFix::Call)),
+      // unary_op(9, parse_implicit_call.map(PartialPostFix::Call)),
     )),
     alt((
       binary_op(
-        0,
+        3,
         Assoc::Left,
         PartialInfix::parse_with(matches(Token::StringIdent("".into()))),
       ),
       binary_op(
-        0,
+        4,
         Assoc::Left,
         PartialInfix::parse_with(token([Token::Times, Token::Divide])),
       ),
       binary_op(
-        0,
+        5,
         Assoc::Left,
         PartialInfix::parse_with(token([Token::Plus, Token::Minus])),
       ),
       binary_op(
-        0,
+        6,
         Assoc::Left,
         PartialInfix::parse_with(token([Token::And, Token::Or])),
       ),
       binary_op(
-        0,
+        7,
         Assoc::Left,
         PartialInfix::parse_with(token([
           Token::Lt,
@@ -100,6 +104,11 @@ pub fn parse_expression<'a, E: SyntaxError<'a>>(
           Token::Eq,
           Token::Ne,
         ])),
+      ),
+      binary_op(
+        8,
+        Assoc::Right,
+        PartialInfix::parse_with(token(Token::Assign)),
       ),
     )),
     context(
