@@ -58,7 +58,7 @@ impl ApproxMatch<Token> for Token {
 impl<const N: usize> ApproxMatch<Token> for [Token; N] {
   #[inline]
   fn approx(&self, other: &Token) -> bool {
-    self.into_iter().any(|tok| tok == other)
+    self.into_iter().any(|tok| tok.matches(other))
   }
 }
 
