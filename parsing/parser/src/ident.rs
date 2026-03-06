@@ -1,8 +1,8 @@
 use crate::common::{PResult, Token};
 use crate::errors::SyntaxError;
+use crate::parsers::single_item;
 use crate::{In, Item};
 use diom_syntax::ident::{Ident, Name};
-use nom::bytes::complete::take;
 use nom::combinator::consumed;
 use nom::error::ErrorKind;
 use nom::Parser;
@@ -29,27 +29,17 @@ pub fn try_into_name<'a>(tok: Item<'a>) -> Result<Name, Token> {
   Ok(name)
 }
 
-#[derive(Debug)]
-pub enum Error {
-  Len(usize),
-  Token(Token),
-}
-
-pub fn try_into_ident<'a>(input: In<'a>) -> Result<Ident<In<'a>>, Error> {
-  if input.len() != 1 {
-    return Err(Error::Len(input.len()));
-  }
-  try_into_name(input[0].clone())
-    .map(|name| Ident { name, info: input })
-    .map_err(Error::Token)
+pub fn parse_name<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Name, E> {
+  let (input, tok) = single_item().parse(input)?;
+  let name =
+    try_into_name(tok).map_err(|_| nom::Err::Error(E::from_error_kind(input, ErrorKind::Tag)))?;
+  Ok((input, name))
 }
 
 pub fn parse_ident<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Ident<In<'a>>, E> {
-  let (input, (info, toks)) = consumed(take(1usize)).parse(input)?;
-  let Ok(name) = try_into_name(toks[0].clone()) else {
-    return Err(nom::Err::Error(E::from_error_kind(input, ErrorKind::Tag)));
-  };
-  Ok((input, Ident { name, info }))
+  consumed(parse_name)
+    .map(|(info, name)| Ident { name, info })
+    .parse(input)
 }
 
 #[cfg(test)]
