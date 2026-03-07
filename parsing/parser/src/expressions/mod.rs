@@ -63,6 +63,10 @@ pub fn parse_expression<'a, E: SyntaxError<'a>>(
 ) -> impl Parser<In<'a>, Output = Expression<In<'a>>, Error = E> {
   let parser = precedence(
     alt((
+      unary_op(
+        5,
+        PartialPrefixOp::parse_with(token([Token::Plus, Token::Minus])).map(PartialPrefix::Op),
+      ),
       unary_op(1, parse_let.map(PartialPrefix::Declare)),
       unary_op(1, parse_return.map(PartialPrefix::Return)),
     )),
