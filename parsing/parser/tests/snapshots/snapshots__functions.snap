@@ -6,7 +6,21 @@ Function(
     Function {
         arms: [
             FunctionArm {
-                arguments: [],
+                parameters: Parameters {
+                    parameters: [],
+                    info: SpanTokens(
+                        [
+                            SpanToken {
+                                token: LParen,
+                                origin: "(",
+                            },
+                            SpanToken {
+                                token: RParen,
+                                origin: ")",
+                            },
+                        ],
+                    ),
+                },
                 annotation: None,
                 returned: Float(
                     Float {
