@@ -8,12 +8,12 @@ use std::{cell::RefCell, ops::Range, rc::Rc};
 /// ## Example
 ///
 /// ```ignore
-/// let expr = Infix {value: Var("counter"), op: Add, other: Float(1.0)};
-/// expr.display::<Spans>()
-/// // "(counter + 1.0)"
-/// //   ( var )   ( )
-/// //   (    add    )
-/// //  (    group    )
+/// let json = "{"a": [4, 5, 3], "b": 2}".parse()?;
+/// json.display::<Spans>()
+/// // "{"a": [4, 5, 3], "b": 2}"
+/// //   ╰─╯   U  U  U   ╰─╯  U
+/// //        ╰─list──╯
+/// //  ╰────group────╯
 /// ```
 #[derive(Clone, Copy)]
 pub struct Spans {
@@ -25,11 +25,40 @@ pub struct Spans {
 
 impl Default for Spans {
   fn default() -> Self {
+    Self::curly()
+  }
+}
+impl Spans {
+  /// A pure ASCII representation for span formatting
+  #[inline]
+  pub fn ascii() -> Self {
     Self {
-      single: '^',
-      open: '(',
-      close: ')',
-      fill: ' ',
+      single: 'V',
+      open: '\\',
+      close: '/',
+      fill: '_',
+    }
+  }
+
+  /// A squared unicode representation
+  #[inline]
+  pub fn square() -> Self {
+    Self {
+      single: '⨆',
+      open: '└',
+      close: '┘',
+      fill: '─',
+    }
+  }
+
+  /// A rounded unicode representation
+  #[inline]
+  pub fn curly() -> Self {
+    Self {
+      single: 'U',
+      open: '╰',
+      close: '╯',
+      fill: '─',
     }
   }
 }
