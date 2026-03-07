@@ -1,0 +1,19 @@
+---
+source: parsing/parser/tests/snapshots.rs
+expression: expr
+---
+Float(
+    Float {
+        value: 0.5,
+        info: SpanTokens(
+            [
+                SpanToken {
+                    token: Float(
+                        0.5,
+                    ),
+                    origin: "5e-1",
+                },
+            ],
+        ),
+    },
+)
