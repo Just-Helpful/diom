@@ -5,7 +5,7 @@ use crate::{
   parsers::{group, matches},
   In,
 };
-use diom_syntax::types::{Argument, Function};
+use diom_syntax::types::{Function, Parameter, Parameters};
 use nom::{
   combinator::{consumed, eof},
   multi::separated_list0,
@@ -15,13 +15,13 @@ use nom::{
 
 use super::parse_type;
 
-fn parse_argument<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Argument<In<'a>>, E> {
+fn parse_parameter<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Parameter<In<'a>>, E> {
   let parser = parse_ident.and(preceded(matches(Token::Colon), parse_type));
 
   let (input, (info, (name, annotation))) = consumed(parser).parse(input)?;
   Ok((
     input,
-    Argument {
+    Parameter {
       info,
       name,
       annotation,
@@ -29,17 +29,22 @@ fn parse_argument<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Argument
   ))
 }
 
-pub fn parse_function<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Function<In<'a>>, E> {
-  let parse_inner = terminated(separated_list0(matches(Token::Comma), parse_argument), eof);
+fn parse_parameters<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Parameters<In<'a>>, E> {
+  let parse_inner = terminated(separated_list0(matches(Token::Comma), parse_parameter), eof);
   let parse_params = group(Token::LParen, Token::RParen).and_then(parse_inner);
-  let parse_annotation = preceded(matches(Token::Colon), parse_type);
-  let parse_function = parse_params.and(parse_annotation);
+  let (input, (info, parameters)) = consumed(parse_params).parse(input)?;
+  Ok((input, Parameters { parameters, info }))
+}
 
-  let (input, (info, (arguments, returned))) = consumed(parse_function).parse(input)?;
+pub fn parse_function<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Function<In<'a>>, E> {
+  let parse_annotation = preceded(matches(Token::Colon), parse_type);
+  let parse_function = parse_parameters.and(parse_annotation);
+
+  let (input, (info, (parameters, returned))) = consumed(parse_function).parse(input)?;
   Ok((
     input,
     Function {
-      arguments,
+      parameters,
       returned: Box::new(returned),
       info,
     },

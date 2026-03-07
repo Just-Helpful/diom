@@ -39,7 +39,7 @@ use scopes::parse_scope_value;
 ///
 /// First of all we need to parse expressions that are purely a prefix,<br>
 /// i.e. expressions that are laid out as `<prefix> <expression>`:
-/// 1. `(<arguments>) =>`
+/// 1. `(<parameters>) =>`
 /// 1. `return`, `let <pattern> =`
 ///
 /// As these expressions effectively "capture" the whole input.

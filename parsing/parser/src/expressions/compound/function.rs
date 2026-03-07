@@ -45,7 +45,6 @@ pub fn parse_parameters<'a, E: SyntaxError<'a>>(
 }
 
 pub fn parse_arm<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, FunctionArm<In<'a>>, E> {
-  // @todo maybe define type that holds the span for all arguments
   // @todo support `(x)(y) => 3` syntax
   let parse_annotation = opt(preceded(matches(Token::Colon), parse_type));
   let parse_function = separated_pair(

@@ -38,7 +38,7 @@ pub use typedef::*;
 ///
 /// Types are primarily used within:
 /// 1. variable declerations
-/// 2. function arguments
+/// 2. function parameters
 pub fn parse_type<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Type<In<'a>>, E> {
   alt((
     parse_function.map(Type::Function),

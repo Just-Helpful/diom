@@ -5,17 +5,30 @@ use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use std::{fmt::Write, ops::Range};
 
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
-pub struct Argument<I> {
+pub struct Parameter<I> {
   pub name: Ident<I>,
   pub annotation: Type<I>,
   pub info: I,
 }
 
-impl DisplayAs<Spans> for Argument<Range<usize>> {
+impl DisplayAs<Spans> for Parameter<Range<usize>> {
   fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
-    w.bracket("argument", &self.info)?;
+    w.bracket("param", &self.info)?;
     self.name.write(&mut w.child())?;
     self.annotation.write(&mut w.child())
+  }
+}
+
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
+pub struct Parameters<I> {
+  pub parameters: Vec<Parameter<I>>,
+  pub info: I,
+}
+
+impl DisplayAs<Spans> for Parameters<Range<usize>> {
+  fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
+    w.bracket("params", &self.info)?;
+    self.parameters.write(&mut w.child())
   }
 }
 
@@ -31,7 +44,7 @@ impl DisplayAs<Spans> for Argument<Range<usize>> {
 /// ```
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
 pub struct Function<I> {
-  pub arguments: Vec<Argument<I>>,
+  pub parameters: Parameters<I>,
   pub returned: Box<Type<I>>,
   pub info: I,
 }
@@ -39,7 +52,7 @@ pub struct Function<I> {
 impl DisplayAs<Spans> for Function<Range<usize>> {
   fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
     w.bracket("function", &self.info)?;
-    self.arguments.write(&mut w.child())?;
+    self.parameters.write(&mut w.child())?;
     self.returned.write(&mut w.child())
   }
 }
