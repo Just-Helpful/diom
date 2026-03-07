@@ -1,25 +1,31 @@
 use diom_lexer::parse_tokens;
 use diom_parser::{parse_node, SyntaxNode};
-use diom_tokens::SpanTokens;
+use diom_syntax::expressions::Expression;
+use diom_tokens::{SpanToken, SpanTokens};
 use insta::assert_debug_snapshot;
+use nom::combinator::eof;
 
-type TestError<'a> = nom::error::Error<SpanTokens<'a>>;
+type LexError<'a> = nom::error::Error<&'a str>;
+type ParseError<'a> = nom::error::Error<SpanTokens<'a>>;
 
-#[test]
-fn anonymous_function_creation() {
-  let input = "() => 5";
+fn quick_lex(input: &str) -> Vec<SpanToken<'_>> {
   let (input, tokens) = parse_tokens(input).expect("we can parse the tokens for the expression");
-  assert_eq!(input.len(), 0, "There shouldn't be any input left to lex");
-  let tokens = SpanTokens(&tokens);
+  eof::<_, LexError>(input).expect("There shouldn't be any input left to lex");
+  tokens
+}
 
+fn quick_parse(tokens: SpanTokens) -> Expression<SpanTokens> {
   let (tokens, node) =
-    parse_node::<TestError>(tokens).expect("we can parse the syntax node for the expression");
-  assert_eq!(
-    tokens.len(),
-    0,
-    "There shouldn't be any tokens left to parse"
-  );
+    parse_node::<ParseError>(tokens).expect("we can parse the syntax node for the expression");
+  eof::<_, ParseError>(tokens).expect("There shouldn't be any input left to parse");
 
   let SyntaxNode::Expression(expr) = node;
+  expr
+}
+
+#[test]
+fn functions() {
+  let tokens = quick_lex("() => 5");
+  let expr = quick_parse((&tokens).into());
   assert_debug_snapshot!(expr);
 }

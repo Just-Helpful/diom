@@ -1,0 +1,73 @@
+---
+source: parsing/parser/tests/snapshots.rs
+expression: expr
+---
+Function(
+    Function {
+        arms: [
+            FunctionArm {
+                arguments: [],
+                annotation: None,
+                returned: Float(
+                    Float {
+                        value: 5.0,
+                        info: SpanTokens(
+                            [
+                                SpanToken {
+                                    token: Float(
+                                        5.0,
+                                    ),
+                                    origin: "5",
+                                },
+                            ],
+                        ),
+                    },
+                ),
+                info: SpanTokens(
+                    [
+                        SpanToken {
+                            token: LParen,
+                            origin: "(",
+                        },
+                        SpanToken {
+                            token: RParen,
+                            origin: ")",
+                        },
+                        SpanToken {
+                            token: Function,
+                            origin: "=>",
+                        },
+                        SpanToken {
+                            token: Float(
+                                5.0,
+                            ),
+                            origin: "5",
+                        },
+                    ],
+                ),
+            },
+        ],
+        info: SpanTokens(
+            [
+                SpanToken {
+                    token: LParen,
+                    origin: "(",
+                },
+                SpanToken {
+                    token: RParen,
+                    origin: ")",
+                },
+                SpanToken {
+                    token: Function,
+                    origin: "=>",
+                },
+                SpanToken {
+                    token: Float(
+                        5.0,
+                    ),
+                    origin: "5",
+                },
+            ],
+        ),
+    },
+)
