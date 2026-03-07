@@ -8,7 +8,7 @@ use crate::{
 };
 
 use diom_info_traits::InfoRef;
-use diom_syntax::expressions::{Argument, Function, FunctionArm};
+use diom_syntax::expressions::{Function, FunctionArm, Parameter};
 use diom_tokens::Token;
 use nom::{
   branch::alt,
@@ -21,13 +21,13 @@ use nom::{
 
 /// Parses a function parameter for a given function, i.e.
 /// `x: int`, `[x]: [int]`, `{x: name}: {x: number}`
-pub fn parse_parameter<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Argument<In<'a>>, E> {
+pub fn parse_parameter<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Parameter<In<'a>>, E> {
   let parser = parse_pattern.and(opt(preceded(matches(Token::Colon), parse_type)));
   let (input, (info, (pattern, annotation))) =
     context("parameter", consumed(parser)).parse(input)?;
   Ok((
     input,
-    Argument {
+    Parameter {
       pattern,
       annotation,
       info,
@@ -48,13 +48,13 @@ pub fn parse_arm<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, FunctionA
     parse_expression().map(Box::new),   // expression `...`
   );
 
-  let (input, (info, ((arguments, annotation), returned))) =
+  let (input, (info, ((parameters, annotation), returned))) =
     context("function arm", consumed(parse_function)).parse(input)?;
   Ok((
     input,
     FunctionArm {
       info,
-      arguments,
+      parameters,
       annotation,
       returned,
     },

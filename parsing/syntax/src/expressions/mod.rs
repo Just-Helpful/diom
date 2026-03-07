@@ -13,7 +13,7 @@ pub use access::{Call, Field, Index, Infix, MonadResult, MonadThen};
 mod blocks;
 pub use blocks::{Assign, Block, Declare, Group, Return, Statement};
 mod compound;
-pub use compound::{Argument, Array, Function, FunctionArm, Struct};
+pub use compound::{Parameter, Array, Function, FunctionArm, Struct};
 
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
 pub enum Expression<I> {

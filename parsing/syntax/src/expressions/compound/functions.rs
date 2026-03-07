@@ -5,13 +5,13 @@ use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use std::{fmt::Write, ops::Range};
 
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
-pub struct Argument<I> {
+pub struct Parameter<I> {
   pub pattern: Pattern<I>,
   pub annotation: Option<Type<I>>,
   pub info: I,
 }
 
-impl DisplayAs<Spans> for Argument<Range<usize>> {
+impl DisplayAs<Spans> for Parameter<Range<usize>> {
   fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
     w.bracket("argument", &self.info)?;
     self.pattern.write(&mut w.child())?;
@@ -21,7 +21,7 @@ impl DisplayAs<Spans> for Argument<Range<usize>> {
 
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
 pub struct FunctionArm<I> {
-  pub arguments: Vec<Argument<I>>,
+  pub parameters: Vec<Parameter<I>>,
   pub annotation: Option<Type<I>>,
   pub returned: Box<Expression<I>>,
   pub info: I,
@@ -30,7 +30,7 @@ pub struct FunctionArm<I> {
 impl DisplayAs<Spans> for FunctionArm<Range<usize>> {
   fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
     w.bracket("arm", &self.info)?;
-    self.arguments.write(&mut w.child())?;
+    self.parameters.write(&mut w.child())?;
     self.annotation.write(&mut w.child())?;
     self.returned.write(&mut w.child())
   }
