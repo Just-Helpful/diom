@@ -8,7 +8,7 @@ use crate::{
 };
 
 use diom_info_traits::InfoRef;
-use diom_syntax::expressions::{Function, FunctionArm, Parameter};
+use diom_syntax::expressions::{Function, FunctionArm, Parameter, Parameters};
 use diom_tokens::Token;
 use nom::{
   branch::alt,
@@ -35,17 +35,23 @@ pub fn parse_parameter<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Par
   ))
 }
 
+pub fn parse_parameters<'a, E: SyntaxError<'a>>(
+  input: In<'a>,
+) -> PResult<'a, Parameters<In<'a>>, E> {
+  let parse_inner = terminated(many0(parse_parameter), eof);
+  let parse_params = group(Token::LParen, Token::RParen).and_then(parse_inner);
+  let (input, (info, parameters)) = context("parameters", consumed(parse_params)).parse(input)?;
+  Ok((input, Parameters { info, parameters }))
+}
+
 pub fn parse_arm<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, FunctionArm<In<'a>>, E> {
   // @todo maybe define type that holds the span for all arguments
   // @todo support `(x)(y) => 3` syntax
-  let parse_inner = terminated(many0(parse_parameter), eof);
-  let parse_params = group(Token::LParen, Token::RParen).and_then(parse_inner);
-
   let parse_annotation = opt(preceded(matches(Token::Colon), parse_type));
   let parse_function = separated_pair(
-    parse_params.and(parse_annotation), // parameters `(...): ...`
-    matches(Token::Function),           // arrow      `=>`
-    parse_expression().map(Box::new),   // expression `...`
+    parse_parameters.and(parse_annotation), // parameters `(...): ...`
+    matches(Token::Function),               // arrow      `=>`
+    parse_expression().map(Box::new),       // expression `...`
   );
 
   let (input, (info, ((parameters, annotation), returned))) =

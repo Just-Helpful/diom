@@ -13,15 +13,28 @@ pub struct Parameter<I> {
 
 impl DisplayAs<Spans> for Parameter<Range<usize>> {
   fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
-    w.bracket("argument", &self.info)?;
+    w.bracket("param", &self.info)?;
     self.pattern.write(&mut w.child())?;
     self.annotation.write(&mut w.child())
   }
 }
 
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
-pub struct FunctionArm<I> {
+pub struct Parameters<I> {
   pub parameters: Vec<Parameter<I>>,
+  pub info: I,
+}
+
+impl DisplayAs<Spans> for Parameters<Range<usize>> {
+  fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
+    w.bracket("params", &self.info)?;
+    self.parameters.write(&mut w.child())
+  }
+}
+
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
+pub struct FunctionArm<I> {
+  pub parameters: Parameters<I>,
   pub annotation: Option<Type<I>>,
   pub returned: Box<Expression<I>>,
   pub info: I,
