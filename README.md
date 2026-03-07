@@ -13,7 +13,7 @@ This is mostly a language written because:
 ### Parsing
 
 - [ ] property testing on AST -> code -> AST round trip
-- [ ] use `nom-language`'s `precedence` parser
+- [x] use `nom-language`'s `precedence` parser
 - [ ] f-string support
   - I'll need to update how strings are parsed...
   - maybe consider having f-strings create templates not strings\
