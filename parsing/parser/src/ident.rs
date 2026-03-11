@@ -1,38 +1,18 @@
-use crate::common::{PResult, Token};
+use crate::common::PResult;
 use crate::errors::SyntaxError;
 use crate::parsers::single_item;
-use crate::{In, Item};
+use crate::In;
 use diom_syntax::ident::{Ident, Name};
 use nom::combinator::consumed;
 use nom::error::ErrorKind;
 use nom::Parser;
 
-pub fn try_into_name<'a>(tok: Item<'a>) -> Result<Name, Token> {
-  let name = match tok.as_ref() {
-    Token::StringIdent(name) => Name::Literal(name.clone()),
-    Token::Not => Name::Not,
-    Token::And => Name::And,
-    Token::Or => Name::Or,
-    Token::Plus => Name::Plus,
-    Token::Minus => Name::Minus,
-    Token::Times => Name::Times,
-    Token::Divide => Name::Divide,
-    Token::Eq => Name::Eq,
-    Token::Ne => Name::Ne,
-    Token::Lt => Name::Lt,
-    Token::Gt => Name::Gt,
-    Token::LtEq => Name::LtEq,
-    Token::GtEq => Name::GtEq,
-    t => return Err(t.clone()),
-  };
-
-  Ok(name)
-}
-
 pub fn parse_name<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Name, E> {
   let (input, tok) = single_item().parse(input)?;
-  let name =
-    try_into_name(tok).map_err(|_| nom::Err::Error(E::from_error_kind(input, ErrorKind::Tag)))?;
+  let name = tok
+    .token
+    .try_into()
+    .map_err(|_| nom::Err::Error(E::from_error_kind(input, ErrorKind::Tag)))?;
   Ok((input, name))
 }
 
