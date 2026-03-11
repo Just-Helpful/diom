@@ -13,19 +13,22 @@ This is mostly a language written because:
 ### Parsing
 
 - [ ] property testing on AST -> code -> AST round trip
-- [x] use `nom-language`'s `precedence` parser
+  - [x] implement `Display` for AST
+  - [ ] implement generators for ASTs
+  - [ ] add property testing
 - [ ] f-string support
   - I'll need to update how strings are parsed...
   - maybe consider having f-strings create templates not strings\
     if we support string conversion on these, we can solve most\
     of the standard string injection attacks by not converting to\
     strings until the last possible second.
+- [x] use `nom-language`'s `precedence` parser
 
 ### Formatting
 
 - [ ] add a custom formatter for indented structures
-- [ ] printing ASTs as code
 - [ ] add a custom formatting for creating boxes
+- [x] printing ASTs as code
 
 ### Interpreter
 
