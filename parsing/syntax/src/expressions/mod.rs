@@ -1,7 +1,10 @@
 use crate::ident::Ident;
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
-use std::{fmt::Write, ops::Range};
+use std::{
+  fmt::{Display, Formatter, Write},
+  ops::Range,
+};
 
 mod chars;
 pub use chars::Char;
@@ -38,6 +41,34 @@ pub enum Expression<I> {
   Infix(Infix<I>),
   Monad(MonadThen<I>),
   Result(MonadResult<I>),
+}
+
+impl<I> Display for Expression<I> {
+  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    use Expression::*;
+    match self {
+      Char(c) => c.fmt(f),
+      Float(v) => v.fmt(f),
+      Var(v) => v.fmt(f),
+      //
+      Group(g) => g.fmt(f),
+      Block(b) => b.fmt(f),
+      Assign(a) => a.fmt(f),
+      Declare(d) => d.fmt(f),
+      Return(r) => r.fmt(f),
+      //
+      Array(a) => a.fmt(f),
+      Function(v) => v.fmt(f),
+      Struct(s) => s.fmt(f),
+      //
+      Call(c) => c.fmt(f),
+      Field(v) => v.fmt(f),
+      Index(i) => i.fmt(f),
+      Infix(i) => i.fmt(f),
+      Monad(m) => m.fmt(f),
+      Result(r) => r.fmt(f),
+    }
+  }
 }
 
 impl DisplayAs<Spans> for Expression<Range<usize>> {

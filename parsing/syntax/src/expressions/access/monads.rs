@@ -1,7 +1,10 @@
 use super::Expression;
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
-use std::{fmt::Write, ops::Range};
+use std::{
+  fmt::{Display, Write},
+  ops::Range,
+};
 
 /// The syntax for unwrapping a monad inline, looks like `?`.
 ///
@@ -48,6 +51,13 @@ pub struct MonadThen<I> {
   pub info: I,
 }
 
+impl<I> Display for MonadThen<I> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    self.value.fmt(f)?;
+    f.write_char('?')
+  }
+}
+
 impl DisplayAs<Spans> for MonadThen<Range<usize>> {
   fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
     w.bracket("monad unwrap", &self.info)?;
@@ -91,6 +101,13 @@ impl DisplayAs<Spans> for MonadThen<Range<usize>> {
 pub struct MonadResult<I> {
   pub value: Box<Expression<I>>,
   pub info: I,
+}
+
+impl<I> Display for MonadResult<I> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    self.value.fmt(f)?;
+    f.write_char('!')
+  }
 }
 
 impl DisplayAs<Spans> for MonadResult<Range<usize>> {

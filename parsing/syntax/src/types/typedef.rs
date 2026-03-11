@@ -2,7 +2,10 @@ use super::Type;
 use crate::ident::Ident;
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
-use std::{fmt::Write, ops::Range};
+use std::{
+  fmt::{Display, Write},
+  ops::Range,
+};
 
 /// The definition for a type alias
 ///
@@ -24,6 +27,15 @@ pub struct TypeDef<I> {
   pub name: Ident<I>,
   pub value: Box<Type<I>>,
   pub info: I,
+}
+
+impl<I> Display for TypeDef<I> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    f.write_str("type ")?;
+    self.name.fmt(f)?;
+    f.write_str("=")?;
+    self.value.fmt(f)
+  }
 }
 
 impl DisplayAs<Spans> for TypeDef<Range<usize>> {

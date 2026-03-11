@@ -1,7 +1,10 @@
-use crate::ident::Ident;
+use crate::{display::Optn, ident::Ident};
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
-use std::{fmt::Write, ops::Range};
+use std::{
+  fmt::{Display, Write},
+  ops::Range,
+};
 
 /// A pattern that captures the remaining contents of a structure.
 /// For example:
@@ -28,6 +31,12 @@ use std::{fmt::Write, ops::Range};
 pub struct Rest<I> {
   pub name: Option<Ident<I>>,
   pub info: I,
+}
+
+impl<I> Display for Rest<I> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    Optn(&self.name).fmt(f)
+  }
 }
 
 impl DisplayAs<Spans> for Rest<Range<usize>> {

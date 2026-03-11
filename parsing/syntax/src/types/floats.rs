@@ -1,6 +1,9 @@
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
-use std::{fmt::Write, ops::Range};
+use std::{
+  fmt::{Display, Write},
+  ops::Range,
+};
 
 /// The type for floating point numbers
 ///
@@ -14,6 +17,12 @@ use std::{fmt::Write, ops::Range};
 #[derive(Clone, InfoSource, InfoRef, InfoMap)]
 pub struct Float<I> {
   pub info: I,
+}
+
+impl<I> Display for Float<I> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    f.write_str("Float")
+  }
 }
 
 impl DisplayAs<Spans> for Float<Range<usize>> {

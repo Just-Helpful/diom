@@ -2,13 +2,24 @@ use super::Expression;
 use crate::ident::Ident;
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
-use std::{fmt::Write, ops::Range};
+use std::{
+  fmt::{Display, Write},
+  ops::Range,
+};
 
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
 pub struct Field<I> {
   pub value: Box<Expression<I>>,
   pub name: Ident<I>,
   pub info: I,
+}
+
+impl<I> Display for Field<I> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    self.value.fmt(f)?;
+    f.write_char('.')?;
+    self.name.fmt(f)
+  }
 }
 
 impl DisplayAs<Spans> for Field<Range<usize>> {

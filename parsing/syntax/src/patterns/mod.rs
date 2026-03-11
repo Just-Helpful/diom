@@ -1,7 +1,10 @@
 use crate::ident::Ident;
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
-use std::{fmt::Write, ops::Range};
+use std::{
+  fmt::{Display, Write},
+  ops::Range,
+};
 
 pub mod arrays;
 use arrays::Array;
@@ -21,6 +24,19 @@ pub enum Pattern<I> {
   Tuple(Tuple<I>),
   Ignored(Ignored<I>),
   Var(Ident<I>),
+}
+
+impl<I> Display for Pattern<I> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    use Pattern::*;
+    match self {
+      Array(a) => a.fmt(f),
+      Struct(s) => s.fmt(f),
+      Tuple(t) => t.fmt(f),
+      Ignored(i) => i.fmt(f),
+      Var(v) => v.fmt(f),
+    }
+  }
 }
 
 impl DisplayAs<Spans> for Pattern<Range<usize>> {

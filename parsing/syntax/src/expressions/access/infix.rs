@@ -9,7 +9,7 @@ use crate::ident::Ident;
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use std::{
-  fmt::{Debug, Write},
+  fmt::{Debug, Display, Write},
   ops::Range,
 };
 
@@ -19,6 +19,14 @@ pub struct Infix<I> {
   pub name: Ident<I>,
   pub other: Box<Expression<I>>,
   pub info: I,
+}
+
+impl<I> Display for Infix<I> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    self.value.fmt(f)?;
+    self.name.fmt(f)?;
+    self.other.fmt(f)
+  }
 }
 
 impl DisplayAs<Spans> for Infix<Range<usize>> {

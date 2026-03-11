@@ -2,7 +2,10 @@ use super::Expression;
 use crate::{patterns::Pattern, types::Type};
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
-use std::{fmt::Write, ops::Range};
+use std::{
+  fmt::{Display, Write},
+  ops::Range,
+};
 
 /// Decleration should allow for pattern matching in its syntax
 ///
@@ -30,6 +33,19 @@ pub struct Declare<I> {
   pub annotation: Option<Type<I>>,
   pub value: Box<Expression<I>>,
   pub info: I,
+}
+
+impl<I> Display for Declare<I> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    f.write_str("let ")?;
+    self.pattern.fmt(f)?;
+    if let Some(annotation) = &self.annotation {
+      f.write_char(':')?;
+      annotation.fmt(f)?
+    }
+    f.write_char('=')?;
+    self.value.fmt(f)
+  }
 }
 
 impl DisplayAs<Spans> for Declare<Range<usize>> {

@@ -1,13 +1,25 @@
 use super::Expression;
-use crate::types::TypeDef;
+use crate::{display::Sep, types::TypeDef};
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
-use std::{fmt::Write, ops::Range};
+use std::{
+  fmt::{Display, Write},
+  ops::Range,
+};
 
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
 pub enum Statement<I> {
   Expression(Expression<I>),
   TypeDef(TypeDef<I>),
+}
+
+impl<I> Display for Statement<I> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    match self {
+      Self::Expression(e) => e.fmt(f),
+      Self::TypeDef(t) => t.fmt(f),
+    }
+  }
 }
 
 impl DisplayAs<Spans> for Statement<Range<usize>> {
@@ -23,6 +35,14 @@ impl DisplayAs<Spans> for Statement<Range<usize>> {
 pub struct Block<I> {
   pub statements: Vec<Statement<I>>,
   pub info: I,
+}
+
+impl<I> Display for Block<I> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    f.write_char('(')?;
+    Sep(&self.statements, ';').fmt(f)?;
+    f.write_char(')')
+  }
 }
 
 impl DisplayAs<Spans> for Block<Range<usize>> {

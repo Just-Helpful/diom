@@ -81,6 +81,12 @@ pub struct Ident<I> {
   pub info: I,
 }
 
+impl<I> Display for Ident<I> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    self.name.fmt(f)
+  }
+}
+
 impl DisplayAs<Spans> for Ident<Range<usize>> {
   fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
     w.bracket("ident", &self.info)

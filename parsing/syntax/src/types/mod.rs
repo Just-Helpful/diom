@@ -1,7 +1,10 @@
 use crate::ident::Ident;
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
-use std::{fmt::Write, ops::Range};
+use std::{
+  fmt::{Display, Write},
+  ops::Range,
+};
 
 mod arrays;
 pub use arrays::Array;
@@ -31,6 +34,22 @@ pub enum Type<I> {
   Enum(Enum<I>),
   /* function types */
   Function(Function<I>),
+}
+
+impl<I> Display for Type<I> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    use Type::*;
+    match self {
+      Var(v) => v.fmt(f),
+      //
+      Array(a) => a.fmt(f),
+      Struct(s) => s.fmt(f),
+      Tuple(t) => t.fmt(f),
+      Enum(e) => e.fmt(f),
+      //
+      Function(v) => v.fmt(f),
+    }
+  }
 }
 
 impl DisplayAs<Spans> for Type<Range<usize>> {

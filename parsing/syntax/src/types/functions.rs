@@ -1,14 +1,25 @@
 use super::Type;
-use crate::ident::Ident;
+use crate::{display::Sep, ident::Ident};
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
-use std::{fmt::Write, ops::Range};
+use std::{
+  fmt::{Display, Write},
+  ops::Range,
+};
 
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
 pub struct Parameter<I> {
   pub name: Ident<I>,
   pub annotation: Type<I>,
   pub info: I,
+}
+
+impl<I> Display for Parameter<I> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    self.name.fmt(f)?;
+    f.write_char(':')?;
+    self.annotation.fmt(f)
+  }
 }
 
 impl DisplayAs<Spans> for Parameter<Range<usize>> {
@@ -23,6 +34,12 @@ impl DisplayAs<Spans> for Parameter<Range<usize>> {
 pub struct Parameters<I> {
   pub parameters: Vec<Parameter<I>>,
   pub info: I,
+}
+
+impl<I> Display for Parameters<I> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    Sep(&self.parameters, ',').fmt(f)
+  }
 }
 
 impl DisplayAs<Spans> for Parameters<Range<usize>> {
@@ -47,6 +64,15 @@ pub struct Function<I> {
   pub parameters: Parameters<I>,
   pub returned: Box<Type<I>>,
   pub info: I,
+}
+
+impl<I> Display for Function<I> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    f.write_char('(')?;
+    self.parameters.fmt(f)?;
+    f.write_str("):")?;
+    self.returned.fmt(f)
+  }
 }
 
 impl DisplayAs<Spans> for Function<Range<usize>> {

@@ -1,6 +1,12 @@
-use std::{fmt::Write, ops::Range};
+use std::{
+  fmt::{Display, Write},
+  ops::Range,
+};
 
-use crate::ident::Ident;
+use crate::{
+  display::{Optn, Sep, Tuple},
+  ident::Ident,
+};
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 
@@ -30,6 +36,15 @@ pub struct Enum<I> {
   pub name: Option<Ident<I>>,
   pub variants: Vec<(Ident<I>, Type<I>)>,
   pub info: I,
+}
+
+impl<I> Display for Enum<I> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    Optn(&self.name).fmt(f)?;
+    f.write_char('{')?;
+    Sep(self.variants.iter().map(Tuple), ',').fmt(f)?;
+    f.write_char('}')
+  }
 }
 
 impl DisplayAs<Spans> for Enum<Range<usize>> {

@@ -1,8 +1,11 @@
 use super::Type;
-use crate::ident::Ident;
+use crate::{display::Optn, ident::Ident};
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
-use std::{fmt::Write, ops::Range};
+use std::{
+  fmt::{Display, Write},
+  ops::Range,
+};
 
 /// A type for arrays of items.
 ///
@@ -18,6 +21,15 @@ pub struct Array<I> {
   pub name: Option<Ident<I>>,
   pub item: Box<Type<I>>,
   pub info: I,
+}
+
+impl<I> Display for Array<I> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    Optn(&self.name).fmt(f)?;
+    f.write_char('[')?;
+    self.item.fmt(f)?;
+    f.write_char(']')
+  }
 }
 
 impl DisplayAs<Spans> for Array<Range<usize>> {
