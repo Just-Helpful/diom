@@ -2,8 +2,8 @@
 use std::fmt::{Display, Formatter, Write};
 
 mod blanket_impls;
-mod updater;
-pub use updater::Updater;
+mod utils;
+pub use utils::Updater;
 pub mod formats;
 pub use formats::{IndentWriter, Indented, LineWriter, Lines, SpanWriter, Spans};
 
