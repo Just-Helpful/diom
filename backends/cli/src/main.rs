@@ -108,6 +108,9 @@ fn main() {
   println!("{code}");
   println!("{}", expr.display());
 
+  println!("\n# Displayed Nodes");
+  println!("{expr}");
+
   let value = expr.eval().unwrap();
   println!("\n# Evaluated Value");
   println!("{value:?}");
