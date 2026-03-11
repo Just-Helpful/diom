@@ -1,6 +1,10 @@
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use diom_tokens::Token;
+use std::{
+  fmt::{Display, Write},
+  ops::Range,
+};
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Name {
@@ -62,6 +66,11 @@ impl From<Name> for Token {
       LtEq => Token::LtEq,
       GtEq => Token::GtEq,
     }
+  }
+}
+impl Display for Name {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    Token::from(self.clone()).fmt(f)
   }
 }
 
