@@ -1,6 +1,7 @@
 use crate::{Flush, Format, Updater};
 use std::fmt::{Debug, Write};
 use std::num::NonZero;
+use std::rc::Rc;
 
 /// A format that supports writing to multiple lines at once
 #[derive(Default, Clone, Copy)]
@@ -14,8 +15,8 @@ impl Format for Lines {
       line: 0,
       col: 0,
       byte: 0,
-      lines: vec![],
-      write: w,
+      lines: Rc::new(RefCell::new(vec![])),
+      write: Rc::new(RefCell::new(w)),
     }
   }
 }
@@ -26,7 +27,6 @@ impl Format for Lines {
 /// ## TODO
 ///
 /// Increment to next line when a newline `\n` is written
-#[derive(Clone, Debug)]
 pub struct LineWriter<W, const FILL: char = ' '> {
   /// The line number that is currently being written to
   line: usize,
@@ -37,16 +37,28 @@ pub struct LineWriter<W, const FILL: char = ' '> {
   /// only supports byte offsets, not char offsets.
   byte: usize,
   /// The string content of each line
-  lines: Vec<String>,
+  lines: Rc<RefCell<Vec<String>>>,
   /// The wrapped writer
-  write: W,
+  write: Rc<RefCell<W>>,
+}
+
+impl<W, const FILL: char> Clone for LineWriter<W, FILL> {
+  fn clone(&self) -> Self {
+    Self {
+      line: self.line,
+      col: self.col,
+      byte: self.byte,
+      lines: self.lines.clone(),
+      write: self.write.clone(),
+    }
+  }
 }
 
 impl<W, const FILL: char> LineWriter<W, FILL> {
   /// Pushes a single character to the end of the current line
   /// SAFETY: should be used when the cursor is at the end of the line
   unsafe fn push_char(&mut self, c: char) {
-    self.lines[self.line].push(c);
+    self.lines.borrow_mut()[self.line].push(c);
     self.byte += c.len_utf8();
     self.col += 1;
   }
@@ -55,14 +67,14 @@ impl<W, const FILL: char> LineWriter<W, FILL> {
   /// SAFETY: should be used when the cursor is at the end of the line
   unsafe fn push_str(&mut self, s: &str) {
     let len = s.chars().count();
-    self.lines[self.line].push_str(s);
+    self.lines.borrow_mut()[self.line].push_str(s);
     self.byte += s.len();
     self.col += len;
   }
 
   #[inline]
   fn unchecked_seek_col(&mut self, loc: usize) {
-    let line = &mut self.lines[self.line];
+    let line = &mut self.lines.borrow_mut()[self.line];
     let rem = match byte_at(&line, loc) {
       Ok(byte) => {
         self.byte = byte;
@@ -88,10 +100,12 @@ impl<W, const FILL: char> LineWriter<W, FILL> {
   #[inline]
   fn unchecked_seek_line(&mut self, loc: usize) {
     // if the line number is outside the buffer
-    if self.lines.len() <= loc {
-      let len = loc - self.lines.len();
-      self.lines.extend(vec![String::from(""); len]);
-      self.lines.push(FILL.to_string().repeat(self.col));
+    let len = self.lines.borrow().len();
+    if len <= loc {
+      let len = loc - len;
+      let mut lines = self.lines.borrow_mut();
+      lines.extend(vec![String::from(""); len]);
+      lines.push(FILL.to_string().repeat(self.col));
 
       self.byte = FILL.len_utf8() * self.col;
       self.line = loc;
@@ -122,10 +136,10 @@ impl<W, const FILL: char> LineWriter<W, FILL> {
     let [i, j] = loc.update([self.col, self.line]);
 
     // if the line number is outside the buffer
-    if self.lines.len() <= j {
-      let len = j - self.lines.len();
-      self.lines.extend(vec![String::from(""); len]);
-      self.lines.push(FILL.to_string().repeat(i));
+    if self.lines.borrow().len() <= j {
+      let len = j - self.lines.borrow().len();
+      self.lines.borrow_mut().extend(vec![String::from(""); len]);
+      self.lines.borrow_mut().push(FILL.to_string().repeat(i));
 
       self.byte = FILL.len_utf8() * i;
       self.line = j;
@@ -140,13 +154,14 @@ impl<W, const FILL: char> LineWriter<W, FILL> {
 
 impl<W, const FILL: char> Write for LineWriter<W, FILL> {
   fn write_char(&mut self, c: char) -> std::fmt::Result {
-    let line = &mut self.lines[self.line];
-    if self.byte == line.len() {
+    let len = self.lines.borrow()[self.line].len();
+    if self.byte == len {
       // SAFETY: cursor is at the end of the line
       unsafe { self.push_char(c) }
       return Ok(());
     }
 
+    let line = &mut self.lines.borrow_mut()[self.line];
     let tail = line.split_off(self.byte);
     let byte = tail
       .char_indices()
@@ -161,24 +176,25 @@ impl<W, const FILL: char> Write for LineWriter<W, FILL> {
   }
 
   fn write_str(&mut self, s: &str) -> std::fmt::Result {
-    let len = s.chars().count();
-    let line = &mut self.lines[self.line];
-    if self.byte == line.len() {
+    let len = self.lines.borrow()[self.line].len();
+    if self.byte == len {
       // SAFETY: cursor is at the end of the line
       unsafe { self.push_str(s) }
       return Ok(());
     }
 
+    let line = &mut self.lines.borrow_mut()[self.line];
+    let nchars = s.chars().count();
     let tail = line.split_off(self.byte);
     let byte = tail
       .char_indices()
-      .nth(len)
+      .nth(nchars)
       .map_or(tail.len(), |(byte, _)| byte);
 
     line.push_str(s);
     line.push_str(&tail[byte..]);
     self.byte += s.len();
-    self.col += len;
+    self.col += nchars;
     Ok(())
   }
 }
@@ -193,15 +209,16 @@ impl<W, const FILL: char> LineWriter<W, FILL> {
 
 impl<W: Write, const FILL: char> Flush for LineWriter<W, FILL> {
   fn flush(&mut self) -> std::fmt::Result {
-    let mut iter = self.lines.iter().rev();
+    let lines = self.lines.borrow();
+    let mut iter = lines.iter().rev();
     let Some(line) = iter.next() else {
       return Ok(());
     };
 
-    self.write.write_str(&line)?;
+    self.write.borrow_mut().write_str(&line)?;
     for line in iter {
-      self.write.write_char('\n')?;
-      self.write.write_str(&line)?;
+      self.write.borrow_mut().write_char('\n')?;
+      self.write.borrow_mut().write_str(&line)?;
     }
     Ok(())
   }

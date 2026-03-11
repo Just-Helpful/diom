@@ -1,6 +1,6 @@
 use super::LineWriter;
 use crate::{formats::lines::Lines, Flush, Format, Write};
-use std::{cell::RefCell, ops::Range, rc::Rc};
+use std::ops::Range;
 
 /// Displays the code spans associated with a particular code fragment.\
 /// The code spans represent the syntax nodes that cover the fragment.
@@ -69,7 +69,7 @@ impl Format for Spans {
   fn writer<W: Write>(&self, w: W) -> Self::Writer<W> {
     SpanWriter {
       config: self.clone(),
-      lines: Rc::new(RefCell::new(Lines::default().writer(w))),
+      lines: Lines::default().writer(w),
       depth: 0,
     }
   }
@@ -133,6 +133,7 @@ impl Spans {
     )
   }
 }
+
 pub struct SpanWriter<W> {
   /// The config for how to display spans
   config: Spans,
@@ -159,22 +160,31 @@ pub struct SpanWriter<W> {
   ///   lifetimes polluting the `CustomDisplay` trait.
   /// 2. be rather tricky to implement\
   ///   and likely include some unsafe tricks...
-  lines: Rc<RefCell<LineWriter<W>>>,
+  lines: LineWriter<W>,
   /// The depth of the current syntax node being written
   depth: usize,
 }
 
+impl<W> Clone for SpanWriter<W> {
+  fn clone(&self) -> Self {
+    Self {
+      config: self.config,
+      lines: self.lines.clone(),
+      depth: self.depth,
+    }
+  }
+}
+
 impl<W> Write for SpanWriter<W> {
   fn write_str(&mut self, s: &str) -> std::fmt::Result {
-    let mut lines = self.lines.borrow_mut();
-    lines.seek_line(self.depth);
-    lines.write_str(s)
+    self.lines.seek_line(self.depth);
+    self.lines.write_str(s)
   }
 }
 
 impl<W: Write> Flush for SpanWriter<W> {
   fn flush(&mut self) -> std::fmt::Result {
-    self.lines.borrow_mut().flush()
+    self.lines.flush()
   }
 }
 
@@ -189,7 +199,7 @@ impl<W: Write> SpanWriter<W> {
 
   pub fn bracket(&mut self, name: impl AsRef<str>, range: &Range<usize>) -> std::fmt::Result {
     let Range { start, end } = *range;
-    self.lines.borrow_mut().write_at(
+    self.lines.write_at(
       [start, self.depth],
       self.config.bracket_str(name.as_ref(), end - start),
     );
