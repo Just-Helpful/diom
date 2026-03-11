@@ -1,3 +1,4 @@
+pub mod code;
 pub mod spans;
 pub use spans::{SpanWriter, Spans};
 pub mod lines;
