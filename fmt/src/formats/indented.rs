@@ -1,5 +1,5 @@
 use crate::{Flush, Format};
-use std::fmt::Write;
+use std::{cell::RefCell, fmt::Write, rc::Rc};
 
 /// Displays a multiline data structure with indents
 ///
@@ -25,6 +25,12 @@ pub struct Indented<'a> {
   pub indent: &'a str,
 }
 
+impl<'a> From<&'a str> for Indented<'a> {
+  fn from(value: &'a str) -> Self {
+    Indented { indent: value }
+  }
+}
+
 impl<'a> Format for Indented<'a> {
   type Writer<W: Write> = IndentWriter<'a, W>;
 
@@ -32,7 +38,7 @@ impl<'a> Format for Indented<'a> {
     IndentWriter {
       config: self.clone(),
       indent: 0,
-      write: w,
+      write: Rc::new(RefCell::new(w)),
     }
   }
 }
@@ -44,7 +50,31 @@ pub struct IndentWriter<'a, W> {
   /// The current level of indentation
   indent: usize,
   /// The wrapped writer
-  write: W,
+  write: Rc<RefCell<W>>,
+}
+
+impl<'a, W> Clone for IndentWriter<'a, W> {
+  fn clone(&self) -> Self {
+    Self {
+      config: self.config,
+      indent: self.indent,
+      write: self.write.clone(),
+    }
+  }
+}
+
+impl<'a, W> IndentWriter<'a, W> {
+  /// Produces a child writer that is indented by 1 level
+  pub fn child<'b: 'a>(&'a mut self) -> IndentWriter<'a, W> {
+    let mut clone = self.clone();
+    clone.indent += 1;
+    clone
+  }
+
+  /// Produces the current width of indent in bytes
+  pub fn indent_width(&self) -> usize {
+    self.config.indent.len() * self.indent
+  }
 }
 
 impl<'a, W: Write> Write for IndentWriter<'a, W> {
@@ -54,13 +84,12 @@ impl<'a, W: Write> Write for IndentWriter<'a, W> {
       return Ok(());
     };
 
-    self.write.write_str(line)?;
+    let mut writer = self.write.borrow_mut();
+    writer.write_str(line)?;
     for line in lines {
-      self.write.write_char('\n')?;
-      self
-        .write
-        .write_str(&self.config.indent.repeat(self.indent))?;
-      self.write.write_str(line)?;
+      writer.write_char('\n')?;
+      writer.write_str(&self.config.indent.repeat(self.indent))?;
+      writer.write_str(line)?;
     }
     Ok(())
   }

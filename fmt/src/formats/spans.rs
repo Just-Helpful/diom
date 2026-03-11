@@ -190,11 +190,9 @@ impl<W: Write> Flush for SpanWriter<W> {
 
 impl<W: Write> SpanWriter<W> {
   pub fn child(&mut self) -> SpanWriter<W> {
-    SpanWriter {
-      config: self.config.clone(),
-      lines: self.lines.clone(),
-      depth: self.depth + 1,
-    }
+    let mut clone = self.clone();
+    clone.depth += 1;
+    clone
   }
 
   pub fn bracket(&mut self, name: impl AsRef<str>, range: &Range<usize>) -> std::fmt::Result {

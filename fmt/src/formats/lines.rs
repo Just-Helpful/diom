@@ -39,7 +39,7 @@ impl Format for Lines {
 /// A variant of a `Write` implementation\
 /// that supports writing and seeking to multiple lines of text
 ///
-/// ## TODO
+/// ## Todo
 ///
 /// Increment to next line when a newline `\n` is written
 pub struct LineWriter<W> {
