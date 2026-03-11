@@ -1,17 +1,32 @@
 use crate::{Flush, Format, Updater};
+use std::cell::RefCell;
 use std::fmt::{Debug, Write};
 use std::num::NonZero;
 use std::rc::Rc;
 
 /// A format that supports writing to multiple lines at once
-#[derive(Default, Clone, Copy)]
-pub struct Lines;
+#[derive(Clone, Copy)]
+pub struct Lines {
+  /// The character used for filling empty space
+  pub fill: char,
+}
+impl Default for Lines {
+  fn default() -> Self {
+    Self { fill: ' ' }
+  }
+}
+impl From<char> for Lines {
+  fn from(value: char) -> Self {
+    Self { fill: value }
+  }
+}
 
 impl Format for Lines {
   type Writer<W: Write> = LineWriter<W>;
 
   fn writer<W: Write>(&self, w: W) -> Self::Writer<W> {
     LineWriter {
+      config: *self,
       line: 0,
       col: 0,
       byte: 0,
@@ -27,7 +42,9 @@ impl Format for Lines {
 /// ## TODO
 ///
 /// Increment to next line when a newline `\n` is written
-pub struct LineWriter<W, const FILL: char = ' '> {
+pub struct LineWriter<W> {
+  /// The config for filling empty lines
+  config: Lines,
   /// The line number that is currently being written to
   line: usize,
   /// The column number that is currently being written to
@@ -42,9 +59,10 @@ pub struct LineWriter<W, const FILL: char = ' '> {
   write: Rc<RefCell<W>>,
 }
 
-impl<W, const FILL: char> Clone for LineWriter<W, FILL> {
+impl<W> Clone for LineWriter<W> {
   fn clone(&self) -> Self {
     Self {
+      config: self.config,
       line: self.line,
       col: self.col,
       byte: self.byte,
@@ -54,7 +72,7 @@ impl<W, const FILL: char> Clone for LineWriter<W, FILL> {
   }
 }
 
-impl<W, const FILL: char> LineWriter<W, FILL> {
+impl<W> LineWriter<W> {
   /// Pushes a single character to the end of the current line
   /// SAFETY: should be used when the cursor is at the end of the line
   unsafe fn push_char(&mut self, c: char) {
@@ -84,7 +102,7 @@ impl<W, const FILL: char> LineWriter<W, FILL> {
       Err(rem) => rem,
     };
 
-    line.push_str(&FILL.to_string().repeat(rem.get()));
+    line.push_str(&self.config.fill.to_string().repeat(rem.get()));
     self.byte = line.len();
     self.col = loc;
   }
@@ -105,9 +123,9 @@ impl<W, const FILL: char> LineWriter<W, FILL> {
       let len = loc - len;
       let mut lines = self.lines.borrow_mut();
       lines.extend(vec![String::from(""); len]);
-      lines.push(FILL.to_string().repeat(self.col));
+      lines.push(self.config.fill.to_string().repeat(self.col));
 
-      self.byte = FILL.len_utf8() * self.col;
+      self.byte = self.config.fill.len_utf8() * self.col;
       self.line = loc;
       return;
     }
@@ -139,9 +157,10 @@ impl<W, const FILL: char> LineWriter<W, FILL> {
     if self.lines.borrow().len() <= j {
       let len = j - self.lines.borrow().len();
       self.lines.borrow_mut().extend(vec![String::from(""); len]);
-      self.lines.borrow_mut().push(FILL.to_string().repeat(i));
+      let fill = self.config.fill.to_string().repeat(i);
+      self.lines.borrow_mut().push(fill);
 
-      self.byte = FILL.len_utf8() * i;
+      self.byte = self.config.fill.len_utf8() * i;
       self.line = j;
       self.col = i;
       return;
@@ -152,7 +171,7 @@ impl<W, const FILL: char> LineWriter<W, FILL> {
   }
 }
 
-impl<W, const FILL: char> Write for LineWriter<W, FILL> {
+impl<W> Write for LineWriter<W> {
   fn write_char(&mut self, c: char) -> std::fmt::Result {
     let len = self.lines.borrow()[self.line].len();
     if self.byte == len {
@@ -199,7 +218,7 @@ impl<W, const FILL: char> Write for LineWriter<W, FILL> {
   }
 }
 
-impl<W, const FILL: char> LineWriter<W, FILL> {
+impl<W> LineWriter<W> {
   /// Writes `text` to the specified cursor position, overwriting text present
   pub fn write_at(&mut self, loc: impl Updater<[usize; 2]> + Debug, text: impl AsRef<str>) {
     self.seek(loc);
@@ -207,7 +226,7 @@ impl<W, const FILL: char> LineWriter<W, FILL> {
   }
 }
 
-impl<W: Write, const FILL: char> Flush for LineWriter<W, FILL> {
+impl<W: Write> Flush for LineWriter<W> {
   fn flush(&mut self) -> std::fmt::Result {
     let lines = self.lines.borrow();
     let mut iter = lines.iter().rev();
