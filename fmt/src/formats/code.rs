@@ -2,7 +2,6 @@ use std::cell::RefCell;
 use std::ops::{Range, RangeFrom};
 use std::{fmt::Write, rc::Rc};
 
-use crate::utils::CloneMut;
 use crate::{Flush, Format, IndentWriter, Indented};
 
 /// Displays formatted code fragments
@@ -101,24 +100,6 @@ pub struct CodeWriter<'a, W> {
   index: usize,
   /// The current line to potentially be broken up
   line: Rc<RefCell<String>>,
-}
-
-impl<'a, 'b: 'a, W> CloneMut<'b> for CodeWriter<'a, W> {
-  type Cloned
-    = CodeWriter<'b, &'b mut W>
-  where
-    Self: 'b;
-
-  fn clone_mut(&'b mut self) -> Self::Cloned {
-    CodeWriter {
-      config: self.config,
-      write: self.write.clone_mut(),
-      offset: self.offset,
-      spans: self.spans.clone(),
-      index: self.index,
-      line: self.line.clone(),
-    }
-  }
 }
 
 impl<'a, W> CodeWriter<'a, W> {
