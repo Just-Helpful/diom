@@ -64,6 +64,7 @@ impl DisplayAs<Spans> for Array<Range<usize>> {
   }
 }
 
+#[derive(Clone, Copy)]
 pub struct ArrayConfig(
   /// The config for the name of the array
   pub PathConfig,

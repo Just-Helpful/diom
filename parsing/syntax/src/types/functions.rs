@@ -111,6 +111,7 @@ impl DisplayAs<Spans> for Function<Range<usize>> {
   }
 }
 
+#[derive(Clone, Copy)]
 pub struct FunctionConfig(
   /// The maximum number of parameters per function
   pub usize,

@@ -64,6 +64,7 @@ impl DisplayAs<Spans> for Tuple<Range<usize>> {
   }
 }
 
+#[derive(Clone, Copy)]
 pub struct TupleConfig(
   /// The config for the name of the array
   pub PathConfig,

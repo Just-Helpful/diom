@@ -29,6 +29,7 @@ impl DisplayAs<Spans> for Path<Range<usize>> {
   }
 }
 
+#[derive(Clone, Copy)]
 pub struct PathConfig(
   /// The max number of segments in a path
   pub usize,

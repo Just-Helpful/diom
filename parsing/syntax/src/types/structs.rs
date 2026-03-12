@@ -59,6 +59,7 @@ impl DisplayAs<Spans> for Struct<Range<usize>> {
   }
 }
 
+#[derive(Clone, Copy)]
 pub struct StructConfig(
   /// The maximum number of fields in a struct
   pub usize,

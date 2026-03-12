@@ -45,6 +45,7 @@ impl DisplayAs<Spans> for Tuple<Range<usize>> {
   }
 }
 
+#[derive(Clone, Copy)]
 pub struct TupleConfig(
   /// The maximum number of items in a tuple
   pub usize,

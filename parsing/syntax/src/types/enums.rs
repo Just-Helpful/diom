@@ -59,6 +59,7 @@ impl DisplayAs<Spans> for Enum<Range<usize>> {
   }
 }
 
+#[derive(Clone, Copy)]
 pub struct EnumConfig(
   /// The maximum number of variants in an enum
   pub usize,
