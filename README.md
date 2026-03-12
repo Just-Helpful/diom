@@ -10,6 +10,17 @@ This is mostly a language written because:
 
 ## Todo
 
+- [ ] Convert monad nodes and parsing to use Algebraic effects
+
+### Syntax
+
+- [ ] Prevent multiple `Rest` patterns from being used in `Tuple`s and `Struct`s\
+      This can be acheived by, instead of allowing any item to be `Rest` pattern\
+      only allowing the last item to be one and using an `Option<Rest>` property\
+      within the `Struct` and `Tuple`.
+- [ ] Merge the `Array` and `Tuple` patterns (they're the same at this point...)
+- [ ] We currently only use `Path` nodes for pattern matching, why?
+
 ### Parsing
 
 - [ ] property testing on AST -> code -> AST round trip
@@ -26,8 +37,8 @@ This is mostly a language written because:
 
 ### Formatting
 
-- [ ] add a custom formatter for indented structures
 - [ ] add a custom formatting for creating boxes
+- [x] add a custom formatter for indented structures
 - [x] printing ASTs as code
 
 ### Interpreter
