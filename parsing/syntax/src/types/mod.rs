@@ -77,7 +77,7 @@ impl DisplayAs<Spans> for Type<Range<usize>> {
   }
 }
 
-#[derive(Default, Clone, Copy)]
+#[derive(Clone, Copy)]
 pub struct TypeConfig {
   /// The maximum depth for type definitions
   pub depth: u32,
@@ -92,6 +92,18 @@ pub struct TypeConfig {
   pub struct_props: usize,
   /// The maximum number of items in a tuple
   pub tuple_items: usize,
+}
+impl Default for TypeConfig {
+  fn default() -> Self {
+    Self {
+      depth: 8,
+      size: 256,
+      enum_variants: EnumConfig::default().0,
+      fn_parameters: FunctionConfig::default().0,
+      struct_props: StructConfig::default().0,
+      tuple_items: TupleConfig::default().0,
+    }
+  }
 }
 impl From<TypeConfig> for StructConfig {
   fn from(value: TypeConfig) -> Self {
