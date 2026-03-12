@@ -10,8 +10,6 @@ This is mostly a language written because:
 
 ## Todo
 
-- [ ] Convert monad nodes and parsing to use Algebraic effects
-
 ### Syntax
 
 - [ ] Prevent multiple `Rest` patterns from being used in `Tuple`s and `Struct`s\
@@ -20,6 +18,7 @@ This is mostly a language written because:
       within the `Struct` and `Tuple`.
 - [ ] Merge the `Array` and `Tuple` patterns (they're the same at this point...)
 - [ ] We currently only use `Path` nodes for pattern matching, why?
+- [ ] Convert monad nodes and parsing to use Algebraic effects
 
 ### Parsing
 
