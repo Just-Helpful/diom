@@ -1,6 +1,7 @@
 use crate::{display::Optn, ident::Ident};
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
+use proptest::prelude::{any, Arbitrary, BoxedStrategy, Strategy};
 use std::{
   fmt::{Display, Write},
   ops::Range,
@@ -43,5 +44,20 @@ impl DisplayAs<Spans> for Rest<Range<usize>> {
   fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
     w.bracket("rest", &self.info)?;
     self.name.write(&mut w.child())
+  }
+}
+
+impl Rest<()> {
+  /// Generates a generic strategy for generating `Rest` patterns
+  pub fn any() -> impl Strategy<Value = Self> {
+    any::<Option<Ident<()>>>().prop_map(|name| Rest { name, info: () })
+  }
+}
+impl Arbitrary for Rest<()> {
+  type Parameters = ();
+  type Strategy = BoxedStrategy<Self>;
+
+  fn arbitrary_with(_: Self::Parameters) -> Self::Strategy {
+    Self::any().boxed()
   }
 }

@@ -2,10 +2,16 @@ use super::{Pattern, Rest};
 use crate::{
   display::{Optn, Sep},
   ident::Ident,
-  path::Path,
+  path::{Path, PathConfig},
 };
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
+use proptest::{
+  collection::vec,
+  option,
+  prelude::{any, Strategy},
+  prop_oneof,
+};
 use std::{
   fmt::{Display, Write},
   ops::Range,
@@ -21,6 +27,7 @@ pub struct StructField<I> {
 impl<I> Display for StructField<I> {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     self.name.fmt(f)?;
+    f.write_char(':')?;
     self.pattern.fmt(f)
   }
 }
@@ -30,6 +37,17 @@ impl DisplayAs<Spans> for StructField<Range<usize>> {
     w.bracket("field", &self.info)?;
     self.name.write(&mut w.child())?;
     self.pattern.write(&mut w.child())
+  }
+}
+
+impl StructField<()> {
+  /// Generates a generic strategy for generating `StructField` nodes
+  pub fn any(item: impl Strategy<Value = Pattern<()>>) -> impl Strategy<Value = Self> {
+    (any::<Ident<()>>(), item).prop_map(|(name, pattern)| StructField {
+      name,
+      pattern,
+      info: (),
+    })
   }
 }
 
@@ -57,6 +75,16 @@ impl DisplayAs<Spans> for StructItem<Range<usize>> {
   }
 }
 
+impl StructItem<()> {
+  /// Generates a generic strategy for generating `StructItem` nodes
+  pub fn any(item: impl Strategy<Value = Pattern<()>>) -> impl Strategy<Value = Self> {
+    prop_oneof![
+      Rest::any().prop_map(Self::Rest),
+      StructField::any(item).prop_map(Self::Field),
+    ]
+  }
+}
+
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
 pub struct Struct<I> {
   pub name: Option<Path<I>>,
@@ -76,5 +104,34 @@ impl DisplayAs<Spans> for Struct<Range<usize>> {
     w.bracket("struct", &self.info)?;
     self.name.write(&mut w.child())?;
     self.fields.write(&mut w.child())
+  }
+}
+
+pub struct StructConfig(
+  /// The config for the name of the array
+  pub PathConfig,
+  /// The maximum number of fields in a struct
+  pub usize,
+);
+impl Default for StructConfig {
+  fn default() -> Self {
+    Self(Default::default(), 50)
+  }
+}
+impl Struct<()> {
+  /// Generates a generic strategy for generating `Struct` patterns
+  pub fn any(
+    item: impl Strategy<Value = Pattern<()>>,
+    args: StructConfig,
+  ) -> impl Strategy<Value = Self> {
+    (
+      option::of(Path::any(args.0)),
+      vec(StructItem::any(item), 0..args.1),
+    )
+      .prop_map(|(name, fields)| Struct {
+        name,
+        fields,
+        info: (),
+      })
   }
 }

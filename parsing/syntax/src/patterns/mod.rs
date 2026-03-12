@@ -1,6 +1,14 @@
-use crate::ident::Ident;
+use crate::{
+  ident::Ident,
+  path::PathConfig,
+  patterns::{arrays::ArrayConfig, structs::StructConfig, tuples::TupleConfig},
+};
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
+use proptest::{
+  prelude::{Arbitrary, BoxedStrategy, Strategy},
+  prop_oneof,
+};
 use std::{
   fmt::{Display, Write},
   ops::Range,
@@ -49,5 +57,78 @@ impl DisplayAs<Spans> for Pattern<Range<usize>> {
       Ignored(i) => i.write(w),
       Var(v) => v.write(w),
     }
+  }
+}
+
+#[derive(Clone, Copy)]
+pub struct PatternConfig {
+  /// The maximum depth for type definitions
+  pub depth: u32,
+  /// The maximum number of nodes in type definitions
+  pub size: u32,
+
+  /// The maximum number of segments in a path
+  pub path_length: usize,
+  /// The maximum number of items in an array
+  pub array_items: usize,
+  /// The maximum number of fields in a struct
+  pub struct_fields: usize,
+  /// The maximum number of items in a tuple
+  pub tuple_items: usize,
+}
+impl Default for PatternConfig {
+  fn default() -> Self {
+    Self {
+      depth: 8,
+      size: 256,
+      path_length: PathConfig::default().0,
+      array_items: ArrayConfig::default().1,
+      struct_fields: StructConfig::default().1,
+      tuple_items: TupleConfig::default().1,
+    }
+  }
+}
+impl From<PatternConfig> for ArrayConfig {
+  fn from(value: PatternConfig) -> Self {
+    Self(PathConfig(value.path_length), value.array_items)
+  }
+}
+impl From<PatternConfig> for StructConfig {
+  fn from(value: PatternConfig) -> Self {
+    Self(PathConfig(value.path_length), value.struct_fields)
+  }
+}
+impl From<PatternConfig> for TupleConfig {
+  fn from(value: PatternConfig) -> Self {
+    Self(PathConfig(value.path_length), value.tuple_items)
+  }
+}
+impl Pattern<()> {
+  /// Generates a generic strategy for generating `Pattern` nodes
+  pub fn any(args: PatternConfig) -> impl Strategy<Value = Self> {
+    let leaf = prop_oneof![
+      Ignored::any().prop_map(Self::Ignored),
+      Ident::any().prop_map(Self::Var),
+    ];
+    let branch_width = args
+      .array_items
+      .max(args.struct_fields)
+      .max(args.tuple_items) as u32;
+
+    leaf.prop_recursive(args.depth, args.size, branch_width, move |inner| {
+      prop_oneof![
+        Tuple::any(inner.clone(), args.into()).prop_map(Self::Tuple),
+        Array::any(inner.clone(), args.into()).prop_map(Self::Array),
+        Struct::any(inner.clone(), args.into()).prop_map(Self::Struct),
+      ]
+    })
+  }
+}
+impl Arbitrary for Pattern<()> {
+  type Parameters = PatternConfig;
+  type Strategy = BoxedStrategy<Self>;
+
+  fn arbitrary_with(args: Self::Parameters) -> Self::Strategy {
+    Self::any(args).boxed()
   }
 }
