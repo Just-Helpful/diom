@@ -217,6 +217,7 @@ dependencies = [
  "insta",
  "nom",
  "nom-language",
+ "proptest",
 ]
 
 [[package]]
