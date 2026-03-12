@@ -1,0 +1,7 @@
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc b5691f1691de1ac36f17a1160998905de9704a5bcd19d2dd5959265b473aa4e8 # shrinks to expr = Block(Block { statements: [TypeDef(TypeDef { name: Ident { name: Not, info: () }, value: Array(Array { name: None, item: Var(Ident { name: Plus, info: () }), info: () }), info: () })], info: () })
