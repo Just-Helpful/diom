@@ -2,6 +2,7 @@ use super::Type;
 use crate::{display::Optn, ident::Ident};
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
+use proptest::prelude::{Arbitrary, Strategy};
 use std::{
   fmt::{Display, Write},
   ops::Range,
@@ -37,5 +38,16 @@ impl DisplayAs<Spans> for Array<Range<usize>> {
     w.bracket("array", &self.info)?;
     self.name.write(&mut w.child())?;
     self.item.write(&mut w.child())
+  }
+}
+
+impl Array<()> {
+  /// Generates a generic strategy for generating `Array` types
+  pub fn any(item: impl Strategy<Value = Type<()>>) -> impl Strategy<Value = Self> {
+    (Option::<Ident<()>>::arbitrary(), item).prop_map(|(name, item)| Array {
+      name,
+      item: Box::new(item),
+      info: (),
+    })
   }
 }

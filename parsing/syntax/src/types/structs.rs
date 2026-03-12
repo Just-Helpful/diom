@@ -4,6 +4,10 @@ use crate::{
 };
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
+use proptest::{
+  collection::vec,
+  prelude::{any, Strategy},
+};
 use std::{
   fmt::{Display, Write},
   ops::Range,
@@ -52,5 +56,32 @@ impl DisplayAs<Spans> for Struct<Range<usize>> {
     self.name.write(&mut w.child())?;
     self.fields.write(&mut w.child())?;
     Ok(())
+  }
+}
+
+pub struct StructConfig(
+  /// The maximum number of properties in a struct
+  pub usize,
+);
+impl Default for StructConfig {
+  fn default() -> Self {
+    Self(50)
+  }
+}
+impl Struct<()> {
+  /// Generates a generic strategy for generating `Char` types
+  pub fn any(
+    item: impl Strategy<Value = Type<()>>,
+    args: StructConfig,
+  ) -> impl Strategy<Value = Self> {
+    (
+      any::<Option<Ident<()>>>(),
+      vec((any::<Ident<()>>(), item), 0..args.0),
+    )
+      .prop_map(|(name, fields)| Struct {
+        name,
+        fields,
+        info: (),
+      })
   }
 }

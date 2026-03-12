@@ -1,7 +1,8 @@
 use super::Type;
-use crate::ident::Ident;
+use crate::{ident::Ident, types::TypeConfig};
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
+use proptest::prelude::{any, Strategy};
 use std::{
   fmt::{Display, Write},
   ops::Range,
@@ -43,5 +44,15 @@ impl DisplayAs<Spans> for TypeDef<Range<usize>> {
     w.bracket("type def", &self.info)?;
     self.name.write(&mut w.child())?;
     self.value.write(&mut w.child())
+  }
+}
+
+impl TypeDef<()> {
+  pub fn any(args: TypeConfig) -> impl Strategy<Value = Self> {
+    (any::<Ident<()>>(), Type::any(args)).prop_map(|(name, value)| TypeDef {
+      name,
+      value: Box::new(value),
+      info: (),
+    })
   }
 }

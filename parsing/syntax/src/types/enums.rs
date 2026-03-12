@@ -9,6 +9,10 @@ use crate::{
 };
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
+use proptest::{
+  collection::vec,
+  prelude::{any, Strategy},
+};
 
 use super::Type;
 
@@ -52,5 +56,32 @@ impl DisplayAs<Spans> for Enum<Range<usize>> {
     w.bracket("enum", &self.info)?;
     self.name.write(&mut w.child())?;
     self.variants.write(&mut w.child())
+  }
+}
+
+pub struct EnumConfig(
+  /// The maximum number of variants in an enum
+  pub usize,
+);
+impl Default for EnumConfig {
+  fn default() -> Self {
+    Self(50)
+  }
+}
+impl Enum<()> {
+  /// Generates a generic strategy for generating `Enum` types
+  pub fn any(
+    item: impl Strategy<Value = Type<()>>,
+    args: EnumConfig,
+  ) -> impl Strategy<Value = Self> {
+    (
+      any::<Option<Ident<()>>>(),
+      vec((any::<Ident<()>>(), item), 0..args.0),
+    )
+      .prop_map(|(name, variants)| Enum {
+        name,
+        variants,
+        info: (),
+      })
   }
 }

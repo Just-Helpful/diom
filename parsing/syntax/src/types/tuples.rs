@@ -4,6 +4,7 @@ use crate::{
 };
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
+use proptest::{collection::vec, prelude::any, prelude::Strategy};
 use std::{
   fmt::{Display, Write},
   ops::Range,
@@ -41,5 +42,28 @@ impl DisplayAs<Spans> for Tuple<Range<usize>> {
     w.bracket("tuple", &self.info)?;
     self.name.write(&mut w.child())?;
     self.fields.write(&mut w.child())
+  }
+}
+
+pub struct TupleConfig(
+  /// The maximum number of items in a tuple
+  pub usize,
+);
+impl Default for TupleConfig {
+  fn default() -> Self {
+    Self(50)
+  }
+}
+impl Tuple<()> {
+  /// Generates a generic strategy for generating `Char` types
+  pub fn any(
+    item: impl Strategy<Value = Type<()>>,
+    args: TupleConfig,
+  ) -> impl Strategy<Value = Self> {
+    (any::<Option<Ident<()>>>(), vec(item, 0..args.0)).prop_map(|(name, fields)| Tuple {
+      name,
+      fields,
+      info: (),
+    })
   }
 }

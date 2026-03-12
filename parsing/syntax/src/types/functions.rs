@@ -2,6 +2,10 @@ use super::Type;
 use crate::{display::Sep, ident::Ident};
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
+use proptest::{
+  collection::vec,
+  prelude::{any, Strategy},
+};
 use std::{
   fmt::{Display, Write},
   ops::Range,
@@ -30,6 +34,17 @@ impl DisplayAs<Spans> for Parameter<Range<usize>> {
   }
 }
 
+impl Parameter<()> {
+  /// Generates a generic strategy for generating `Parameter`s
+  pub fn any(item: impl Strategy<Value = Type<()>>) -> impl Strategy<Value = Self> {
+    (any::<Ident<()>>(), item).prop_map(|(name, annotation)| Parameter {
+      name,
+      annotation,
+      info: (),
+    })
+  }
+}
+
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
 pub struct Parameters<I> {
   pub parameters: Vec<Parameter<I>>,
@@ -46,6 +61,19 @@ impl DisplayAs<Spans> for Parameters<Range<usize>> {
   fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
     w.bracket("params", &self.info)?;
     self.parameters.write(&mut w.child())
+  }
+}
+
+impl Parameters<()> {
+  /// Generates a generic strategy for generating `Parameters` structures
+  pub fn any(
+    item: impl Strategy<Value = Type<()>>,
+    args: FunctionConfig,
+  ) -> impl Strategy<Value = Self> {
+    vec(Parameter::any(item), 0..args.0).prop_map(|parameters| Parameters {
+      parameters,
+      info: (),
+    })
   }
 }
 
@@ -80,5 +108,28 @@ impl DisplayAs<Spans> for Function<Range<usize>> {
     w.bracket("function", &self.info)?;
     self.parameters.write(&mut w.child())?;
     self.returned.write(&mut w.child())
+  }
+}
+
+pub struct FunctionConfig(
+  /// The maximum number of parameters per function
+  pub usize,
+);
+impl Default for FunctionConfig {
+  fn default() -> Self {
+    Self(10)
+  }
+}
+impl Function<()> {
+  /// Generates a generic strategy for generating `Function` types
+  pub fn any(
+    item: impl Strategy<Value = Type<()>> + Clone,
+    args: FunctionConfig,
+  ) -> impl Strategy<Value = Self> {
+    (Parameters::any(item.clone(), args), item).prop_map(|(parameters, returned)| Function {
+      parameters,
+      returned: Box::new(returned),
+      info: (),
+    })
   }
 }
