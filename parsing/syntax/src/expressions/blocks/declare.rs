@@ -1,7 +1,11 @@
 use super::Expression;
-use crate::{patterns::Pattern, types::Type};
+use crate::{
+  patterns::{Pattern, PatternConfig},
+  types::{Type, TypeConfig},
+};
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
+use proptest::{option, prelude::Strategy};
 use std::{
   fmt::{Display, Write},
   ops::Range,
@@ -54,5 +58,29 @@ impl DisplayAs<Spans> for Declare<Range<usize>> {
     self.pattern.write(&mut w.child())?;
     self.annotation.write(&mut w.child())?;
     self.value.write(&mut w.child())
+  }
+}
+
+#[derive(Default, Clone, Copy)]
+pub struct DeclareConfig(
+  /// The config used to generate patterns
+  pub PatternConfig,
+  /// The config used to generate types
+  pub TypeConfig,
+);
+impl Declare<()> {
+  /// Generates a generic strategy for generating `Call` expressions
+  pub fn any(
+    item: impl Strategy<Value = Expression<()>>,
+    args: DeclareConfig,
+  ) -> impl Strategy<Value = Self> {
+    (Pattern::any(args.0), option::of(Type::any(args.1)), item).prop_map(
+      |(pattern, annotation, value)| Declare {
+        pattern,
+        annotation,
+        value: Box::new(value),
+        info: (),
+      },
+    )
   }
 }

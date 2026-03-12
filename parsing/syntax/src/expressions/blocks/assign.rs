@@ -1,6 +1,7 @@
 use super::Expression;
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
+use proptest::prelude::Strategy;
 use std::{
   fmt::{Display, Write},
   ops::Range,
@@ -26,5 +27,16 @@ impl DisplayAs<Spans> for Assign<Range<usize>> {
     w.bracket("assign", &self.info)?;
     self.reference.write(&mut w.child())?;
     self.value.write(&mut w.child())
+  }
+}
+
+impl Assign<()> {
+  /// Generates a generic strategy for generating `Assign` expressions
+  pub fn any(item: impl Strategy<Value = Expression<()>> + Clone) -> impl Strategy<Value = Self> {
+    (item.clone(), item).prop_map(|(reference, value)| Assign {
+      reference: Box::new(reference),
+      value: Box::new(value),
+      info: (),
+    })
   }
 }

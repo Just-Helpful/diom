@@ -1,5 +1,6 @@
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
+use proptest::prelude::{any, Arbitrary, BoxedStrategy, Strategy};
 use std::{
   fmt::{Display, Write},
   ops::Range,
@@ -23,5 +24,20 @@ impl<I> Display for Char<I> {
 impl DisplayAs<Spans> for Char<Range<usize>> {
   fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
     w.bracket("char", &self.info)
+  }
+}
+
+impl Char<()> {
+  /// Generates a generic strategy for generating `Char` expressions
+  pub fn any() -> impl Strategy<Value = Self> {
+    any::<char>().prop_map(|value| Char { value, info: () })
+  }
+}
+impl Arbitrary for Char<()> {
+  type Parameters = ();
+  type Strategy = BoxedStrategy<Self>;
+
+  fn arbitrary_with(_: Self::Parameters) -> Self::Strategy {
+    Self::any().boxed()
   }
 }

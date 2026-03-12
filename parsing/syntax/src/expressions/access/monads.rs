@@ -1,6 +1,7 @@
 use super::Expression;
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
+use proptest::prelude::Strategy;
 use std::{
   fmt::{Display, Write},
   ops::Range,
@@ -65,6 +66,16 @@ impl DisplayAs<Spans> for MonadThen<Range<usize>> {
   }
 }
 
+impl MonadThen<()> {
+  /// Generates a generic strategy for generating `MonadThen` expressions
+  pub fn any(item: impl Strategy<Value = Expression<()>>) -> impl Strategy<Value = Self> {
+    item.prop_map(|value| MonadThen {
+      value: Box::new(value),
+      info: (),
+    })
+  }
+}
+
 /// The syntax for wrapping a value in a monad, looks like `!`.
 ///
 /// For the `Monad` trait defined as so:
@@ -114,5 +125,15 @@ impl DisplayAs<Spans> for MonadResult<Range<usize>> {
   fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
     w.bracket("monad result", &self.info)?;
     self.value.write(&mut w.child())
+  }
+}
+
+impl MonadResult<()> {
+  /// Generates a generic strategy for generating `MonadResult` expressions
+  pub fn any(item: impl Strategy<Value = Expression<()>>) -> impl Strategy<Value = Self> {
+    item.prop_map(|value| MonadResult {
+      value: Box::new(value),
+      info: (),
+    })
   }
 }

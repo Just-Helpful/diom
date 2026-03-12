@@ -3,6 +3,7 @@ use crate::display::Sep;
 use super::Expression;
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
+use proptest::{collection::vec, prelude::Strategy};
 use std::{
   fmt::{Display, Write},
   ops::Range,
@@ -29,5 +30,29 @@ impl DisplayAs<Spans> for Index<Range<usize>> {
     w.bracket("index", &self.info)?;
     self.value.write(&mut w.child())?;
     self.keys.write(&mut w.child())
+  }
+}
+
+#[derive(Clone, Copy)]
+pub struct IndexConfig(
+  /// The maximum number of keys in an index expression
+  pub usize,
+);
+impl Default for IndexConfig {
+  fn default() -> Self {
+    Self(50)
+  }
+}
+impl Index<()> {
+  /// Generates a generic strategy for generating `Index` expressions
+  pub fn any(
+    item: impl Strategy<Value = Expression<()>> + Clone,
+    args: IndexConfig,
+  ) -> impl Strategy<Value = Self> {
+    (item.clone(), vec(item, 0..args.0)).prop_map(|(value, keys)| Index {
+      value: Box::new(value),
+      keys,
+      info: (),
+    })
   }
 }

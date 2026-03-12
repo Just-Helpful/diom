@@ -2,6 +2,7 @@ use super::Expression;
 use crate::{display::Sep, ident::Ident};
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
+use proptest::{collection::vec, prelude::Strategy};
 use std::{
   fmt::{Display, Write},
   ops::Range,
@@ -32,5 +33,25 @@ impl DisplayAs<Spans> for Struct<Range<usize>> {
   fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
     w.bracket("struct", &self.info)?;
     self.fields.write(&mut w.child())
+  }
+}
+
+#[derive(Clone, Copy)]
+pub struct StructConfig(
+  /// The maximum number of fields in a struct
+  pub usize,
+);
+impl Default for StructConfig {
+  fn default() -> Self {
+    Self(50)
+  }
+}
+impl Struct<()> {
+  /// Generates a generic strategy for generating `Struct` expressions
+  pub fn any(
+    item: impl Strategy<Value = Expression<()>>,
+    args: StructConfig,
+  ) -> impl Strategy<Value = Self> {
+    vec((Ident::any(), item), 0..args.0).prop_map(|fields| Struct { fields, info: () })
   }
 }

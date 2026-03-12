@@ -8,6 +8,7 @@ use super::Expression;
 use crate::ident::Ident;
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
+use proptest::prelude::Strategy;
 use std::{
   fmt::{Debug, Display, Write},
   ops::Range,
@@ -35,5 +36,17 @@ impl DisplayAs<Spans> for Infix<Range<usize>> {
     self.value.write(&mut w.child())?;
     self.name.write(&mut w.child())?;
     self.other.write(&mut w.child())
+  }
+}
+
+impl Infix<()> {
+  /// Generates a generic strategy for generating `Infix` expressions
+  pub fn any(item: impl Strategy<Value = Expression<()>> + Clone) -> impl Strategy<Value = Self> {
+    (item.clone(), Ident::any(), item).prop_map(|(value, name, other)| Infix {
+      value: Box::new(value),
+      name,
+      other: Box::new(other),
+      info: (),
+    })
   }
 }
