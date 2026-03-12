@@ -1,9 +1,9 @@
+//! # AST nodes for Diom
+//!
+//! The nodes here fall into 2 broad categories:
+//! 1. nodes for Diom typing
+//! 2. nodes for Diom values
 mod display;
-/// # AST nodes for Diom
-///
-/// The nodes here fall into 2 broad categories:
-/// 1. nodes for Diom typing
-/// 2. nodes for Diom values
 pub mod expressions;
 pub mod ident;
 pub mod path;
