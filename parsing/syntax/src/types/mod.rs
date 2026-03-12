@@ -7,7 +7,7 @@ use crate::{
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use proptest::{
-  prelude::{any, Arbitrary, BoxedStrategy, Strategy},
+  prelude::{Arbitrary, BoxedStrategy, Strategy},
   prop_oneof,
 };
 use std::{
@@ -128,7 +128,7 @@ impl From<TypeConfig> for FunctionConfig {
 impl Type<()> {
   /// Generates a generic strategy for generating `Type`s
   pub fn any(args: TypeConfig) -> impl Strategy<Value = Self> {
-    let leaf = any::<Ident<()>>().prop_map(Self::Var);
+    let leaf = Ident::any().prop_map(Self::Var);
     // the maximum expected branch width
     let branch_width = args
       .enum_variants

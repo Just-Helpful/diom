@@ -4,7 +4,7 @@ use crate::{
 };
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
-use proptest::{collection::vec, prelude::any, prelude::Strategy};
+use proptest::{collection::vec, option, prelude::Strategy};
 use std::{
   fmt::{Display, Write},
   ops::Range,
@@ -61,7 +61,7 @@ impl Tuple<()> {
     item: impl Strategy<Value = Type<()>>,
     args: TupleConfig,
   ) -> impl Strategy<Value = Self> {
-    (any::<Option<Ident<()>>>(), vec(item, 0..args.0)).prop_map(|(name, fields)| Tuple {
+    (option::of(Ident::any()), vec(item, 0..args.0)).prop_map(|(name, fields)| Tuple {
       name,
       fields,
       info: (),

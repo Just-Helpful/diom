@@ -6,12 +6,7 @@ use crate::{
 };
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
-use proptest::{
-  collection::vec,
-  option,
-  prelude::{any, Strategy},
-  prop_oneof,
-};
+use proptest::{collection::vec, option, prelude::Strategy, prop_oneof};
 use std::{
   fmt::{Display, Write},
   ops::Range,
@@ -43,7 +38,7 @@ impl DisplayAs<Spans> for StructField<Range<usize>> {
 impl StructField<()> {
   /// Generates a generic strategy for generating `StructField` nodes
   pub fn any(item: impl Strategy<Value = Pattern<()>>) -> impl Strategy<Value = Self> {
-    (any::<Ident<()>>(), item).prop_map(|(name, pattern)| StructField {
+    (Ident::any(), item).prop_map(|(name, pattern)| StructField {
       name,
       pattern,
       info: (),

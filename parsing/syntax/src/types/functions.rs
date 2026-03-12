@@ -2,10 +2,7 @@ use super::Type;
 use crate::{display::Sep, ident::Ident};
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
-use proptest::{
-  collection::vec,
-  prelude::{any, Strategy},
-};
+use proptest::{collection::vec, prelude::Strategy};
 use std::{
   fmt::{Display, Write},
   ops::Range,
@@ -37,7 +34,7 @@ impl DisplayAs<Spans> for Parameter<Range<usize>> {
 impl Parameter<()> {
   /// Generates a generic strategy for generating `Parameter`s
   pub fn any(item: impl Strategy<Value = Type<()>>) -> impl Strategy<Value = Self> {
-    (any::<Ident<()>>(), item).prop_map(|(name, annotation)| Parameter {
+    (Ident::any(), item).prop_map(|(name, annotation)| Parameter {
       name,
       annotation,
       info: (),
