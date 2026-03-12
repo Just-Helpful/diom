@@ -24,7 +24,7 @@ This is mostly a language written because:
 
 - [ ] property testing on AST -> code -> AST round trip
   - [x] implement `Display` for AST
-  - [ ] implement generators for ASTs
+  - [x] implement generators for ASTs
   - [ ] add property testing
 - [ ] f-string support
   - I'll need to update how strings are parsed...
