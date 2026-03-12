@@ -17,6 +17,8 @@ pub mod ident;
 pub mod parsers;
 pub mod path;
 pub mod patterns;
+#[cfg(test)]
+mod tests;
 pub mod types;
 mod utils;
 
