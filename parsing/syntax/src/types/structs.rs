@@ -60,7 +60,7 @@ impl DisplayAs<Spans> for Struct<Range<usize>> {
 }
 
 pub struct StructConfig(
-  /// The maximum number of properties in a struct
+  /// The maximum number of fields in a struct
   pub usize,
 );
 impl Default for StructConfig {

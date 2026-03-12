@@ -88,7 +88,7 @@ pub struct TypeConfig {
   pub enum_variants: usize,
   /// The maximum number of parameters per function
   pub fn_parameters: usize,
-  /// The maximum number of properties in a struct
+  /// The maximum number of fields in a struct
   pub struct_props: usize,
   /// The maximum number of items in a tuple
   pub tuple_items: usize,
