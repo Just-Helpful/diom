@@ -42,6 +42,7 @@ pub fn parse_token<'a>(input: &'a str) -> IResult<&'a str, Token, Error<&'a str>
     // Reserved keywords
     alt((
       tag("let").map(|_| Token::Let),
+      tag("type").map(|_| Token::Type),
       tag("return").map(|_| Token::Return),
     )),
     // Functions
