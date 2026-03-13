@@ -1,0 +1,52 @@
+---
+source: parsing/parser/src/tests/snapshots.rs
+expression: expr
+---
+Call(
+    Call {
+        value: Var(
+            Ident {
+                name: Minus,
+                info: SpanTokens(
+                    [
+                        SpanToken {
+                            token: Minus,
+                            origin: "-",
+                        },
+                    ],
+                ),
+            },
+        ),
+        args: [
+            Float(
+                Float {
+                    value: 0.005,
+                    info: SpanTokens(
+                        [
+                            SpanToken {
+                                token: Float(
+                                    0.005,
+                                ),
+                                origin: "0.5e-2",
+                            },
+                        ],
+                    ),
+                },
+            ),
+        ],
+        info: SpanTokens(
+            [
+                SpanToken {
+                    token: Minus,
+                    origin: "-",
+                },
+                SpanToken {
+                    token: Float(
+                        0.005,
+                    ),
+                    origin: "0.5e-2",
+                },
+            ],
+        ),
+    },
+)
