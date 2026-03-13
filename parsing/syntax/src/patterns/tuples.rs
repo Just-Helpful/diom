@@ -52,7 +52,9 @@ pub struct Tuple<I> {
 impl<I> Display for Tuple<I> {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     Optn(&self.name).fmt(f)?;
-    Sep(&self.fields, ',').fmt(f)
+    f.write_char('[')?;
+    Sep(&self.fields, ',').fmt(f)?;
+    f.write_char(']')
   }
 }
 
