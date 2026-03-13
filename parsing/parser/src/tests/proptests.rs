@@ -11,7 +11,7 @@ proptest! {
     let tokens = quick_lex(&code);
 
     let expr_ = quick_parse((&tokens).into());
-    let expr_ = expr_.map(|_| ());
+    let _expr = expr_.map(|_| ());
     // @todo implement `PartialEq` and test expression equality
   }
 }
