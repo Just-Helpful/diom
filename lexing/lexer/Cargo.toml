@@ -13,3 +13,7 @@ documentation.workspace = true
 [dependencies]
 diom-tokens = { version = "0.1.0", path = "../tokens" }
 nom = "8.0.0"
+
+[dev-dependencies]
+diom-syntax = { path = "../../parsing/syntax" }
+proptest = "1.8.0"

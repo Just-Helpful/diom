@@ -202,8 +202,10 @@ dependencies = [
 name = "diom-lexer"
 version = "0.1.0"
 dependencies = [
+ "diom-syntax",
  "diom-tokens",
  "nom",
+ "proptest",
 ]
 
 [[package]]
