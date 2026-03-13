@@ -15,9 +15,7 @@ pub struct Char<I> {
 
 impl<I> Display for Char<I> {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    f.write_char('\'')?;
-    self.value.fmt(f)?;
-    f.write_char('\'')
+    write!(f, "{:?}", self.value)
   }
 }
 
@@ -39,5 +37,31 @@ impl Arbitrary for Char<()> {
 
   fn arbitrary_with(_: Self::Parameters) -> Self::Strategy {
     Self::any().boxed()
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::Char;
+
+  #[test]
+  fn formatting() {
+    let s = Char {
+      value: 'a',
+      info: (),
+    };
+    assert_eq!(s.to_string(), "'a'");
+
+    let s = Char {
+      value: '☃',
+      info: (),
+    };
+    assert_eq!(s.to_string(), "'☃'");
+
+    let s = Char {
+      value: '\'',
+      info: (),
+    };
+    assert_eq!(s.to_string(), r"'\''");
   }
 }
