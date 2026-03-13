@@ -3,30 +3,36 @@ use insta::assert_debug_snapshot;
 
 #[test]
 fn floats() {
-  let tokens = quick_lex("5");
-  let expr = quick_parse((&tokens).into());
+  let input = "5";
+  let tokens = quick_lex(input);
+  let expr = quick_parse(input, (&tokens).into());
   assert_debug_snapshot!(expr);
 
-  let tokens = quick_lex("5.0");
-  let expr = quick_parse((&tokens).into());
+  let input = "5.0";
+  let tokens = quick_lex(input);
+  let expr = quick_parse(input, (&tokens).into());
   assert_debug_snapshot!(expr);
 
-  let tokens = quick_lex("5e0");
-  let expr = quick_parse((&tokens).into());
+  let input = "5e0";
+  let tokens = quick_lex(input);
+  let expr = quick_parse(input, (&tokens).into());
   assert_debug_snapshot!(expr);
 
-  let tokens = quick_lex("5e-1");
-  let expr = quick_parse((&tokens).into());
+  let input = "5e-1";
+  let tokens = quick_lex(input);
+  let expr = quick_parse(input, (&tokens).into());
   assert_debug_snapshot!(expr);
 
-  let tokens = quick_lex("- 0.5e-2");
-  let expr = quick_parse((&tokens).into());
+  let input = "- 0.5e-2";
+  let tokens = quick_lex(input);
+  let expr = quick_parse(input, (&tokens).into());
   assert_debug_snapshot!(expr);
 }
 
 #[test]
 fn functions() {
-  let tokens = quick_lex("() => 5");
-  let expr = quick_parse((&tokens).into());
+  let input = "() => 5";
+  let tokens = quick_lex(input);
+  let expr = quick_parse(input, (&tokens).into());
   assert_debug_snapshot!(expr);
 }

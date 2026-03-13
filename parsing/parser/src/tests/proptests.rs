@@ -10,7 +10,7 @@ proptest! {
     let code = format!("{expr}");
     let tokens = quick_lex(&code);
 
-    let expr_ = quick_parse((&tokens).into());
+    let expr_ = quick_parse(&code, (&tokens).into());
     let _expr = expr_.map(|_| ());
     // @todo implement `PartialEq` and test expression equality
   }

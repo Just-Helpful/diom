@@ -1,11 +1,9 @@
-use std::fmt::from_fn;
-
-use super::LexError;
 use crate::parse_tokens;
 use diom_syntax::expressions::Expression;
 use diom_tokens::SpanToken;
-use nom::combinator::eof;
+use nom::{combinator::all_consuming, error::Error, Err, Offset, Parser};
 use proptest::prelude::*;
+use std::fmt::{from_fn, Debug};
 
 proptest! {
   /// Tests that we can lex code produced from a syntax tree
@@ -17,20 +15,31 @@ proptest! {
 }
 
 fn quick_lex(code: &str) -> Vec<SpanToken<'_>> {
-  let (code_, tokens) = parse_tokens(code).expect("we can parse the tokens for the expression");
-  eof::<_, LexError>(code_)
-    .map_err(|e| {
-      from_fn(move |f| {
-        let err = match &e {
-          nom::Err::Error(e) => e,
-          nom::Err::Failure(e) => e,
-          nom::Err::Incomplete(_) => panic!(),
-        };
-        f.write_str("Expected no input left to lex\n")?;
-        writeln!(f, "When lexing the string:\n`{code}`")?;
-        writeln!(f, "But got:\n`{}`", err.input)
-      })
-    })
+  let (_, tokens) = all_consuming(parse_tokens)
+    .parse(code)
+    .map_err(|err| format_error(code, err))
     .unwrap();
+
   tokens
+}
+
+fn format_error<'a>(input_: &'a str, error: Err<Error<&'a str>>) -> impl Debug + 'a {
+  from_fn(move |f| {
+    writeln!(f, "`{input_}`")?;
+    if let Err::Incomplete(n) = error {
+      f.write_str(&" ".repeat(input_.len() + 1))?;
+      write!(f, "^ Needed ({n:?})")?;
+      return Ok(());
+    }
+
+    let (kind, Error { input, code }) = match &error {
+      Err::Error(e) => ("error", e),
+      Err::Failure(e) => ("failure", e),
+      _ => unreachable!("we've handled incomplete"),
+    };
+
+    let i = input_.offset(input);
+    f.write_str(&" ".repeat(i + 1))?;
+    write!(f, "^ {code:?} ({kind})")
+  })
 }
