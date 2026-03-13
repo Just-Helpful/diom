@@ -1,0 +1,7 @@
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc 2515b883cf38e960f22310198fc19e5a60eba1073c9c6ecfde6ecb0552095c1d # shrinks to expr = Declare(Declare { pattern: Tuple(Tuple { name: None, fields: [Rest(Rest { name: Some(Ident { name: Literal("ଅ"), info: () }), info: () })], info: () }), annotation: None, value: Char(Char { value: ' ', info: () }), info: () })
