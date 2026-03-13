@@ -25,6 +25,7 @@ fn unicode_char<'a>() -> impl Parser<&'a str, Output = char, Error = Error<&'a s
 fn escaped_char<'a>() -> impl Parser<&'a str, Output = char, Error = Error<&'a str>> {
   let parse_datum = alt((
     unicode_char(),
+    value('\0', char('0')),
     value('\n', char('n')),
     value('\r', char('r')),
     value('\t', char('t')),
@@ -195,6 +196,12 @@ mod test {
         all_consuming(enclosed_char()).parse(r"'\u{fe0e}'")?,
         ("", '\u{fe0e}')
       );
+      Ok(())
+    }
+
+    #[test]
+    fn null() -> TestResult<'static, ()> {
+      assert_eq!(all_consuming(enclosed_char()).parse(r"'\0'")?, ("", '\0'));
       Ok(())
     }
   }
