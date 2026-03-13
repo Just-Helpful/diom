@@ -21,8 +21,8 @@ proptest! {
           nom::Err::Incomplete(_) => panic!(),
         };
         f.write_str("Expected no input left to lex\n")?;
-        writeln!(f, "When lexing the string:\n'{code}'")?;
-        writeln!(f, "But got:\n'{}'", err.input)
+        writeln!(f, "When lexing the string:\n`{code}`")?;
+        writeln!(f, "But got:\n`{}`", err.input)
       })
     })
     .unwrap();

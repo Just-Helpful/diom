@@ -20,8 +20,8 @@ pub fn quick_lex(input: &str) -> Vec<SpanToken<'_>> {
           nom::Err::Incomplete(_) => panic!(),
         };
         f.write_str("Expected no input left to lex\n")?;
-        writeln!(f, "When lexing the string:\n'{input}'")?;
-        writeln!(f, "But got:\n'{}'", err.input)
+        writeln!(f, "When lexing the string:\n`{input}`")?;
+        writeln!(f, "But got:\n`{}`", err.input)
       })
     })
     .unwrap();
@@ -40,8 +40,8 @@ pub fn quick_parse(tokens: SpanTokens) -> Expression<SpanTokens> {
           nom::Err::Incomplete(_) => panic!(),
         };
         f.write_str("Expected no input left to parse\n")?;
-        writeln!(f, "When parsing the tokens:\n'{tokens}'")?;
-        writeln!(f, "But got:\n'{}'", err.input)
+        writeln!(f, "When parsing the tokens:\n`{tokens}`")?;
+        writeln!(f, "But got:\n`{}`", err.input)
       })
     })
     .unwrap();
