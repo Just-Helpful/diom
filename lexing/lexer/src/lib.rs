@@ -23,11 +23,9 @@ pub mod structure;
 #[cfg(test)]
 mod tests;
 
-use chars::enclosed_char;
+use chars::{enclosed_char, parse_span_string};
 use comments::parse_comment;
 use idents::parse_ident;
-
-use crate::chars::parse_span_string;
 
 /// @note parses everything but strings, as they parse to a vector of `Token`s
 pub fn parse_token<'a>(input: &'a str) -> IResult<&'a str, Token, Error<&'a str>> {
