@@ -4,6 +4,7 @@ use diom_syntax::expressions::Expression;
 use proptest::prelude::*;
 
 proptest! {
+  /// Tests that we can format an Expression to code and then parse it back to an expression
   #[test]
   fn parser_roundtrip(expr: Expression<()>) {
     let code = format!("{expr}");
