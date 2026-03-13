@@ -3,6 +3,7 @@ use std::fmt::from_fn;
 use super::LexError;
 use crate::parse_tokens;
 use diom_syntax::expressions::Expression;
+use diom_tokens::SpanToken;
 use nom::combinator::eof;
 use proptest::prelude::*;
 
@@ -11,9 +12,14 @@ proptest! {
   #[test]
   fn lex_code(expr: Expression<()>) {
     let code = format!("{expr}");
-    let code_ = code.clone();
-    let (code_, _) = parse_tokens(&code_).expect("we can parse the tokens for the expression");
-    eof::<_, LexError>(code_).map_err(|e| {
+    quick_lex(&code);
+  }
+}
+
+fn quick_lex(code: &str) -> Vec<SpanToken<'_>> {
+  let (code_, tokens) = parse_tokens(code).expect("we can parse the tokens for the expression");
+  eof::<_, LexError>(code_)
+    .map_err(|e| {
       from_fn(move |f| {
         let err = match &e {
           nom::Err::Error(e) => e,
@@ -26,5 +32,5 @@ proptest! {
       })
     })
     .unwrap();
-  }
+  tokens
 }
