@@ -61,6 +61,7 @@ pub fn parse_token<'a>(input: &'a str) -> IResult<&'a str, Token, Error<&'a str>
       char('-').map(|_| Token::Minus),
       char('*').map(|_| Token::Times),
       char('/').map(|_| Token::Divide),
+      char('?').map(|_| Token::Monad),
     )),
     // Punctuation
     alt((
