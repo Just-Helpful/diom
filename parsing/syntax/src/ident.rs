@@ -81,7 +81,7 @@ impl Display for Name {
 impl Name {
   /// Generates a generic strategy for generating `Name`s
   pub fn any() -> impl Strategy<Value = Self> {
-    let lit = any::<String>()
+    let lit = r"[_a-zA-Z][_a-zA-Z0-9]*"
       .prop_map(|s| s.into_boxed_str())
       .prop_map(Name::Literal);
     prop_oneof![
