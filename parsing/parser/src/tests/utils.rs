@@ -6,7 +6,7 @@ use nom::{combinator::all_consuming, error::Error, Err, Offset, Parser};
 use std::fmt::{from_fn, Debug};
 
 pub fn quick_lex(code: &str) -> Vec<SpanToken<'_>> {
-  let (_, tokens) = all_consuming(parse_tokens)
+  let (_, tokens) = all_consuming(parse_tokens())
     .parse(code)
     .map_err(|err| format_error(code, err))
     .unwrap();

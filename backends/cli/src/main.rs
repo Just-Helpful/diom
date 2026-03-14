@@ -83,7 +83,9 @@ fn main() {
   let src = ProgramSource::from(args.source);
   let code = src.fetch().unwrap();
 
-  let (input, tokens) = parse_tokens(code.as_str().into()).unwrap();
+  let (input, tokens) = parse_tokens::<VerboseError<_>>()
+    .parse(code.as_str().into())
+    .unwrap();
   assert!(
     input.is_empty(),
     "Input was not fulled lexed, remaining input = {input}",
@@ -91,7 +93,7 @@ fn main() {
   println!("\n# Lexed Tokens");
   println!("{}", SpanTokens::from(&tokens));
 
-  let result = parse_expression::<VerboseError<SpanTokens>>().parse(SpanTokens::from(&tokens));
+  let result = parse_expression::<VerboseError<_>>().parse((&tokens).into());
   let (input, expr) = match result {
     Ok(res) => res,
     Err(Err::Error(err) | Err::Failure(err)) => {

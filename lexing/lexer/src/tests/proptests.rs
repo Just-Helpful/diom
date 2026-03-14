@@ -15,7 +15,7 @@ proptest! {
 }
 
 fn quick_lex(code: &str) -> Vec<SpanToken<'_>> {
-  let (_, tokens) = all_consuming(parse_tokens)
+  let (_, tokens) = all_consuming(parse_tokens())
     .parse(code)
     .map_err(|err| format_error(code, err))
     .unwrap();

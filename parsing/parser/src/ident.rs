@@ -34,22 +34,24 @@ mod test {
 
   #[test]
   fn simple_ident() {
-    let (input, tokens) = parse_tokens("x".into()).unwrap();
+    let (input, tokens) = parse_tokens::<Error<_>>().parse("x".into()).unwrap();
     assert_eq!(input, "");
     assert_eq!(tokens.len(), 1, "{tokens:?}.len() != 1");
 
-    let (tokens, ident) = parse_ident::<SpanError>((&tokens).into()).unwrap();
+    let (tokens, ident) = parse_ident::<Error<_>>((&tokens).into()).unwrap();
     assert_eq!(tokens, (&[]).into());
     assert_eq!(ident.name, Name::Literal("x".into()));
   }
 
   #[test]
   fn operator_ident() {
-    let (input, tokens) = parse_tokens("+ - / < & !".into()).unwrap();
+    let (input, tokens) = parse_tokens::<Error<_>>()
+      .parse("+ - / < & !".into())
+      .unwrap();
     assert_eq!(input, "");
     assert_eq!(tokens.len(), 6, "{tokens:?}.len() != 6");
 
-    let (tokens, idents) = many1(parse_ident::<SpanError>)
+    let (tokens, idents) = many1(parse_ident::<Error<_>>)
       .parse((&tokens).into())
       .unwrap();
     assert_eq!(tokens, (&[]).into());

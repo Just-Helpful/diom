@@ -4,15 +4,15 @@ use nom::{
   bytes::complete::tag,
   character::{complete::char, complete::multispace0},
   combinator::consumed,
-  error::Error,
   multi::separated_list0,
   number::complete::double,
   sequence::preceded,
-  IResult, Parser,
+  Parser,
 };
 
 pub mod chars;
 pub mod comments;
+pub mod errors;
 pub mod idents;
 pub mod keywords;
 pub mod operators;
@@ -23,12 +23,15 @@ pub mod structure;
 #[cfg(test)]
 mod tests;
 
+use crate::errors::SyntaxError;
 use chars::{enclosed_char, parse_span_string};
 use comments::parse_comment;
 use idents::parse_ident;
 
+type In<'a> = &'a str;
+
 /// @note parses everything but strings, as they parse to a vector of `Token`s
-pub fn parse_token<'a>(input: &'a str) -> IResult<&'a str, Token, Error<&'a str>> {
+pub fn parse_token<'a, E: SyntaxError<'a>>() -> impl Parser<In<'a>, Output = Token, Error = E> {
   alt((
     // Brackets
     alt((
@@ -82,21 +85,20 @@ pub fn parse_token<'a>(input: &'a str) -> IResult<&'a str, Token, Error<&'a str>
     // Value-like
     double.map(Token::Float),
   ))
-  .parse(input)
 }
 
-fn span_wrap<'a>(
-  parser: impl Parser<&'a str, Output = Token, Error = Error<&'a str>>,
-) -> impl Parser<&'a str, Output = SpanToken<'a>, Error = Error<&'a str>> {
+fn span_wrap<'a, E: SyntaxError<'a>>(
+  parser: impl Parser<In<'a>, Output = Token, Error = E>,
+) -> impl Parser<In<'a>, Output = SpanToken<'a>, Error = E> {
   consumed(parser).map(|(origin, token)| SpanToken { token, origin })
 }
 
-pub fn parse_tokens(input: &str) -> IResult<&str, Vec<SpanToken<'_>>> {
+pub fn parse_tokens<'a, E: SyntaxError<'a>>(
+) -> impl Parser<In<'a>, Output = Vec<SpanToken<'a>>, Error = E> {
   let parse_item = alt((
-    span_wrap(parse_token).map(|tok| vec![tok]),
-    parse_span_string,
+    span_wrap(parse_token()).map(|tok| vec![tok]),
+    parse_span_string(),
   ));
   preceded(multispace0, separated_list0(multispace0, parse_item))
     .map(|itemss| itemss.into_iter().flatten().collect())
-    .parse(input)
 }

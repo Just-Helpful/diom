@@ -2,17 +2,18 @@ use nom::{
   branch::alt,
   bytes::complete::{is_not, tag, take_until},
   character::complete::{char, line_ending},
-  error::Error,
   sequence::delimited,
   Parser,
 };
+
+use crate::{errors::SyntaxError, In};
 
 /// Parses a comment that spans until the end of the current line
 /// ```_
 /// # initialise loop index to 0
 /// let i = 0;
 /// ```
-fn line_comment<'a>() -> impl Parser<&'a str, Output = &'a str, Error = Error<&'a str>> {
+fn line_comment<'a, E: SyntaxError<'a>>() -> impl Parser<In<'a>, Output = &'a str, Error = E> {
   delimited(char('#'), is_not("\r\n"), line_ending)
 }
 
@@ -26,12 +27,12 @@ fn line_comment<'a>() -> impl Parser<&'a str, Output = &'a str, Error = Error<&'
 /// )#
 /// let i = 0;
 /// ```
-fn parse_block<'a>() -> impl Parser<&'a str, Output = &'a str, Error = Error<&'a str>> {
+fn parse_block<'a, E: SyntaxError<'a>>() -> impl Parser<In<'a>, Output = &'a str, Error = E> {
   delimited(tag("#("), take_until(")#"), tag(")#"))
 }
 
 /// Parses either a `# line comment`, or a `#( block comment )#`
-pub fn parse_comment<'a>() -> impl Parser<&'a str, Output = &'a str, Error = Error<&'a str>> {
+pub fn parse_comment<'a, E: SyntaxError<'a>>() -> impl Parser<In<'a>, Output = &'a str, Error = E> {
   alt((parse_block(), line_comment()))
 }
 

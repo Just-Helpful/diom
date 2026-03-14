@@ -3,13 +3,14 @@ use nom::{
   bytes::complete::tag,
   character::complete::{alpha1, alphanumeric1},
   combinator::recognize,
-  error::Error,
   multi::many0,
   Parser,
 };
 
+use crate::{errors::SyntaxError, In};
+
 /// Parses an identifier, used for variable and type creation
-pub fn parse_ident<'a>() -> impl Parser<&'a str, Output = &'a str, Error = Error<&'a str>> {
+pub fn parse_ident<'a, E: SyntaxError<'a>>() -> impl Parser<In<'a>, Output = &'a str, Error = E> {
   let parse_first = alt((alpha1, tag("_")));
   let parse_rest = alt((alphanumeric1, tag("_")));
   recognize(parse_first.and(many0(parse_rest)))
