@@ -67,4 +67,12 @@ mod tests {
     let tokens = quick_lex(&code);
     quick_parse(&code, (&tokens).into());
   }
+
+  /// Tests that a typedef with a tuple type parses
+  #[test]
+  fn typedef_tuple() {
+    let code = "(type ! = [!,!])";
+    let tokens = quick_lex(code);
+    quick_parse(code, (&tokens).into());
+  }
 }
