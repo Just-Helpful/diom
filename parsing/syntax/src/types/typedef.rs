@@ -34,7 +34,7 @@ impl<I> Display for TypeDef<I> {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     f.write_str("type ")?;
     self.name.fmt(f)?;
-    f.write_str("=")?;
+    f.write_str(" = ")?;
     self.value.fmt(f)
   }
 }
