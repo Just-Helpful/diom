@@ -38,3 +38,33 @@ pub fn parse_typedef<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, TypeD
     },
   ))
 }
+
+#[cfg(test)]
+mod tests {
+  use diom_syntax::{
+    ident::{Ident, Name},
+    types::{Type, TypeDef},
+  };
+
+  use crate::tests::utils::{quick_lex, quick_parse};
+
+  /// Tests that `Typedef("!", "!")` formats and parses correctly
+  #[test]
+  fn typedef_eq_safe() {
+    let def = TypeDef {
+      name: Ident {
+        name: Name::Not,
+        info: (),
+      },
+      value: Box::new(Type::Var(Ident {
+        name: Name::Not,
+        info: (),
+      })),
+      info: (),
+    };
+
+    let code = format!("({def})");
+    let tokens = quick_lex(&code);
+    quick_parse(&code, (&tokens).into());
+  }
+}
