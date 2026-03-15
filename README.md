@@ -22,21 +22,22 @@ This is mostly a language written because:
 
 ### Parsing
 
-- [ ] property testing on AST -> code -> AST round trip
-  - [x] implement `Display` for AST
-  - [x] implement generators for ASTs
-  - [ ] add property testing
 - [ ] f-string support
   - I'll need to update how strings are parsed...
   - maybe consider having f-strings create templates not strings\
     if we support string conversion on these, we can solve most\
     of the standard string injection attacks by not converting to\
     strings until the last possible second.
+- [x] property testing on AST -> code -> AST round trip
+  - [x] implement `Display` for AST
+  - [x] implement generators for ASTs
+  - [x] add property testing
 - [x] use `nom-language`'s `precedence` parser
 
 ### Formatting
 
 - [ ] add a custom formatting for creating boxes
+- [ ] pretty printing ASTs (formatting)
 - [x] add a custom formatter for indented structures
 - [x] printing ASTs as code
 
