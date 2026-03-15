@@ -33,7 +33,7 @@ pub struct Tuple<T>(pub T);
 
 impl<'a, T0: Display, T1: Display> Display for Tuple<&'a (T0, T1)> {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    self.0 .0.fmt(f)?;
-    self.0 .1.fmt(f)
+    let (fst, snd) = self.0;
+    write!(f, "{fst} {snd}")
   }
 }
