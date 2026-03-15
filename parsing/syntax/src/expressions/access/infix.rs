@@ -25,7 +25,9 @@ pub struct Infix<I> {
 impl<I> Display for Infix<I> {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     self.value.fmt(f)?;
+    f.write_char(' ')?;
     self.name.fmt(f)?;
+    f.write_char(' ')?;
     self.other.fmt(f)
   }
 }
