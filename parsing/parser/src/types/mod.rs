@@ -19,7 +19,7 @@ use crate::{
   In,
 };
 use diom_syntax::types::Type;
-use nom::{branch::alt, Parser};
+use nom::{branch::alt, error::context, Parser};
 
 mod arrays;
 use arrays::parse_array;
@@ -41,12 +41,12 @@ pub use typedef::*;
 /// 2. function parameters
 pub fn parse_type<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Type<In<'a>>, E> {
   alt((
-    parse_function.map(Type::Function),
-    parse_array.map(Type::Array),
-    parse_enum.map(Type::Enum),
-    parse_struct.map(Type::Struct),
-    parse_tuple.map(Type::Tuple),
-    parse_ident.map(Type::Var),
+    context("function type", parse_function).map(Type::Function),
+    context("array type", parse_array).map(Type::Array),
+    context("enum type", parse_enum).map(Type::Enum),
+    context("struct type", parse_struct).map(Type::Struct),
+    context("tuple type", parse_tuple).map(Type::Tuple),
+    context("type var", parse_ident).map(Type::Var),
   ))
   .parse(input)
 }
