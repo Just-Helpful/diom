@@ -4,7 +4,7 @@
 //! This means that if there is any remaining input after each parse,
 //! they will fail.
 use crate::{
-  errors::{BuildError, SyntaxError},
+  errors::SyntaxError,
   parsers::{matches, token},
   In,
 };
@@ -124,6 +124,10 @@ pub fn parse_expression<'a, E: SyntaxError<'a>>(
 
   context("expression", parser)
 }
+
+/// An error raised when building prefix, infix and postfix operations
+#[derive(Debug)]
+pub enum BuildError {}
 
 fn apply_operation<'a>(
   op: Operation<

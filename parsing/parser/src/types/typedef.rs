@@ -9,7 +9,7 @@ use diom_syntax::types::{Type, TypeDef};
 use diom_tokens::Token;
 use nom::{
   branch::alt,
-  combinator::consumed,
+  combinator::{consumed, cut},
   sequence::{preceded, terminated},
   Parser,
 };
@@ -22,7 +22,7 @@ pub fn parse_typedef<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, TypeD
   ));
 
   let parse_type = alt((
-    terminated(parse_ident, matches(Token::Assign)).and(parse_type),
+    terminated(parse_ident, matches(Token::Assign)).and(cut(parse_type)),
     parse_tag_type,
   ));
 

@@ -1,13 +1,14 @@
 use crate::common::{PResult, SpanToken, Token};
 use crate::errors::SyntaxError;
 use crate::{In, Item};
-use nom::combinator::{eof, verify};
+use nom::combinator::eof;
 use nom::error::{context, ParseError};
 use nom::{
   combinator::opt,
   error::{Error, ErrorKind},
 };
 use nom::{Input, Parser};
+use std::fmt::Debug;
 use std::num::NonZero;
 
 #[inline]
@@ -18,13 +19,22 @@ pub fn single_item<'a, E: SyntaxError<'a>>() -> impl Parser<In<'a>, Output = Ite
   }
 }
 
+#[derive(Debug)]
+pub struct IsExact(pub String);
+
 pub fn token<'a, E: SyntaxError<'a>>(
-  tok: impl ExactMatch<Token>,
+  tok: impl ExactMatch<Token> + 'static,
 ) -> impl Parser<In<'a>, Output = Item<'a>, Error = E> {
-  verify(single_item(), move |item| tok.exact(item))
+  single_item().map_res(move |item| {
+    if tok.exact(&item) {
+      Ok(item)
+    } else {
+      Err(IsExact(format!("{tok:?}")))
+    }
+  })
 }
 
-pub trait ExactMatch<T> {
+pub trait ExactMatch<T>: Debug {
   fn exact(&self, other: &T) -> bool;
 }
 impl ExactMatch<Token> for Token {
@@ -40,13 +50,22 @@ impl<const N: usize> ExactMatch<Token> for [Token; N] {
   }
 }
 
+#[derive(Debug)]
+pub struct IsApprox(pub String);
+
 pub fn matches<'a, E: SyntaxError<'a>>(
-  tok: impl ApproxMatch<Token>,
+  tok: impl ApproxMatch<Token> + 'static,
 ) -> impl Parser<In<'a>, Output = Item<'a>, Error = E> {
-  verify(single_item(), move |item| tok.approx(item))
+  single_item().map_res(move |item| {
+    if tok.approx(&item) {
+      Ok(item)
+    } else {
+      Err(IsApprox(format!("{tok:?}")))
+    }
+  })
 }
 
-pub trait ApproxMatch<T> {
+pub trait ApproxMatch<T>: Debug {
   fn approx(&self, other: &T) -> bool;
 }
 impl ApproxMatch<Token> for Token {
