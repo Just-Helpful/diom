@@ -2,7 +2,7 @@ use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use diom_tokens::Token;
 use proptest::{
-  prelude::{any, Arbitrary, BoxedStrategy, Just, Strategy},
+  prelude::{Arbitrary, BoxedStrategy, Just, Strategy},
   prop_oneof,
 };
 use std::{
