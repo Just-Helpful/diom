@@ -7,22 +7,22 @@ Call(
         value: Var(
             Ident {
                 name: Minus,
-                info: SpanTokens(
-                    [
+                info: SpanTokens {
+                    tokens: [
                         SpanToken {
                             token: Minus,
                             origin: "-",
                         },
                     ],
-                ),
+                },
             },
         ),
         args: [
             Float(
                 Float {
                     value: 0.005,
-                    info: SpanTokens(
-                        [
+                    info: SpanTokens {
+                        tokens: [
                             SpanToken {
                                 token: Float(
                                     0.005,
@@ -30,12 +30,12 @@ Call(
                                 origin: "0.5e-2",
                             },
                         ],
-                    ),
+                    },
                 },
             ),
         ],
-        info: SpanTokens(
-            [
+        info: SpanTokens {
+            tokens: [
                 SpanToken {
                     token: Minus,
                     origin: "-",
@@ -47,6 +47,6 @@ Call(
                     origin: "0.5e-2",
                 },
             ],
-        ),
+        },
     },
 )

@@ -5,8 +5,8 @@ expression: expr
 Float(
     Float {
         value: 5.0,
-        info: SpanTokens(
-            [
+        info: SpanTokens {
+            tokens: [
                 SpanToken {
                     token: Float(
                         5.0,
@@ -14,6 +14,6 @@ Float(
                     origin: "5.0",
                 },
             ],
-        ),
+        },
     },
 )

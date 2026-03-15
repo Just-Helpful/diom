@@ -8,8 +8,8 @@ Function(
             FunctionArm {
                 parameters: Parameters {
                     parameters: [],
-                    info: SpanTokens(
-                        [
+                    info: SpanTokens {
+                        tokens: [
                             SpanToken {
                                 token: LParen,
                                 origin: "(",
@@ -19,14 +19,14 @@ Function(
                                 origin: ")",
                             },
                         ],
-                    ),
+                    },
                 },
                 annotation: None,
                 returned: Float(
                     Float {
                         value: 5.0,
-                        info: SpanTokens(
-                            [
+                        info: SpanTokens {
+                            tokens: [
                                 SpanToken {
                                     token: Float(
                                         5.0,
@@ -34,11 +34,11 @@ Function(
                                     origin: "5",
                                 },
                             ],
-                        ),
+                        },
                     },
                 ),
-                info: SpanTokens(
-                    [
+                info: SpanTokens {
+                    tokens: [
                         SpanToken {
                             token: LParen,
                             origin: "(",
@@ -58,11 +58,11 @@ Function(
                             origin: "5",
                         },
                     ],
-                ),
+                },
             },
         ],
-        info: SpanTokens(
-            [
+        info: SpanTokens {
+            tokens: [
                 SpanToken {
                     token: LParen,
                     origin: "(",
@@ -82,6 +82,6 @@ Function(
                     origin: "5",
                 },
             ],
-        ),
+        },
     },
 )
