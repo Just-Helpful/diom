@@ -132,8 +132,12 @@ impl ExtensibleError<&str> {
     if end - start <= LINE_LENGTH {
       return start..end;
     }
-    start = start.min(index - LINE_LENGTH / 2).min(end - LINE_LENGTH);
-    end = end.max(index + LINE_LENGTH / 2).max(start + LINE_LENGTH);
+    start = start
+      .min(index.saturating_sub(LINE_LENGTH / 2))
+      .min(end.saturating_sub(LINE_LENGTH));
+    end = end
+      .max(index.saturating_add(LINE_LENGTH / 2))
+      .max(start.saturating_add(LINE_LENGTH));
     start..end
   }
 
