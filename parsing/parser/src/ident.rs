@@ -8,7 +8,7 @@ use nom::error::ErrorKind;
 use nom::Parser;
 
 pub fn parse_name<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Name, E> {
-  let (input, tok) = single_item().parse(input)?;
+  let (input_, tok) = single_item().parse(input)?;
   let name = tok.token.try_into().map_err(|_| {
     nom::Err::Error(E::from_external_error(
       input,
@@ -16,7 +16,7 @@ pub fn parse_name<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Name, E>
       IsExact("Ident".into()),
     ))
   })?;
-  Ok((input, name))
+  Ok((input_, name))
 }
 
 pub fn parse_ident<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Ident<In<'a>>, E> {
