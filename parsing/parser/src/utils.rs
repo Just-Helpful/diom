@@ -18,6 +18,6 @@ const unsafe fn merge_slices<'a, T>(a: &'a [T], b: &'a [T]) -> &'a [T] {
 ///
 /// Boths `a` and `b` must come from the same original input span
 pub unsafe fn merge_spans<'a>(a: SpanTokens<'a>, b: SpanTokens<'a>) -> SpanTokens<'a> {
-  let merged = merge_slices(a.0, b.0);
+  let merged = merge_slices(a.tokens, b.tokens);
   SpanTokens::from(merged)
 }
