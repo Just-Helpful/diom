@@ -126,7 +126,7 @@ impl<I> ExtensibleError<I> {
 
 impl<'a> From<ExtensibleError<SpanTokens<'a>>> for ExtensibleError<&'a str> {
   fn from(value: ExtensibleError<SpanTokens<'a>>) -> Self {
-    value.map_input(|input| input.tokens[0].origin)
+    value.map_input(|input| input.origin)
   }
 }
 
