@@ -33,6 +33,8 @@ mod tuples;
 use tuples::parse_tuple;
 mod typedef;
 pub use typedef::*;
+mod tags;
+pub use tags::*;
 
 /// Parses a type in the Diom language.
 ///

@@ -3,15 +3,12 @@ use std::{
   ops::Range,
 };
 
-use crate::{
-  display::{Optn, Sep, Tuple},
-  ident::Ident,
-};
+use crate::display::Sep;
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
-use proptest::{collection::vec, option, prelude::Strategy};
+use proptest::{collection::vec, prelude::Strategy};
 
-use super::Type;
+use super::{Tagged, Type};
 
 /// A type for combinations of possible types
 ///
@@ -34,16 +31,14 @@ use super::Type;
 /// ```
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
 pub struct Enum<I> {
-  pub name: Option<Ident<I>>,
-  pub variants: Vec<(Ident<I>, Type<I>)>,
+  pub variants: Vec<Tagged<I>>,
   pub info: I,
 }
 
 impl<I> Display for Enum<I> {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    Optn(&self.name).fmt(f)?;
     f.write_char('{')?;
-    Sep(self.variants.iter().map(Tuple), ',').fmt(f)?;
+    Sep(&self.variants, ',').fmt(f)?;
     f.write_char('}')
   }
 }
@@ -51,7 +46,6 @@ impl<I> Display for Enum<I> {
 impl DisplayAs<Spans> for Enum<Range<usize>> {
   fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
     w.bracket("enum", &self.info)?;
-    self.name.write(&mut w.child())?;
     self.variants.write(&mut w.child())
   }
 }
@@ -72,14 +66,6 @@ impl Enum<()> {
     item: impl Strategy<Value = Type<()>>,
     args: EnumConfig,
   ) -> impl Strategy<Value = Self> {
-    (
-      option::of(Ident::any()),
-      vec((Ident::any(), item), 0..args.0),
-    )
-      .prop_map(|(name, variants)| Enum {
-        name,
-        variants,
-        info: (),
-      })
+    vec(Tagged::any(item), 0..args.0).prop_map(|variants| Enum { variants, info: () })
   }
 }

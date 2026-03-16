@@ -1,39 +1,17 @@
 use crate::{
   common::{PResult, Token},
   errors::SyntaxError,
-  parsers::group,
+  parsers::{group, matches},
+  types::parse_tagged,
   In,
 };
-use diom_syntax::{
-  ident::Ident,
-  types::{Enum, Type},
-};
+use diom_syntax::types::Enum;
 use nom::{
-  branch::alt,
-  combinator::{consumed, eof, opt},
+  combinator::{consumed, eof},
   multi::separated_list0,
   sequence::terminated,
   Parser,
 };
-
-use crate::{ident::parse_ident, parsers::matches};
-
-use super::{structs::parse_struct, tuples::parse_tuple};
-
-fn parse_variant<'a, E: SyntaxError<'a>>(
-  input: In<'a>,
-) -> PResult<'a, (Ident<In<'a>>, Type<In<'a>>), E> {
-  // variants *must* start with an identifier
-  let (_, name) = parse_ident(input)?;
-  let (input, ty) = alt((
-    parse_enum.map(Type::Enum),
-    parse_struct.map(Type::Struct),
-    parse_tuple.map(Type::Tuple),
-  ))
-  .parse(input)?;
-
-  Ok((input, (name, ty)))
-}
 
 /// Parses a enum-like type.
 ///
@@ -57,16 +35,9 @@ fn parse_variant<'a, E: SyntaxError<'a>>(
 /// { Some(Number), None }
 /// ```
 pub fn parse_enum<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Enum<In<'a>>, E> {
-  let parse_inner = terminated(separated_list0(matches(Token::Comma), parse_variant), eof);
-  let parser = opt(parse_ident).and(group(Token::LCurly, Token::RCurly).and_then(parse_inner));
+  let parse_inner = terminated(separated_list0(matches(Token::Comma), parse_tagged), eof);
+  let parser = group(Token::LCurly, Token::RCurly).and_then(parse_inner);
 
-  let (input, (info, (name, variants))) = consumed(parser).parse(input)?;
-  Ok((
-    input,
-    Enum {
-      name,
-      variants,
-      info,
-    },
-  ))
+  let (input, (info, variants)) = consumed(parser).parse(input)?;
+  Ok((input, Enum { variants, info }))
 }

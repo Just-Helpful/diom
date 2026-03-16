@@ -30,7 +30,9 @@ pub use structs::Struct;
 mod tuples;
 pub use tuples::Tuple;
 mod typedef;
-pub use typedef::TypeDef;
+pub use typedef::{Alias, NewType, TypeDef};
+mod tags;
+pub use tags::Tagged;
 
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
 pub enum Type<I> {

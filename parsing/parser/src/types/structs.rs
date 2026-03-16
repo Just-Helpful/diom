@@ -8,7 +8,7 @@ use crate::{
 };
 use diom_syntax::types::Struct;
 use nom::{
-  combinator::{consumed, cut, opt},
+  combinator::{consumed, cut},
   multi::separated_list1,
   sequence::separated_pair,
   Parser,
@@ -38,8 +38,8 @@ pub fn parse_struct<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Struct
     matches(Token::Comma),
     separated_pair(parse_ident, matches(Token::Colon), cut(parse_type)),
   );
-  let parser = opt(parse_ident).and(group(Token::LCurly, Token::RCurly).and_then(parse_inner));
+  let parser = group(Token::LCurly, Token::RCurly).and_then(parse_inner);
 
-  let (input, (info, (name, fields))) = consumed(parser).parse(input)?;
-  Ok((input, Struct { name, fields, info }))
+  let (input, (info, fields)) = consumed(parser).parse(input)?;
+  Ok((input, Struct { fields, info }))
 }

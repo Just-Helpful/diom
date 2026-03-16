@@ -1,10 +1,7 @@
-use crate::{
-  display::{Optn, Sep},
-  ident::Ident,
-};
+use crate::{display::Sep, ident::Ident};
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
-use proptest::{collection::vec, option, prelude::Strategy};
+use proptest::{collection::vec, prelude::Strategy};
 use std::{
   fmt::{Display, Write},
   ops::Range,
@@ -29,14 +26,12 @@ use super::Type;
 /// ```
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
 pub struct Struct<I> {
-  pub name: Option<Ident<I>>,
   pub fields: Vec<(Ident<I>, Type<I>)>,
   pub info: I,
 }
 
 impl<I> Display for Struct<I> {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    Optn(&self.name).fmt(f)?;
     f.write_char('{')?;
     Sep(
       self.fields.iter().map(|(name, ty)| format!("{name}:{ty}")),
@@ -50,7 +45,6 @@ impl<I> Display for Struct<I> {
 impl DisplayAs<Spans> for Struct<Range<usize>> {
   fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
     w.bracket("struct", &self.info)?;
-    self.name.write(&mut w.child())?;
     self.fields.write(&mut w.child())?;
     Ok(())
   }
@@ -72,14 +66,6 @@ impl Struct<()> {
     item: impl Strategy<Value = Type<()>>,
     args: StructConfig,
   ) -> impl Strategy<Value = Self> {
-    (
-      option::of(Ident::any()),
-      vec((Ident::any(), item), 0..args.0),
-    )
-      .prop_map(|(name, fields)| Struct {
-        name,
-        fields,
-        info: (),
-      })
+    vec((Ident::any(), item), 0..args.0).prop_map(|fields| Struct { fields, info: () })
   }
 }

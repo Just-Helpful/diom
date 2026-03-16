@@ -1,10 +1,7 @@
-use crate::{
-  display::{Optn, Sep},
-  ident::Ident,
-};
+use crate::display::Sep;
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
-use proptest::{collection::vec, option, prelude::Strategy};
+use proptest::{collection::vec, prelude::Strategy};
 use std::{
   fmt::{Display, Write},
   ops::Range,
@@ -23,14 +20,12 @@ use super::Type;
 /// ```
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
 pub struct Tuple<I> {
-  pub name: Option<Ident<I>>,
   pub fields: Vec<Type<I>>,
   pub info: I,
 }
 
 impl<I> Display for Tuple<I> {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    Optn(&self.name).fmt(f)?;
     f.write_char('[')?;
     Sep(&self.fields, ',').fmt(f)?;
     f.write_char(']')
@@ -40,7 +35,6 @@ impl<I> Display for Tuple<I> {
 impl DisplayAs<Spans> for Tuple<Range<usize>> {
   fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
     w.bracket("tuple", &self.info)?;
-    self.name.write(&mut w.child())?;
     self.fields.write(&mut w.child())
   }
 }
@@ -61,10 +55,6 @@ impl Tuple<()> {
     item: impl Strategy<Value = Type<()>>,
     args: TupleConfig,
   ) -> impl Strategy<Value = Self> {
-    (option::of(Ident::any()), vec(item, 0..args.0)).prop_map(|(name, fields)| Tuple {
-      name,
-      fields,
-      info: (),
-    })
+    vec(item, 0..args.0).prop_map(|fields| Tuple { fields, info: () })
   }
 }

@@ -1,49 +1,56 @@
-use super::{arrays::parse_array, parse_type, structs::parse_struct, tuples::parse_tuple};
+use super::parse_type;
 use crate::{
   errors::{PResult, SyntaxError},
   ident::parse_ident,
   parsers::matches,
+  types::parse_tagged,
   In,
 };
-use diom_syntax::types::{Type, TypeDef};
+use diom_syntax::types::{Alias, NewType, TypeDef};
 use diom_tokens::Token;
 use nom::{
   branch::alt,
   combinator::{consumed, cut},
-  sequence::{preceded, terminated},
+  error::context,
+  sequence::{delimited, preceded},
   Parser,
 };
 
-pub fn parse_typedef<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, TypeDef<In<'a>>, E> {
-  let parse_tag_type = alt((
-    parse_array.map_opt(|a| a.name.clone().map(|name| (name, Type::Array(a)))),
-    parse_struct.map_opt(|s| s.name.clone().map(|name| (name, Type::Struct(s)))),
-    parse_tuple.map_opt(|t| t.name.clone().map(|name| (name, Type::Tuple(t)))),
-  ));
-
-  let parse_type = alt((
-    terminated(parse_ident, matches(Token::Assign)).and(cut(parse_type)),
-    parse_tag_type,
-  ));
-
-  let parser = preceded(matches(Token::Type), parse_type);
-
+pub fn parse_alias<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Alias<In<'a>>, E> {
+  let parser =
+    delimited(matches(Token::Type), parse_ident, matches(Token::Assign)).and(cut(parse_type));
+  let parser = context("type alias", parser);
   let (input, (info, (name, value))) = consumed(parser).parse(input)?;
   Ok((
     input,
-    TypeDef {
-      info,
+    Alias {
       name,
       value: Box::new(value),
+      info,
     },
   ))
+}
+
+pub fn parse_newtype<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, NewType<In<'a>>, E> {
+  let parser = preceded(matches(Token::Type), parse_tagged);
+  let parser = context("newtype", parser);
+  let (input, (info, tag)) = consumed(parser).parse(input)?;
+  Ok((input, NewType { tag, info }))
+}
+
+pub fn parse_typedef<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, TypeDef<In<'a>>, E> {
+  alt((
+    parse_newtype.map(TypeDef::New),
+    parse_alias.map(TypeDef::Alias),
+  ))
+  .parse(input)
 }
 
 #[cfg(test)]
 mod tests {
   use diom_syntax::{
     ident::{Ident, Name},
-    types::{Type, TypeDef},
+    types::{Alias, Type, TypeDef},
   };
 
   use crate::tests::utils::{quick_lex, quick_parse};
@@ -51,7 +58,7 @@ mod tests {
   /// Tests that `Typedef("!", "!")` formats and parses correctly
   #[test]
   fn typedef_eq_safe() {
-    let def = TypeDef {
+    let def = TypeDef::Alias(Alias {
       name: Ident {
         name: Name::Not,
         info: (),
@@ -61,7 +68,7 @@ mod tests {
         info: (),
       })),
       info: (),
-    };
+    });
 
     let code = format!("({def})");
     let tokens = quick_lex(&code);

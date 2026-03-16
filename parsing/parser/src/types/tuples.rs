@@ -2,14 +2,13 @@ use super::parse_type;
 use crate::{
   common::PResult,
   errors::SyntaxError,
-  ident::parse_ident,
   parsers::{group, matches},
   In,
 };
 use diom_syntax::types::Tuple;
 use diom_tokens::Token;
 use nom::{
-  combinator::{consumed, eof, opt},
+  combinator::{consumed, eof},
   multi::separated_list1,
   sequence::terminated,
   Parser,
@@ -38,8 +37,8 @@ use nom::{
 /// ```
 pub fn parse_tuple<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Tuple<In<'a>>, E> {
   let parse_inner = terminated(separated_list1(matches(Token::Comma), parse_type), eof);
-  let parser = opt(parse_ident).and(group(Token::LBrace, Token::RBrace).and_then(parse_inner));
+  let parser = group(Token::LBrace, Token::RBrace).and_then(parse_inner);
 
-  let (input, (info, (name, fields))) = consumed(parser).parse(input)?;
-  Ok((input, Tuple { name, fields, info }))
+  let (input, (info, fields)) = consumed(parser).parse(input)?;
+  Ok((input, Tuple { fields, info }))
 }
