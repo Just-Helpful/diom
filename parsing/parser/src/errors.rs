@@ -20,7 +20,8 @@ pub use nom::{
 
 /// A trait alias for syntax errors used in parsing Diom syntax nodes
 pub trait SyntaxError<'a>:
-  ParseError<In<'a>>
+  Debug
+  + ParseError<In<'a>>
   + ContextError<In<'a>>
   + FromExternalError<In<'a>, BuildError>
   + FromExternalError<In<'a>, IsExact>
@@ -31,7 +32,8 @@ pub trait SyntaxError<'a>:
 
 impl<
     'a,
-    E: ParseError<In<'a>>
+    E: Debug
+      + ParseError<In<'a>>
       + ContextError<In<'a>>
       + FromExternalError<In<'a>, BuildError>
       + FromExternalError<In<'a>, IsExact>
@@ -68,6 +70,7 @@ impl Debug for ExtensibleErrorKind {
 /// Similar to nom's `VerboseError` in that it creates a stack of errors\
 /// but it also allows for custom error kinds that implement `Debug`.\
 /// With some post processing, it can be used to display user friendly error messages
+#[derive(Debug)]
 pub struct ExtensibleError<I> {
   errors: Vec<(I, ExtensibleErrorKind)>,
 }
