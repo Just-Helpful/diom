@@ -52,6 +52,7 @@ mod tests {
     ident::{Ident, Name},
     types::{Alias, Type, TypeDef},
   };
+  use diom_tokens::SpanTokens;
 
   use crate::tests::utils::{quick_lex, quick_parse};
 
@@ -72,7 +73,7 @@ mod tests {
 
     let code = format!("({def})");
     let tokens = quick_lex(&code);
-    quick_parse(&code, (&tokens).into());
+    quick_parse(&code, SpanTokens::new(&tokens, &code));
   }
 
   /// Tests that a typedef with a tuple type parses
@@ -80,6 +81,6 @@ mod tests {
   fn typedef_tuple() {
     let code = "(type ! = [!,!])";
     let tokens = quick_lex(code);
-    quick_parse(code, (&tokens).into());
+    quick_parse(code, SpanTokens::new(&tokens, &code));
   }
 }

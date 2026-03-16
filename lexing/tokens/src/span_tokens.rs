@@ -14,9 +14,20 @@ use super::{SpanToken, Token};
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub struct SpanTokens<'a> {
   pub tokens: &'a [SpanToken<'a>],
+  pub origin: &'a str,
 }
 
-impl<'a, T: AsRef<[SpanToken<'a>]> + ?Sized> From<&'a T> for SpanTokens<'a> {
+impl<'a> SpanTokens<'a> {
+  /// Allows conversion from containers of `SpanToken`s
+  pub fn new(tokens: &'a (impl AsRef<[SpanToken<'a>]> + ?Sized), origin: &'a str) -> Self {
+    SpanTokens {
+      tokens: tokens.as_ref(),
+      origin,
+    }
+  }
+}
+
+impl<'a, T: AsRef<[SpanToken<'a>]> + ?Sized> From<(&'a T, &'a str)> for SpanTokens<'a> {
   /// Allows conversion from containers of `SpanToken`s
   ///
   /// ```
@@ -24,9 +35,10 @@ impl<'a, T: AsRef<[SpanToken<'a>]> + ?Sized> From<&'a T> for SpanTokens<'a> {
   /// SpanTokens::from(&[LBrace, Float(3.0), RBrace].map(SpanToken::from));
   /// SpanTokens::from(&vec![LBrace.into(), Float(3.0).into(), RBrace.into()]);
   /// ```
-  fn from(value: &'a T) -> Self {
+  fn from(value: (&'a T, &'a str)) -> Self {
     SpanTokens {
-      tokens: value.as_ref(),
+      tokens: value.0.as_ref(),
+      origin: value.1,
     }
   }
 }
@@ -35,13 +47,15 @@ impl SpanTokens<'_> {
   /// Splits off the first token, returning the remaining section of the tokens
   pub fn split_first<'a>(&'a self) -> Option<(&'a SpanToken<'a>, SpanTokens<'a>)> {
     let (first, rest) = self.tokens.split_first()?;
-    Some((first, SpanTokens::from(rest)))
+    let origin = &self.origin[first.origin.len()..];
+    Some((first, SpanTokens::new(rest, origin)))
   }
 
   /// Splits off the last token, returning the starting section of the tokens
   pub fn split_last<'a>(&'a self) -> Option<(&'a SpanToken<'a>, SpanTokens<'a>)> {
     let (last, initial) = self.tokens.split_last()?;
-    Some((last, SpanTokens::from(initial)))
+    let origin = &self.origin[..self.origin.len() - last.origin.len()];
+    Some((last, SpanTokens::new(initial, origin)))
   }
 
   /// Returns the pointer range in the source `str`\
@@ -160,8 +174,13 @@ impl<'a> Input for SpanTokens<'a> {
   /// assert_eq!(tokens.take(5usize), (&array[0..5]).into());
   /// ```
   fn take(&self, index: usize) -> Self {
+    let tokens = &self.tokens[0..index];
+    let e_idx = tokens.last().map_or(0, |token| {
+      self.origin.offset(token.origin) + token.origin.len()
+    });
     Self {
-      tokens: &self.tokens[0..index],
+      tokens,
+      origin: &self.origin[..e_idx],
     }
   }
 
@@ -180,8 +199,13 @@ impl<'a> Input for SpanTokens<'a> {
   /// assert_eq!(tokens.take_from(5usize), (&array[5..]).into());
   /// ```
   fn take_from(&self, index: usize) -> Self {
+    let tokens = &self.tokens[index..];
+    let s_idx = tokens
+      .first()
+      .map_or(0, |token| self.origin.offset(token.origin));
     Self {
-      tokens: &self.tokens[index..],
+      tokens,
+      origin: &self.origin[s_idx..],
     }
   }
 
@@ -211,7 +235,21 @@ impl<'a> Input for SpanTokens<'a> {
   /// ```
   fn take_split(&self, count: usize) -> (Self, Self) {
     let (init, tail) = self.tokens.split_at(count);
-    (Self { tokens: tail }, Self { tokens: init })
+    let s_idx = tail
+      .first()
+      .map_or(0, |token| self.origin.offset(token.origin));
+    let e_idx = init.last().map_or(0, |token| {
+      self.origin.offset(token.origin) + token.origin.len()
+    });
+    let tail = Self {
+      tokens: tail,
+      origin: &self.origin[s_idx..],
+    };
+    let init = Self {
+      tokens: init,
+      origin: &self.origin[..e_idx],
+    };
+    (tail, init)
   }
 
   #[inline]

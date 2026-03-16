@@ -91,9 +91,9 @@ fn main() {
     "Input was not fulled lexed, remaining input = {input}",
   );
   println!("\n# Lexed Tokens");
-  println!("{}", SpanTokens::from(&tokens));
+  println!("{}", SpanTokens::new(&tokens, &code));
 
-  let result = parse_expression::<VerboseError<_>>().parse((&tokens).into());
+  let result = parse_expression::<VerboseError<_>>().parse(SpanTokens::new(&tokens, &code));
   let (input, expr) = match result {
     Ok(res) => res,
     Err(Err::Error(err) | Err::Failure(err)) => {

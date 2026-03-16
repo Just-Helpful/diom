@@ -1,6 +1,7 @@
 use super::utils::{quick_lex, quick_parse};
 use diom_info_traits::InfoMap;
 use diom_syntax::expressions::Expression;
+use diom_tokens::SpanTokens;
 use proptest::prelude::*;
 
 proptest! {
@@ -10,7 +11,7 @@ proptest! {
     let code = format!("{expr}");
     let tokens = quick_lex(&code);
 
-    let expr_ = quick_parse(&code, (&tokens).into());
+    let expr_ = quick_parse(&code, SpanTokens::new(&tokens, &code));
     let _expr = expr_.map(|_| ());
     // @todo implement `PartialEq` and test expression equality
   }
