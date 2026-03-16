@@ -124,6 +124,12 @@ impl<I> ExtensibleError<I> {
   }
 }
 
+impl<'a> From<ExtensibleError<SpanTokens<'a>>> for ExtensibleError<&'a str> {
+  fn from(value: ExtensibleError<SpanTokens<'a>>) -> Self {
+    value.map_input(|input| input.tokens[0].origin)
+  }
+}
+
 const LINE_LENGTH: usize = 80;
 
 impl ExtensibleError<&str> {
