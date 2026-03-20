@@ -23,7 +23,7 @@ use rest::Rest;
 pub mod structs;
 use structs::Struct;
 pub mod tags;
-use tags::Tagged;
+pub use tags::Tagged;
 pub mod tuples;
 use tuples::Tuple;
 
