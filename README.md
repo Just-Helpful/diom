@@ -10,6 +10,8 @@ This is mostly a language written because:
 
 ## Todo
 
+- [ ] Tidy up all imports to use `super -> crate -> ...`
+
 ### Syntax
 
 - [ ] Prevent multiple `Rest` patterns from being used in `Tuple`s and `Struct`s\
@@ -44,3 +46,8 @@ This is mostly a language written because:
 ### Interpreter
 
 - [ ] add function calls
+
+### Documentation
+
+- [ ] Ensure docstrings are present on all syntax nodes
+- [ ] Add simple docstrings to parsers that mention what they parse
