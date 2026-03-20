@@ -80,40 +80,37 @@ pub fn parse_expression<'a, E: SyntaxError<'a>>(
       binary_op(
         3,
         Assoc::Left,
-        PartialInfix::parse_with(matches(Token::StringIdent("".into()))),
+        PartialMethod::parse_with(matches(Token::StringIdent("".into()))).map(PartialInfix::Method),
       ),
       binary_op(
         4,
         Assoc::Left,
-        PartialInfix::parse_with(token([Token::Times, Token::Divide])),
+        PartialMethod::parse_with(token([Token::Times, Token::Divide])).map(PartialInfix::Method),
       ),
       binary_op(
         5,
         Assoc::Left,
-        PartialInfix::parse_with(token([Token::Plus, Token::Minus])),
+        PartialMethod::parse_with(token([Token::Plus, Token::Minus])).map(PartialInfix::Method),
       ),
       binary_op(
         6,
         Assoc::Left,
-        PartialInfix::parse_with(token([Token::And, Token::Or])),
+        PartialMethod::parse_with(token([Token::And, Token::Or])).map(PartialInfix::Method),
       ),
       binary_op(
         7,
         Assoc::Left,
-        PartialInfix::parse_with(token([
+        PartialMethod::parse_with(token([
           Token::Lt,
           Token::Gt,
           Token::LtEq,
           Token::GtEq,
           Token::Eq,
           Token::Ne,
-        ])),
+        ]))
+        .map(PartialInfix::Method),
       ),
-      binary_op(
-        8,
-        Assoc::Right,
-        PartialInfix::parse_with(token(Token::Assign)),
-      ),
+      binary_op(8, Assoc::Right, parse_assign.map(PartialInfix::Assign)),
     )),
     context(
       "value",
@@ -141,6 +138,6 @@ fn apply_operation<'a>(
   Ok(match op {
     Operation::Prefix(pre, value) => unsafe { pre.apply(value) },
     Operation::Postfix(value, post) => unsafe { post.apply(value) },
-    Operation::Binary(value, inf, other) => unsafe { Expression::Infix(inf.apply(value, other)) },
+    Operation::Binary(value, inf, other) => unsafe { inf.apply(value, other) },
   })
 }

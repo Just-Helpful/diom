@@ -25,3 +25,9 @@ pub fn quick_parse<'a>(code: &'a str, tokens: SpanTokens<'a>) -> Expression<Span
   let SyntaxNode::Expression(expr) = node;
   expr
 }
+
+/// Asserts that the given code can be parsed by the compiler
+pub fn assert_parses(code: &str) {
+  let tokens = quick_lex(code);
+  quick_parse(code, SpanTokens::new(&tokens, code));
+}
