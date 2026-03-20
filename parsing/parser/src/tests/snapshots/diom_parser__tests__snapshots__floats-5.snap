@@ -2,40 +2,36 @@
 source: parsing/parser/src/tests/snapshots.rs
 expression: expr
 ---
-Call(
-    Call {
-        value: Var(
-            Ident {
-                name: Minus,
+Prefix(
+    Prefix {
+        name: Op {
+            sym: Minus,
+            info: SpanTokens {
+                tokens: [
+                    SpanToken {
+                        token: Minus,
+                        origin: "-",
+                    },
+                ],
+                origin: "-",
+            },
+        },
+        value: Float(
+            Float {
+                value: 0.005,
                 info: SpanTokens {
                     tokens: [
                         SpanToken {
-                            token: Minus,
-                            origin: "-",
+                            token: Float(
+                                0.005,
+                            ),
+                            origin: "0.5e-2",
                         },
                     ],
-                    origin: "-",
+                    origin: "0.5e-2",
                 },
             },
         ),
-        args: [
-            Float(
-                Float {
-                    value: 0.005,
-                    info: SpanTokens {
-                        tokens: [
-                            SpanToken {
-                                token: Float(
-                                    0.005,
-                                ),
-                                origin: "0.5e-2",
-                            },
-                        ],
-                        origin: "0.5e-2",
-                    },
-                },
-            ),
-        ],
         info: SpanTokens {
             tokens: [
                 SpanToken {
