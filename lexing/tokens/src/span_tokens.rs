@@ -32,8 +32,8 @@ impl<'a, T: AsRef<[SpanToken<'a>]> + ?Sized> From<(&'a T, &'a str)> for SpanToke
   ///
   /// ```
   /// # use diom_tokens::{SpanTokens, SpanToken, Token::*};
-  /// SpanTokens::from(&[LBrace, Float(3.0), RBrace].map(SpanToken::from));
-  /// SpanTokens::from(&vec![LBrace.into(), Float(3.0).into(), RBrace.into()]);
+  /// SpanTokens::new(&[LBrace, Float(3.0), RBrace].map(SpanToken::from), "");
+  /// SpanTokens::new(&vec![LBrace.into(), Float(3.0).into(), RBrace.into()], "");
   /// ```
   fn from(value: (&'a T, &'a str)) -> Self {
     SpanTokens {
@@ -126,7 +126,7 @@ impl<'a> Deref for SpanTokens<'a> {
   /// ```
   /// # use diom_tokens::{SpanTokens, SpanToken, Token::*};
   /// let array = [Float(3.0)].map(SpanToken::from);
-  /// let tokens = SpanTokens::from(&array);
+  /// let tokens = SpanTokens::new(&array, "");
   ///
   /// // this is possible due to `Deref`
   /// assert_eq!(tokens[0], Float(3.0).into());
@@ -151,9 +151,9 @@ impl<'a> Input for SpanTokens<'a> {
   /// let array = [
   ///   LBrace, Float(1.0), Comma, Float(2.0), RBrace
   /// ].map(SpanToken::from);
-  /// assert_eq!(SpanTokens::from(&array[0..1]).input_len(), 1);
-  /// assert_eq!(SpanTokens::from(&array[0..3]).input_len(), 3);
-  /// assert_eq!(SpanTokens::from(&array[0..5]).input_len(), 5);
+  /// assert_eq!(SpanTokens::new(&array[0..1], "").input_len(), 1);
+  /// assert_eq!(SpanTokens::new(&array[0..3], "").input_len(), 3);
+  /// assert_eq!(SpanTokens::new(&array[0..5], "").input_len(), 5);
   /// ```
   fn input_len(&self) -> usize {
     self.tokens.len()
@@ -167,11 +167,11 @@ impl<'a> Input for SpanTokens<'a> {
   /// let array = [
   ///   LBrace, Float(1.0), Comma, Float(2.0), RBrace
   /// ].map(SpanToken::from);
-  /// let tokens = SpanTokens::from(&array);
+  /// let tokens = SpanTokens::new(&array, "");
   ///
-  /// assert_eq!(tokens.take(1usize), (&array[0..1]).into());
-  /// assert_eq!(tokens.take(3usize), (&array[0..3]).into());
-  /// assert_eq!(tokens.take(5usize), (&array[0..5]).into());
+  /// assert_eq!(tokens.take(1usize).tokens, &array[0..1]);
+  /// assert_eq!(tokens.take(3usize).tokens, &array[0..3]);
+  /// assert_eq!(tokens.take(5usize).tokens, &array[0..5]);
   /// ```
   fn take(&self, index: usize) -> Self {
     let tokens = &self.tokens[0..index];
@@ -192,11 +192,11 @@ impl<'a> Input for SpanTokens<'a> {
   /// let array = [
   ///   LBrace, Float(1.0), Comma, Float(2.0), RBrace
   /// ].map(SpanToken::from);
-  /// let tokens = SpanTokens::from(&array);
+  /// let tokens = SpanTokens::new(&array, "");
   ///
-  /// assert_eq!(tokens.take_from(1usize), (&array[1..]).into());
-  /// assert_eq!(tokens.take_from(3usize), (&array[3..]).into());
-  /// assert_eq!(tokens.take_from(5usize), (&array[5..]).into());
+  /// assert_eq!(tokens.take_from(1usize).tokens, &array[1..]);
+  /// assert_eq!(tokens.take_from(3usize).tokens, &array[3..]);
+  /// assert_eq!(tokens.take_from(5usize).tokens, &array[5..]);
   /// ```
   fn take_from(&self, index: usize) -> Self {
     let tokens = &self.tokens[index..];
@@ -217,21 +217,21 @@ impl<'a> Input for SpanTokens<'a> {
   /// let array = [
   ///   LBrace, Float(1.0), Comma, Float(2.0), RBrace
   /// ].map(SpanToken::from);
-  /// let tokens = SpanTokens::from(&array);
+  /// let tokens = SpanTokens::new(&array, "");
   ///
   /// let (tail, init) = tokens.take_split(1usize);
-  /// assert_eq!(init, (&array[0..1]).into());
-  /// assert_eq!(tail, (&array[1..]).into());
+  /// assert_eq!(init.tokens, &array[0..1]);
+  /// assert_eq!(tail.tokens, &array[1..]);
   /// let (tail, init) = tokens.take_split(3usize);
-  /// assert_eq!(init, (&array[0..3]).into());
-  /// assert_eq!(tail, (&array[3..]).into());
+  /// assert_eq!(init.tokens, &array[0..3]);
+  /// assert_eq!(tail.tokens, &array[3..]);
   /// let (tail, init) = tokens.take_split(5usize);
-  /// assert_eq!(init, (&array[0..5]).into());
-  /// assert_eq!(tail, (&array[5..]).into());
+  /// assert_eq!(init.tokens, &array[0..5]);
+  /// assert_eq!(tail.tokens, &array[5..]);
   ///
   /// let (_tokens, taken) = take::<_, _, Error<_>>(1usize)(tokens).unwrap();
-  /// assert_eq!(_tokens, (&array[1..]).into());
-  /// assert_eq!(taken, (&array[0..1]).into());
+  /// assert_eq!(_tokens.tokens, &array[1..]);
+  /// assert_eq!(taken.tokens, &array[0..1]);
   /// ```
   fn take_split(&self, count: usize) -> (Self, Self) {
     let (init, tail) = self.tokens.split_at(count);
