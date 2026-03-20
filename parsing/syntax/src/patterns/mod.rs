@@ -22,6 +22,8 @@ pub mod rest;
 use rest::Rest;
 pub mod structs;
 use structs::Struct;
+pub mod tags;
+use tags::Tagged;
 pub mod tuples;
 use tuples::Tuple;
 
@@ -29,6 +31,7 @@ use tuples::Tuple;
 pub enum Pattern<I> {
   Array(Array<I>),
   Struct(Struct<I>),
+  Tagged(Tagged<I>),
   Tuple(Tuple<I>),
   Ignored(Ignored<I>),
   Var(Ident<I>),
@@ -40,6 +43,7 @@ impl<I> Display for Pattern<I> {
     match self {
       Array(a) => a.fmt(f),
       Struct(s) => s.fmt(f),
+      Tagged(t) => t.fmt(f),
       Tuple(t) => t.fmt(f),
       Ignored(i) => i.fmt(f),
       Var(v) => v.fmt(f),
@@ -53,6 +57,7 @@ impl DisplayAs<Spans> for Pattern<Range<usize>> {
     match self {
       Array(a) => a.write(w),
       Struct(s) => s.write(w),
+      Tagged(t) => t.write(w),
       Tuple(t) => t.write(w),
       Ignored(i) => i.write(w),
       Var(v) => v.write(w),
@@ -117,6 +122,7 @@ impl Pattern<()> {
 
     leaf.prop_recursive(args.depth, args.size, branch_width, move |inner| {
       prop_oneof![
+        Tagged::any(inner.clone()).prop_map(Self::Tagged),
         Tuple::any(inner.clone(), args.into()).prop_map(Self::Tuple),
         Array::any(inner.clone(), args.into()).prop_map(Self::Array),
         Struct::any(inner.clone(), args.into()).prop_map(Self::Struct),
