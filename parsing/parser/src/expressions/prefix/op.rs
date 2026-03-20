@@ -1,17 +1,17 @@
-use crate::{errors::SyntaxError, ident::parse_ident, utils::merge_spans, In, Item};
+use crate::{errors::SyntaxError, idents::parse_op, utils::merge_spans, In, Item};
 use diom_info_traits::InfoRef;
 use diom_syntax::{
-  expressions::{Call, Expression},
-  ident::Ident,
+  expressions::{Expression, Prefix},
+  idents::Op,
 };
 use nom::{combinator::recognize, Parser};
 
 pub struct PartialPrefixOp<I> {
-  pub name: Ident<I>,
+  pub name: Op<I>,
 }
 
-impl<I> From<Ident<I>> for PartialPrefixOp<I> {
-  fn from(value: Ident<I>) -> Self {
+impl<I> From<Op<I>> for PartialPrefixOp<I> {
+  fn from(value: Op<I>) -> Self {
     Self { name: value }
   }
 }
@@ -19,12 +19,12 @@ impl<I> From<Ident<I>> for PartialPrefixOp<I> {
 impl<'a> PartialPrefixOp<In<'a>> {
   /// Applies this prefix to an existing expression.\
   /// **Safety**: both `self` and `value` must be from the same input slice
-  pub unsafe fn apply(self, value: Expression<In<'a>>) -> Call<In<'a>> {
+  pub unsafe fn apply(self, value: Expression<In<'a>>) -> Prefix<In<'a>> {
     let info = *value.info();
     let info = /*unsafe*/ { merge_spans(self.name.info, info) };
-    Call {
-      value: Box::new(Expression::Var(self.name)),
-      args: vec![value],
+    Prefix {
+      name: self.name,
+      value: Box::new(value),
       info,
     }
   }
@@ -35,7 +35,7 @@ impl<'a> PartialPrefixOp<In<'a>> {
     token_parser: impl Parser<In<'a>, Output = Item<'a>, Error = E>,
   ) -> impl Parser<In<'a>, Output = PartialPrefixOp<In<'a>>, Error = E> {
     recognize(token_parser)
-      .and_then(parse_ident)
+      .and_then(parse_op)
       .map(PartialPrefixOp::from)
   }
 }

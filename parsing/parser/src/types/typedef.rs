@@ -1,7 +1,7 @@
 use super::parse_type;
 use crate::{
   errors::{PResult, SyntaxError},
-  ident::parse_ident,
+  idents::parse_ident,
   parsers::matches,
   types::parse_tagged,
   In,
@@ -49,7 +49,7 @@ pub fn parse_typedef<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, TypeD
 #[cfg(test)]
 mod tests {
   use diom_syntax::{
-    ident::{Ident, Name},
+    idents::Ident,
     types::{Alias, Type, TypeDef},
   };
   use diom_tokens::SpanTokens;
@@ -61,11 +61,11 @@ mod tests {
   fn typedef_eq_safe() {
     let def = TypeDef::Alias(Alias {
       name: Ident {
-        name: Name::Not,
+        name: "_".into(),
         info: (),
       },
       value: Box::new(Type::Var(Ident {
-        name: Name::Not,
+        name: "_".into(),
         info: (),
       })),
       info: (),

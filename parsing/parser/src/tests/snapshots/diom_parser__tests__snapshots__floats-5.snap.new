@@ -1,0 +1,52 @@
+---
+source: parsing/parser/src/tests/snapshots.rs
+assertion_line: 30
+expression: expr
+---
+Prefix(
+    Prefix {
+        name: Op {
+            sym: Minus,
+            info: SpanTokens {
+                tokens: [
+                    SpanToken {
+                        token: Minus,
+                        origin: "-",
+                    },
+                ],
+                origin: "-",
+            },
+        },
+        value: Float(
+            Float {
+                value: 0.005,
+                info: SpanTokens {
+                    tokens: [
+                        SpanToken {
+                            token: Float(
+                                0.005,
+                            ),
+                            origin: "0.5e-2",
+                        },
+                    ],
+                    origin: "0.5e-2",
+                },
+            },
+        ),
+        info: SpanTokens {
+            tokens: [
+                SpanToken {
+                    token: Minus,
+                    origin: "-",
+                },
+                SpanToken {
+                    token: Float(
+                        0.005,
+                    ),
+                    origin: "0.5e-2",
+                },
+            ],
+            origin: "- 0.5e-2",
+        },
+    },
+)

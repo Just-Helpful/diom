@@ -1,16 +1,17 @@
 use crate::{
-  common::PResult, errors::SyntaxError, ident::parse_ident, parsers::token, utils::merge_spans, In,
+  common::PResult, errors::SyntaxError, idents::parse_method, parsers::token, utils::merge_spans,
+  In,
 };
 use diom_info_traits::InfoRef as _;
 use diom_syntax::{
   expressions::{Expression, Field},
-  ident::Ident,
+  idents::Method,
 };
 use diom_tokens::Token;
 use nom::{combinator::consumed, error::context, sequence::preceded, Parser};
 
 pub struct PostFixField<I> {
-  pub(crate) name: Ident<I>,
+  pub(crate) name: Method<I>,
   pub(crate) info: I,
 }
 
@@ -28,7 +29,7 @@ impl<'a> PostFixField<In<'a>> {
 }
 
 pub fn parse_field<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, PostFixField<In<'a>>, E> {
-  let parser = preceded(token(Token::Dot), parse_ident);
+  let parser = preceded(token(Token::Dot), parse_method);
   let parser = consumed(parser).map(|(info, name)| PostFixField { name, info });
   context("field access", parser).parse(input)
 }

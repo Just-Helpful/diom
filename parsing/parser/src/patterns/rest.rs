@@ -1,6 +1,6 @@
 use crate::{
   errors::{PResult, SyntaxError},
-  ident::parse_ident,
+  idents::{parse_ident, parse_method},
   parsers::matches,
   In,
 };

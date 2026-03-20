@@ -15,7 +15,7 @@
 //! See the individual modules for more details
 use crate::{
   errors::{PResult, SyntaxError},
-  ident::parse_ident,
+  idents::parse_ident,
   In,
 };
 use diom_syntax::types::Type;

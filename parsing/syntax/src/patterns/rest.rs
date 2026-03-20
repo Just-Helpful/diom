@@ -1,4 +1,4 @@
-use crate::{display::Optn, ident::Ident};
+use crate::{display::Optn, idents::Ident};
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use proptest::{

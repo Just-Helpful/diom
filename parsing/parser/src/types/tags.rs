@@ -1,4 +1,4 @@
-use crate::{common::PResult, errors::SyntaxError, ident::parse_ident, types::parse_type, In};
+use crate::{common::PResult, errors::SyntaxError, idents::parse_ident, types::parse_type, In};
 use diom_syntax::types::Tagged;
 use nom::{combinator::consumed, Parser};
 

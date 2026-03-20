@@ -13,7 +13,7 @@ use crate::errors::SyntaxError;
 mod common;
 pub mod errors;
 pub mod expressions;
-pub mod ident;
+pub mod idents;
 pub mod parsers;
 pub mod path;
 pub mod patterns;

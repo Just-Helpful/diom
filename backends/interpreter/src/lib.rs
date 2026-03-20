@@ -1,6 +1,6 @@
 use diom_syntax::{
-  expressions::{Expression, Infix, Statement},
-  ident::{Ident, Name},
+  expressions::{Expression, Infix, Prefix, Statement},
+  idents::{Method, Name, Op, Symbol},
   patterns::Pattern,
 };
 use std::{collections::HashMap, ops::Deref};
@@ -18,15 +18,15 @@ pub enum Value {
 type Array = Vec<Value>;
 type Struct = HashMap<Name, Value>;
 
-type Scope = HashMap<Name, Value>;
+type Scope = HashMap<Box<str>, Value>;
 
 #[derive(Debug)]
 pub enum Error<I> {
   Unsupported(&'static str),
   Type(&'static str),
-  MissingVar(Ident<I>),
-  NotStruct(Value, Ident<I>),
-  MissingField(Struct, Ident<I>),
+  MissingVar(Method<I>),
+  NotStruct(Value, Method<I>),
+  MissingField(Struct, Method<I>),
   NotArray(Value, Vec<Expression<I>>),
   TooManyKeys(Vec<Value>, Vec<Expression<I>>),
   IndexMissing(Vec<Value>),
@@ -50,81 +50,125 @@ pub trait Eval<S: Default = ()> {
   }
 }
 
+impl<I: Clone> Eval<Scope> for Prefix<I> {
+  type Output = Value;
+  type Error = Error<I>;
+
+  fn eval_with(&self, state: &mut Scope) -> Result<Self::Output, Self::Error> {
+    use Value::*;
+    let Prefix {
+      name: Op { sym, .. },
+      value,
+      ..
+    } = self;
+    let value = value.eval_with(state)?;
+    match sym {
+      Symbol::Not => {
+        let Bool(val) = value else {
+          return Err(Error::Type("Not on non-`bool`s"));
+        };
+        Ok(Bool(!val))
+      }
+      Symbol::And => Err(Error::Unsupported("And as prefix")),
+      Symbol::Or => Err(Error::Unsupported("Or as prefix")),
+      Symbol::Plus => {
+        let Float(val) = value else {
+          return Err(Error::Type("Plus on non-`Float`s"));
+        };
+        Ok(Float(val))
+      }
+      Symbol::Minus => {
+        let Float(val) = value else {
+          return Err(Error::Type("Minus on non-`Float`s"));
+        };
+        Ok(Float(-val))
+      }
+      Symbol::Times => Err(Error::Unsupported("Times as prefix")),
+      Symbol::Divide => Err(Error::Unsupported("Divide as prefix")),
+      Symbol::Eq => Err(Error::Unsupported("Eq as prefix")),
+      Symbol::Ne => Err(Error::Unsupported("Ne as prefix")),
+      Symbol::Lt => Err(Error::Unsupported("Lt as prefix")),
+      Symbol::Gt => Err(Error::Unsupported("Gt as prefix")),
+      Symbol::LtEq => Err(Error::Unsupported("LtEq as prefix")),
+      Symbol::GtEq => Err(Error::Unsupported("GtEq as prefix")),
+    }
+  }
+}
+
 impl<I: Clone> Eval<Scope> for Infix<I> {
   type Output = Value;
   type Error = Error<I>;
 
   fn eval_with(&self, state: &mut Scope) -> Result<Self::Output, Self::Error> {
-    use Name::*;
     use Value::*;
     let Infix {
       value,
-      name: Ident { name, .. },
+      name: Method { name, .. },
       other,
       ..
     } = self;
     let value = value.eval_with(state)?;
     let other = other.eval_with(state)?;
     match name {
-      Literal(_) => Err(Error::Unsupported("Methods")),
-      Not => Err(Error::Unsupported("Not as infix")),
-      And => {
+      Name::Literal(_) => Err(Error::Unsupported("Methods")),
+      Name::Symbol(Symbol::Not) => Err(Error::Unsupported("Not as infix")),
+      Name::Symbol(Symbol::And) => {
         let (Bool(lhs), Bool(rhs)) = (value, other) else {
           return Err(Error::Type("And on non-`bool`s"));
         };
         Ok(Bool(lhs & rhs))
       }
-      Or => {
+      Name::Symbol(Symbol::Or) => {
         let (Bool(lhs), Bool(rhs)) = (value, other) else {
           return Err(Error::Type("Or on non-`bool`s"));
         };
         Ok(Bool(lhs | rhs))
       }
-      Plus => {
+      Name::Symbol(Symbol::Plus) => {
         let (Float(lhs), Float(rhs)) = (value, other) else {
           return Err(Error::Type("Plus on non-`float`s"));
         };
         Ok(Float(lhs + rhs))
       }
-      Minus => {
+      Name::Symbol(Symbol::Minus) => {
         let (Float(lhs), Float(rhs)) = (value, other) else {
           return Err(Error::Type("Minus on non-`float`s"));
         };
         Ok(Float(lhs - rhs))
       }
-      Times => {
+      Name::Symbol(Symbol::Times) => {
         let (Float(lhs), Float(rhs)) = (value, other) else {
           return Err(Error::Type("Times on non-`float`s"));
         };
         Ok(Float(lhs * rhs))
       }
-      Divide => {
+      Name::Symbol(Symbol::Divide) => {
         let (Float(lhs), Float(rhs)) = (value, other) else {
           return Err(Error::Type("Divide on non-`float`s"));
         };
         Ok(Float(lhs / rhs))
       }
-      Eq => Ok(Bool(value == other)),
-      Ne => Ok(Bool(value != other)),
-      Lt => {
+      Name::Symbol(Symbol::Eq) => Ok(Bool(value == other)),
+      Name::Symbol(Symbol::Ne) => Ok(Bool(value != other)),
+      Name::Symbol(Symbol::Lt) => {
         let (Float(lhs), Float(rhs)) = (value, other) else {
           return Err(Error::Type("Lt on non-`float`s"));
         };
         Ok(Bool(lhs < rhs))
       }
-      Gt => {
+      Name::Symbol(Symbol::Gt) => {
         let (Float(lhs), Float(rhs)) = (value, other) else {
           return Err(Error::Type("Gt on non-`float`s"));
         };
         Ok(Bool(lhs > rhs))
       }
-      LtEq => {
+      Name::Symbol(Symbol::LtEq) => {
         let (Float(lhs), Float(rhs)) = (value, other) else {
           return Err(Error::Type("LtEq on non-`float`s"));
         };
         Ok(Bool(lhs <= rhs))
       }
-      GtEq => {
+      Name::Symbol(Symbol::GtEq) => {
         let (Float(lhs), Float(rhs)) = (value, other) else {
           return Err(Error::Type("GtEq on non-`float`s"));
         };
@@ -157,7 +201,7 @@ impl<I: Clone> Eval<Scope> for Expression<I> {
       Self::Float(f) => Ok(Value::Float(f.value)),
       Self::Var(v) => {
         let Some(value) = state.get(&v.name) else {
-          return Err(Error::MissingVar(v.clone()));
+          return Err(Error::MissingVar(v.clone().into()));
         };
         Ok(value.clone())
       }
@@ -255,6 +299,7 @@ impl<I: Clone> Eval<Scope> for Expression<I> {
       Self::Infix(infix) => infix.eval_with(state),
       Self::Monad(_) => Err(Error::Unsupported("Monads")),
       Self::Result(_) => Err(Error::Unsupported("Monads")),
+      Self::Prefix(prefix) => prefix.eval_with(state),
     }
   }
 }

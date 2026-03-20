@@ -1,4 +1,4 @@
-use crate::{common::PResult, errors::SyntaxError, ident::parse_ident, In};
+use crate::{common::PResult, errors::SyntaxError, idents::parse_ident, In};
 use diom_syntax::expressions::Expression;
 use nom::{branch::alt, error::context, Parser};
 

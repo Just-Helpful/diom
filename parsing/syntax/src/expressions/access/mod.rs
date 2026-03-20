@@ -10,3 +10,5 @@ pub mod infix;
 pub use infix::Infix;
 pub mod monads;
 pub use monads::{MonadResult, MonadThen};
+pub mod prefix;
+pub use prefix::Prefix;

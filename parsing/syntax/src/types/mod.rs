@@ -1,5 +1,5 @@
 use crate::{
-  ident::Ident,
+  idents::Ident,
   types::{
     enums::EnumConfig, functions::FunctionConfig, structs::StructConfig, tuples::TupleConfig,
   },

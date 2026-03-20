@@ -1,7 +1,7 @@
 use crate::{
   common::{PResult, Token},
   errors::SyntaxError,
-  ident::parse_ident,
+  idents::parse_ident,
   parsers::{group, matches},
   In,
 };

@@ -1,5 +1,5 @@
 use super::Type;
-use crate::{display::Sep, ident::Ident};
+use crate::{display::Sep, idents::Ident};
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use proptest::{collection::vec, prelude::Strategy};

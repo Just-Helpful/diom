@@ -1,4 +1,4 @@
-use crate::{display::Seq, ident::Ident, types::Type};
+use crate::{display::Seq, idents::Ident, types::Type};
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use proptest::prelude::Strategy;

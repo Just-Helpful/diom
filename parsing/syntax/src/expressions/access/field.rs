@@ -1,5 +1,5 @@
 use super::Expression;
-use crate::ident::Ident;
+use crate::idents::Method;
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use proptest::prelude::Strategy;
@@ -11,7 +11,7 @@ use std::{
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
 pub struct Field<I> {
   pub value: Box<Expression<I>>,
-  pub name: Ident<I>,
+  pub name: Method<I>,
   pub info: I,
 }
 
@@ -34,7 +34,7 @@ impl DisplayAs<Spans> for Field<Range<usize>> {
 impl Field<()> {
   /// Generates a generic strategy for generating `Field` expressions
   pub fn any(item: impl Strategy<Value = Expression<()>>) -> impl Strategy<Value = Self> {
-    (item, Ident::any()).prop_map(|(value, name)| Field {
+    (item, Method::any()).prop_map(|(value, name)| Field {
       value: Box::new(value),
       name,
       info: (),

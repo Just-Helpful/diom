@@ -2,7 +2,7 @@ use super::parse_type;
 use crate::{
   common::{PResult, Token},
   errors::SyntaxError,
-  ident::parse_ident,
+  idents::parse_method,
   parsers::{group, matches},
   In,
 };
@@ -36,7 +36,7 @@ use nom::{
 pub fn parse_struct<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Struct<In<'a>>, E> {
   let parse_inner = separated_list1(
     matches(Token::Comma),
-    separated_pair(parse_ident, matches(Token::Colon), cut(parse_type)),
+    separated_pair(parse_method, matches(Token::Colon), cut(parse_type)),
   );
   let parser = group(Token::LCurly, Token::RCurly).and_then(parse_inner);
 

@@ -1,7 +1,7 @@
 use super::{parse_pattern, parse_rest};
 use crate::{
   errors::{PResult, SyntaxError},
-  ident::parse_ident,
+  idents::parse_method,
   parsers::{group, matches},
   path::parse_path,
   In,
@@ -23,9 +23,9 @@ pub fn parse_struct_field<'a, E: SyntaxError<'a>>(
   input: In<'a>,
 ) -> PResult<'a, StructField<In<'a>>, E> {
   let parse_sub = preceded(matches(Token::Colon), parse_pattern);
-  let parser = parse_ident.and(opt(parse_sub)).map(|(name, pat)| {
-    let pat = pat.unwrap_or_else(|| Pattern::Var(name.clone()));
-    (name, pat)
+  let parser = parse_method.and(opt(parse_sub)).map_opt(|(name, pat)| {
+    let pat = pat.or_else(|| name.clone().try_into().ok().map(Pattern::Var))?;
+    Some((name, pat))
   });
 
   let (input, (info, (name, pattern))) = consumed(parser).parse(input)?;

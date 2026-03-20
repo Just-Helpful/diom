@@ -1,6 +1,6 @@
 use super::Type;
 use crate::{
-  ident::Ident,
+  idents::Ident,
   types::{Tagged, TypeConfig},
 };
 use diom_fmt::{DisplayAs, SpanWriter, Spans};

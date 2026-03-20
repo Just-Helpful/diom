@@ -5,7 +5,8 @@
 //! 2. nodes for Diom values
 mod display;
 pub mod expressions;
-pub mod ident;
+pub mod idents;
 pub mod path;
 pub mod patterns;
 pub mod types;
+pub mod var;

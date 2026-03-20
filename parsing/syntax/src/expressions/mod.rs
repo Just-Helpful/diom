@@ -4,7 +4,7 @@ use crate::{
     blocks::{block::BlockConfig, declare::DeclareConfig},
     compound::{arrays::ArrayConfig, functions::FunctionConfig, structs::StructConfig},
   },
-  ident::Ident,
+  idents::Ident,
   patterns::PatternConfig,
   types::TypeConfig,
 };
@@ -25,7 +25,7 @@ mod floats;
 pub use floats::Float;
 
 mod access;
-pub use access::{Call, Field, Index, Infix, MonadResult, MonadThen};
+pub use access::{Call, Field, Index, Infix, MonadResult, MonadThen, Prefix};
 mod blocks;
 pub use blocks::{Assign, Block, Declare, Group, Return, Statement};
 mod compound;
@@ -53,6 +53,7 @@ pub enum Expression<I> {
   Index(Index<I>),
   Infix(Infix<I>),
   Monad(MonadThen<I>),
+  Prefix(Prefix<I>),
   Result(MonadResult<I>),
 }
 
@@ -79,6 +80,7 @@ impl<I> Display for Expression<I> {
       Index(i) => i.fmt(f),
       Infix(i) => i.fmt(f),
       Monad(m) => m.fmt(f),
+      Prefix(p) => p.fmt(f),
       Result(r) => r.fmt(f),
     }
   }
@@ -107,6 +109,7 @@ impl DisplayAs<Spans> for Expression<Range<usize>> {
       Index(i) => i.write(w),
       Infix(i) => i.write(w),
       Monad(m) => m.write(w),
+      Prefix(p) => p.write(w),
       Result(r) => r.write(w),
     }
   }
@@ -243,6 +246,7 @@ impl Expression<()> {
         Infix::any(item.clone()).prop_map(Self::Infix),
         MonadThen::any(item.clone()).prop_map(Self::Monad),
         MonadResult::any(item.clone()).prop_map(Self::Result),
+        Prefix::any(item.clone()).prop_map(Self::Prefix)
       ]
     })
   }

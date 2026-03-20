@@ -1,5 +1,5 @@
 use super::Expression;
-use crate::{display::Sep, ident::Ident};
+use crate::{display::Sep, idents::Method};
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use proptest::{collection::vec, prelude::Strategy};
@@ -10,7 +10,7 @@ use std::{
 
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
 pub struct Struct<I> {
-  pub fields: Vec<(Ident<I>, Expression<I>)>,
+  pub fields: Vec<(Method<I>, Expression<I>)>,
   pub info: I,
 }
 
@@ -52,6 +52,6 @@ impl Struct<()> {
     item: impl Strategy<Value = Expression<()>>,
     args: StructConfig,
   ) -> impl Strategy<Value = Self> {
-    vec((Ident::any(), item), 0..args.0).prop_map(|fields| Struct { fields, info: () })
+    vec((Method::any(), item), 0..args.0).prop_map(|fields| Struct { fields, info: () })
   }
 }

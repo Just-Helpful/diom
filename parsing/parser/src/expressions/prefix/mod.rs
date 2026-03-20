@@ -27,7 +27,7 @@ impl<'a> PartialPrefix<In<'a>> {
     match self {
       Self::Return(r) => Expression::Return(r.apply(value)),
       Self::Declare(d) => Expression::Declare(d.apply(value)),
-      Self::Op(o) => Expression::Call(o.apply(value)),
+      Self::Op(o) => Expression::Prefix(o.apply(value)),
     }
   }
 }

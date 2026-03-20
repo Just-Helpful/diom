@@ -1,13 +1,13 @@
 use crate::{
   errors::{PResult, SyntaxError},
   expressions::parse_expression,
-  ident::parse_ident,
+  idents::parse_method,
   parsers::{group, matches},
   In,
 };
 use diom_syntax::{
   expressions::{Expression, Struct},
-  ident::Ident,
+  idents::Method,
 };
 use diom_tokens::Token;
 use nom::{
@@ -23,12 +23,18 @@ use nom::{
 /// where `x` is a variable defined before `Foo`
 pub fn parse_struct_field<'a, E: SyntaxError<'a>>(
   input: In<'a>,
-) -> PResult<'a, (Ident<In<'a>>, Expression<In<'a>>), E> {
+) -> PResult<'a, (Method<In<'a>>, Expression<In<'a>>), E> {
   let parse_value = preceded(matches::<E>(Token::Colon), parse_expression());
-  let parser = parse_ident.and(opt(parse_value));
+  let parser = parse_method
+    .and(opt(parse_value))
+    .map_opt(|(field, value)| {
+      Some((
+        field.clone(),
+        value.or_else(|| field.clone().try_into().ok().map(Expression::Var))?,
+      ))
+    });
 
   let (input, (field, value)) = context("struct field", parser).parse(input)?;
-  let value = value.unwrap_or_else(|| Expression::Var(field.clone()));
   Ok((input, (field, value)))
 }
 

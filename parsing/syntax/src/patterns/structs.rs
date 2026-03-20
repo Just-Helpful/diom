@@ -1,7 +1,7 @@
 use super::{Pattern, Rest};
 use crate::{
   display::{Optn, Sep},
-  ident::Ident,
+  idents::Method,
   path::{Path, PathConfig},
 };
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
@@ -14,7 +14,7 @@ use std::{
 
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
 pub struct StructField<I> {
-  pub name: Ident<I>,
+  pub name: Method<I>,
   pub pattern: Pattern<I>,
   pub info: I,
 }
@@ -38,7 +38,7 @@ impl DisplayAs<Spans> for StructField<Range<usize>> {
 impl StructField<()> {
   /// Generates a generic strategy for generating `StructField` nodes
   pub fn any(item: impl Strategy<Value = Pattern<()>>) -> impl Strategy<Value = Self> {
-    (Ident::any(), item).prop_map(|(name, pattern)| StructField {
+    (Method::any(), item).prop_map(|(name, pattern)| StructField {
       name,
       pattern,
       info: (),
