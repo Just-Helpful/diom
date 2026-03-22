@@ -1,11 +1,8 @@
 use super::{Pattern, Rest};
-use crate::{
-  display::{Optn, Sep},
-  path::{Path, PathConfig},
-};
+use crate::display::Sep;
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
-use proptest::{collection::vec, option, prelude::Strategy, prop_oneof};
+use proptest::{collection::vec, prelude::Strategy, prop_oneof};
 use std::{
   fmt::{Display, Write},
   ops::Range,
@@ -44,14 +41,12 @@ impl TupleItem<()> {
 
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
 pub struct Tuple<I> {
-  pub name: Option<Path<I>>,
   pub fields: Vec<TupleItem<I>>,
   pub info: I,
 }
 
 impl<I> Display for Tuple<I> {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    Optn(&self.name).fmt(f)?;
     f.write_char('[')?;
     Sep(&self.fields, ',').fmt(f)?;
     f.write_char(']')
@@ -61,21 +56,18 @@ impl<I> Display for Tuple<I> {
 impl DisplayAs<Spans> for Tuple<Range<usize>> {
   fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
     w.bracket("tuple", &self.info)?;
-    self.name.write(&mut w.child())?;
     self.fields.write(&mut w.child())
   }
 }
 
 #[derive(Clone, Copy)]
 pub struct TupleConfig(
-  /// The config for the name of the array
-  pub PathConfig,
   /// The maximum number of items in a tuple
   pub usize,
 );
 impl Default for TupleConfig {
   fn default() -> Self {
-    Self(Default::default(), 50)
+    Self(50)
   }
 }
 impl Tuple<()> {
@@ -84,14 +76,6 @@ impl Tuple<()> {
     item: impl Strategy<Value = Pattern<()>>,
     args: TupleConfig,
   ) -> impl Strategy<Value = Self> {
-    (
-      option::of(Path::any(args.0)),
-      vec(TupleItem::any(item), 0..args.1),
-    )
-      .prop_map(|(name, fields)| Tuple {
-        name,
-        fields,
-        info: (),
-      })
+    vec(TupleItem::any(item), 0..args.0).prop_map(|fields| Tuple { fields, info: () })
   }
 }

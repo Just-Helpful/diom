@@ -1,6 +1,5 @@
 use crate::{
   idents::Ident,
-  path::PathConfig,
   patterns::{arrays::ArrayConfig, structs::StructConfig, tuples::TupleConfig},
 };
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
@@ -72,8 +71,6 @@ pub struct PatternConfig {
   /// The maximum number of nodes in type definitions
   pub size: u32,
 
-  /// The maximum number of segments in a path
-  pub path_length: usize,
   /// The maximum number of items in an array
   pub array_items: usize,
   /// The maximum number of fields in a struct
@@ -86,26 +83,25 @@ impl Default for PatternConfig {
     Self {
       depth: 8,
       size: 256,
-      path_length: PathConfig::default().0,
-      array_items: ArrayConfig::default().1,
-      struct_fields: StructConfig::default().1,
-      tuple_items: TupleConfig::default().1,
+      array_items: ArrayConfig::default().0,
+      struct_fields: StructConfig::default().0,
+      tuple_items: TupleConfig::default().0,
     }
   }
 }
 impl From<PatternConfig> for ArrayConfig {
   fn from(value: PatternConfig) -> Self {
-    Self(PathConfig(value.path_length), value.array_items)
+    Self(value.array_items)
   }
 }
 impl From<PatternConfig> for StructConfig {
   fn from(value: PatternConfig) -> Self {
-    Self(PathConfig(value.path_length), value.struct_fields)
+    Self(value.struct_fields)
   }
 }
 impl From<PatternConfig> for TupleConfig {
   fn from(value: PatternConfig) -> Self {
-    Self(PathConfig(value.path_length), value.tuple_items)
+    Self(value.tuple_items)
   }
 }
 impl Pattern<()> {

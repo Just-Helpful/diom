@@ -1,11 +1,8 @@
 use super::{Pattern, Rest};
-use crate::{
-  display::{Optn, Sep},
-  path::{Path, PathConfig},
-};
+use crate::display::Sep;
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
-use proptest::{collection::vec, option, prelude::Strategy, prop_oneof};
+use proptest::{collection::vec, prelude::Strategy, prop_oneof};
 use std::{
   fmt::{Display, Write},
   ops::Range,
@@ -44,14 +41,12 @@ impl ArrayItem<()> {
 
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
 pub struct Array<I> {
-  pub name: Option<Path<I>>,
   pub items: Vec<ArrayItem<I>>,
   pub info: I,
 }
 
 impl<I> Display for Array<I> {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    Optn(&self.name).fmt(f)?;
     Sep(&self.items, ',').fmt(f)
   }
 }
@@ -59,21 +54,18 @@ impl<I> Display for Array<I> {
 impl DisplayAs<Spans> for Array<Range<usize>> {
   fn write<W: Write>(&self, w: &mut SpanWriter<W>) -> std::fmt::Result {
     w.bracket("array", &self.info)?;
-    self.name.write(&mut w.child())?;
     self.items.write(&mut w.child())
   }
 }
 
 #[derive(Clone, Copy)]
 pub struct ArrayConfig(
-  /// The config for the name of the array
-  pub PathConfig,
   /// The maximum number of items in an array
   pub usize,
 );
 impl Default for ArrayConfig {
   fn default() -> Self {
-    Self(Default::default(), 50)
+    Self(50)
   }
 }
 impl Array<()> {
@@ -82,14 +74,6 @@ impl Array<()> {
     item: impl Strategy<Value = Pattern<()>>,
     args: ArrayConfig,
   ) -> impl Strategy<Value = Self> {
-    (
-      option::of(Path::any(args.0)),
-      vec(ArrayItem::any(item), 0..args.1),
-    )
-      .prop_map(|(name, items)| Array {
-        name,
-        items,
-        info: (),
-      })
+    vec(ArrayItem::any(item), 0..args.0).prop_map(|items| Array { items, info: () })
   }
 }
