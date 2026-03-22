@@ -47,7 +47,9 @@ pub struct Array<I> {
 
 impl<I> Display for Array<I> {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    Sep(&self.items, ',').fmt(f)
+    f.write_char('[')?;
+    Sep(&self.items, ',').fmt(f)?;
+    f.write_char(']')
   }
 }
 
