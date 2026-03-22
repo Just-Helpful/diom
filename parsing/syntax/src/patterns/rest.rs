@@ -39,6 +39,7 @@ pub struct Rest<I> {
 
 impl<I> Display for Rest<I> {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    f.write_char('*')?;
     Optn(&self.name).fmt(f)
   }
 }
