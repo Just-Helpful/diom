@@ -20,7 +20,7 @@ impl<'a> PartialPostFix<In<'a>> {
 }
 
 mod call;
-pub use call::{parse_explicit_call, parse_implicit_call};
+pub use call::parse_explicit_call;
 mod field;
 pub use field::parse_field;
 mod index;
