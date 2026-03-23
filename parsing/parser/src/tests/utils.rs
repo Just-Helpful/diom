@@ -1,5 +1,5 @@
 use crate::{
-  errors::{display_err, ExtensibleError},
+  errors::debug_error::{display_err, DebugError},
   parse_node, SyntaxNode,
 };
 use diom_lexer::parse_tokens;
@@ -19,7 +19,7 @@ pub fn quick_lex(code: &str) -> Vec<SpanToken<'_>> {
 pub fn quick_parse<'a>(code: &'a str, tokens: SpanTokens<'a>) -> Expression<SpanTokens<'a>> {
   let (_, node) = all_consuming(parse_node)
     .parse(tokens)
-    .map_err(|err| err.map(|err: ExtensibleError<_>| err.into()))
+    .map_err(|err| err.map(|err: DebugError<_>| err.into()))
     .map_err(|err| display_err(err, code))
     .unwrap();
   let SyntaxNode::Expression(expr) = node;

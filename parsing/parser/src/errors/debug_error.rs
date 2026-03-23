@@ -1,51 +1,17 @@
-use std::{
-  fmt::{from_fn, Debug},
-  ops::Range,
-};
-
-use crate::{
-  expressions::BuildError,
-  parsers::{IsApprox, IsExact},
-  In,
-};
 use diom_tokens::SpanTokens;
-use nom::{
-  error::{ContextError, FromExternalError, ParseError},
-  Offset,
-};
-pub use nom::{
-  error::{Error, ErrorKind},
-  Err,
-};
-
-/// A trait alias for syntax errors used in parsing Diom syntax nodes
-pub trait SyntaxError<'a>:
-  Debug
-  + ParseError<In<'a>>
-  + ContextError<In<'a>>
-  + FromExternalError<In<'a>, BuildError>
-  + FromExternalError<In<'a>, IsExact>
-  + FromExternalError<In<'a>, IsApprox>
-  + 'a
-{
-}
-
-impl<
-    'a,
-    E: Debug
-      + ParseError<In<'a>>
-      + ContextError<In<'a>>
-      + FromExternalError<In<'a>, BuildError>
-      + FromExternalError<In<'a>, IsExact>
-      + FromExternalError<In<'a>, IsApprox>
-      + 'a,
-  > SyntaxError<'a> for E
-{
-}
+use nom::error::ContextError;
+use nom::error::ErrorKind;
+use nom::error::FromExternalError;
+use nom::error::ParseError;
+use nom::Err;
+use nom::Offset as _;
+use std::fmt::from_fn;
+use std::fmt::Debug;
+use std::ops::Range;
 
 #[derive(Clone, Eq, PartialEq)]
 /// Error context for `ParserError`
-pub enum ExtensibleErrorKind {
+pub enum DebugErrorKind {
   /// Static string added by the `context` function
   Context(&'static str),
   /// Indicates which character was expected by the `char` function
@@ -56,7 +22,7 @@ pub enum ExtensibleErrorKind {
   External(ErrorKind, String),
 }
 
-impl Debug for ExtensibleErrorKind {
+impl Debug for DebugErrorKind {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     match self {
       Self::Context(c) => write!(f, "Context({c:?})"),
@@ -71,50 +37,48 @@ impl Debug for ExtensibleErrorKind {
 /// but it also allows for custom error kinds that implement `Debug`.\
 /// With some post processing, it can be used to display user friendly error messages
 #[derive(Debug)]
-pub struct ExtensibleError<I> {
-  errors: Vec<(I, ExtensibleErrorKind)>,
+pub struct DebugError<I> {
+  pub(crate) errors: Vec<(I, DebugErrorKind)>,
 }
 
-impl<I> ParseError<I> for ExtensibleError<I> {
+impl<I> ParseError<I> for DebugError<I> {
   fn append(input: I, kind: ErrorKind, mut other: Self) -> Self {
-    other.errors.push((input, ExtensibleErrorKind::Nom(kind)));
+    other.errors.push((input, DebugErrorKind::Nom(kind)));
     other
   }
 
   fn from_char(input: I, c: char) -> Self {
     Self {
-      errors: vec![(input, ExtensibleErrorKind::Char(c))],
+      errors: vec![(input, DebugErrorKind::Char(c))],
     }
   }
 
   fn from_error_kind(input: I, kind: ErrorKind) -> Self {
     Self {
-      errors: vec![(input, ExtensibleErrorKind::Nom(kind))],
+      errors: vec![(input, DebugErrorKind::Nom(kind))],
     }
   }
 }
 
-impl<I> ContextError<I> for ExtensibleError<I> {
+impl<I> ContextError<I> for DebugError<I> {
   fn add_context(input: I, ctx: &'static str, mut other: Self) -> Self {
-    other
-      .errors
-      .push((input, ExtensibleErrorKind::Context(ctx)));
+    other.errors.push((input, DebugErrorKind::Context(ctx)));
     other
   }
 }
 
-impl<I, E: Debug> FromExternalError<I, E> for ExtensibleError<I> {
+impl<I, E: Debug> FromExternalError<I, E> for DebugError<I> {
   fn from_external_error(input: I, kind: ErrorKind, e: E) -> Self {
     Self {
-      errors: vec![(input, ExtensibleErrorKind::External(kind, format!("{e:?}")))],
+      errors: vec![(input, DebugErrorKind::External(kind, format!("{e:?}")))],
     }
   }
 }
 
-impl<I> ExtensibleError<I> {
+impl<I> DebugError<I> {
   /// Alters the input type taken by the error
-  pub fn map_input<I1>(self, mut f: impl FnMut(I) -> I1) -> ExtensibleError<I1> {
-    ExtensibleError {
+  pub fn map_input<I1>(self, mut f: impl FnMut(I) -> I1) -> DebugError<I1> {
+    DebugError {
       errors: self
         .errors
         .into_iter()
@@ -124,17 +88,17 @@ impl<I> ExtensibleError<I> {
   }
 }
 
-impl<'a> From<ExtensibleError<SpanTokens<'a>>> for ExtensibleError<&'a str> {
-  fn from(value: ExtensibleError<SpanTokens<'a>>) -> Self {
+impl<'a> From<DebugError<SpanTokens<'a>>> for DebugError<&'a str> {
+  fn from(value: DebugError<SpanTokens<'a>>) -> Self {
     value.map_input(|input| input.origin)
   }
 }
 
-const LINE_LENGTH: usize = 80;
+pub(crate) const LINE_LENGTH: usize = 80;
 
-impl ExtensibleError<&str> {
+impl DebugError<&str> {
   /// Calculates the range within which the `index` fits in `input`
-  fn range_for(input: &str, index: usize) -> Range<usize> {
+  pub(crate) fn range_for(input: &str, index: usize) -> Range<usize> {
     let mut start = input[..index].rfind('\n').unwrap_or(0);
     let mut end = input[start..].find('\n').unwrap_or(input.len());
 
@@ -150,7 +114,7 @@ impl ExtensibleError<&str> {
     start..end
   }
 
-  fn cursor_position(input: &str, rest: &str) -> (Range<usize>, usize) {
+  pub(crate) fn cursor_position(input: &str, rest: &str) -> (Range<usize>, usize) {
     let index = input.offset(rest);
     let Range { start, end } = Self::range_for(input, index);
     let offset = input[start..index].chars().count() + 2;
@@ -184,13 +148,10 @@ impl ExtensibleError<&str> {
   }
 }
 
-pub fn display_err<'a>(err: Err<ExtensibleError<&'a str>>, input: &'a str) -> impl Debug + 'a {
+pub fn display_err<'a>(err: Err<DebugError<&'a str>>, input: &'a str) -> impl Debug + 'a {
   from_fn(move |f| match &err {
     Err::Incomplete(n) => write!(f, "needed {n:?} more chars"),
     Err::Failure(e) => write!(f, "Failed with:\n{:?}", e.display(input)),
     Err::Error(e) => write!(f, "Errored with:\n{:?}", e.display(input)),
   })
 }
-
-/// The result type for parsing Diom syntax nodes from spanned tokens
-pub type PResult<'a, T, E = Error<SpanTokens<'a>>> = Result<(In<'a>, T), Err<E>>;
