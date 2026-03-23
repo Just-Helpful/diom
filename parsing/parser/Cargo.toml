@@ -5,7 +5,7 @@ description = "Parses the Diom language to produce an AST"
 edition = "2021"
 
 [dependencies]
-diom-info-traits = { version = "0.1.0", path = "../../info/traits" }
+diom-info-traits = { version = "0.1.0", path = "../../utils/info/traits" }
 diom-tokens = { version = "0.1.0", path = "../../lexing/tokens" }
 diom-syntax = { version = "0.1.0", path = "../syntax" }
 diom-lexer = { path = "../../lexing/lexer" }

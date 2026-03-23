@@ -1,15 +1,15 @@
 [workspace]
 members = [
-  "info/derive",
-  "info/traits",
+  "backends/interpreter",
+  "backends/cli",
   "lexing/lexer",
   "lexing/tokens",
   "parsing/parser",
   "parsing/syntax",
-  "backends/interpreter",
-  "backends/cli",
   "typing",
-  "fmt",
+  "utils/info/derive",
+  "utils/info/traits",
+  "utils/fmt",
 ]
 resolver = "2"
 
