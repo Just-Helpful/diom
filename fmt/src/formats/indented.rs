@@ -19,14 +19,33 @@ use std::fmt::Write;
 /// //   "b": 2,
 /// // }
 /// ```
-#[derive(Clone, Copy)]
-pub struct Indented<'a> {
+#[derive(Clone)]
+pub struct Indented {
   /// The string to use for indentation, i.e. `"\t"`, `"  "`
-  pub indent: &'a str,
+  pub indent: Box<str>,
 }
 
-impl<'a> Format for Indented<'a> {
-  type Writer<W: Write> = IndentWriter<'a, W>;
+impl From<Box<str>> for Indented {
+  #[inline]
+  fn from(value: Box<str>) -> Self {
+    Self { indent: value }
+  }
+}
+impl From<String> for Indented {
+  #[inline]
+  fn from(value: String) -> Self {
+    value.into_boxed_str().into()
+  }
+}
+impl From<char> for Indented {
+  #[inline]
+  fn from(value: char) -> Self {
+    value.to_string().into()
+  }
+}
+
+impl Format for Indented {
+  type Writer<W: Write> = IndentWriter<W>;
 
   fn writer<W: Write>(&self, w: W) -> Self::Writer<W> {
     IndentWriter {
@@ -38,16 +57,16 @@ impl<'a> Format for Indented<'a> {
 }
 
 /// A writer that allow for the display of indented text
-pub struct IndentWriter<'a, W> {
+pub struct IndentWriter<W> {
   /// The config used for indentation
-  config: Indented<'a>,
+  config: Indented,
   /// The current level of indentation
-  indent: usize,
+  pub indent: usize,
   /// The wrapped writer
-  write: W,
+  pub write: W,
 }
 
-impl<'a, W: Write> Write for IndentWriter<'a, W> {
+impl<W: Write> Write for IndentWriter<W> {
   fn write_str(&mut self, s: &str) -> std::fmt::Result {
     let mut lines = s.lines();
     let Some(line) = lines.next() else {
@@ -66,7 +85,7 @@ impl<'a, W: Write> Write for IndentWriter<'a, W> {
   }
 }
 
-impl<'a, W> Flush for IndentWriter<'a, W> {
+impl<W> Flush for IndentWriter<W> {
   fn flush(&mut self) -> std::fmt::Result {
     Ok(())
   }
