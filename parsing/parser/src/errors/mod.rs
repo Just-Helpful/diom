@@ -8,8 +8,6 @@ use nom::error::{ContextError, FromExternalError, ParseError};
 pub use nom::{error::Error, Err};
 use std::fmt::Debug;
 
-pub mod debug_error;
-
 /// A trait alias for syntax errors used in parsing Diom syntax nodes
 pub trait SyntaxError<'a>:
   Debug
