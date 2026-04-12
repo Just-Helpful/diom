@@ -1,5 +1,5 @@
 //! Utilities for fine-grained control over displaying data.
-use std::fmt::{Display, Formatter, Write};
+use std::fmt::{Debug, Display, Formatter, Write};
 
 mod blanket_impls;
 mod updater;
@@ -45,14 +45,14 @@ pub trait DisplayAs<F: Format>: Sized {
   #[must_use]
   fn write<W: Write>(&self, w: &mut F::Writer<W>) -> std::fmt::Result;
 
-  fn display<F0: Format + Default>(&self) -> As<F0, &Self>
+  fn display<F0: Format + Default>(self) -> As<F0, Self>
   where
     Self: DisplayAs<F0>,
   {
     As(self, F0::default())
   }
 
-  fn display_with<F0: Format>(&self, cfg: impl Into<F0>) -> As<F0, &Self>
+  fn display_with<F0: Format>(self, cfg: impl Into<F0>) -> As<F0, Self>
   where
     Self: DisplayAs<F0>,
   {
@@ -76,7 +76,14 @@ impl<F: Format + Default, D: DisplayAs<F>> From<D> for As<F, D> {
 }
 
 impl<F: Format + Clone, D: DisplayAs<F>> Display for As<F, D> {
-  fn fmt<'a, 'b>(&'a self, f: &'b mut std::fmt::Formatter) -> std::fmt::Result {
+  fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+    let mut writer = self.1.writer(f);
+    self.0.write(&mut writer)?;
+    writer.flush()
+  }
+}
+impl<F: Format + Clone, D: DisplayAs<F>> Debug for As<F, D> {
+  fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
     let mut writer = self.1.writer(f);
     self.0.write(&mut writer)?;
     writer.flush()

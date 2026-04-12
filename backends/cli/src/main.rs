@@ -108,7 +108,7 @@ fn main() {
   let expr = expr.map(|src| unsafe { src.str_range(&code) }.unwrap());
   println!("\n# Parsed Syntax");
   println!("{code}");
-  println!("{}", expr.display());
+  println!("{}", (&expr).display());
 
   println!("\n# Displayed Nodes");
   println!("{expr}");
