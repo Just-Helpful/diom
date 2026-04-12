@@ -7,10 +7,10 @@ use nom::{
   Parser,
 };
 
-use crate::{errors::SyntaxError, In};
+use crate::{errors::TokensError, In};
 
 /// Parses an identifier, used for variable and type creation
-pub fn parse_ident<'a, E: SyntaxError<'a>>() -> impl Parser<In<'a>, Output = &'a str, Error = E> {
+pub fn parse_ident<'a, E: TokensError<'a>>() -> impl Parser<In<'a>, Output = &'a str, Error = E> {
   let parse_first = alt((alpha1, tag("_")));
   let parse_rest = alt((alphanumeric1, tag("_")));
   recognize(parse_first.and(many0(parse_rest)))

@@ -23,7 +23,7 @@ pub mod structure;
 #[cfg(test)]
 mod tests;
 
-use crate::errors::SyntaxError;
+use crate::errors::TokensError;
 use chars::{enclosed_char, parse_span_string};
 use comments::parse_comment;
 use idents::parse_ident;
@@ -31,7 +31,7 @@ use idents::parse_ident;
 type In<'a> = &'a str;
 
 /// @note parses everything but strings, as they parse to a vector of `Token`s
-pub fn parse_token<'a, E: SyntaxError<'a>>() -> impl Parser<In<'a>, Output = Token, Error = E> {
+pub fn parse_token<'a, E: TokensError<'a>>() -> impl Parser<In<'a>, Output = Token, Error = E> {
   alt((
     // Brackets
     alt((
@@ -87,13 +87,13 @@ pub fn parse_token<'a, E: SyntaxError<'a>>() -> impl Parser<In<'a>, Output = Tok
   ))
 }
 
-fn span_wrap<'a, E: SyntaxError<'a>>(
+fn span_wrap<'a, E: TokensError<'a>>(
   parser: impl Parser<In<'a>, Output = Token, Error = E>,
 ) -> impl Parser<In<'a>, Output = SpanToken<'a>, Error = E> {
   consumed(parser).map(|(origin, token)| SpanToken { token, origin })
 }
 
-pub fn parse_tokens<'a, E: SyntaxError<'a>>(
+pub fn parse_tokens<'a, E: TokensError<'a>>(
 ) -> impl Parser<In<'a>, Output = Vec<SpanToken<'a>>, Error = E> {
   let parse_item = alt((
     span_wrap(parse_token()).map(|tok| vec![tok]),

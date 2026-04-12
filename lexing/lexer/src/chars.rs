@@ -10,10 +10,10 @@ use nom::{
   Parser,
 };
 
-use crate::{errors::SyntaxError, In};
+use crate::{errors::TokensError, In};
 
 /// Parses a unicode encoded character, of the form `u{XXXX}`
-fn unicode_char<'a, E: SyntaxError<'a>>() -> impl Parser<In<'a>, Output = char, Error = E> {
+fn unicode_char<'a, E: TokensError<'a>>() -> impl Parser<In<'a>, Output = char, Error = E> {
   let parse_hex = take_while_m_n(1, 6, |c: char| c.is_ascii_hexdigit());
   let parse_full = delimited(tag("u{"), parse_hex, char::<In, E>('}'));
 
@@ -23,7 +23,7 @@ fn unicode_char<'a, E: SyntaxError<'a>>() -> impl Parser<In<'a>, Output = char, 
 }
 
 /// Parses an escaped character, of the form `\t`, `\n` or `\u{fe0e}`
-fn escaped_char<'a, E: SyntaxError<'a>>() -> impl Parser<In<'a>, Output = char, Error = E> {
+fn escaped_char<'a, E: TokensError<'a>>() -> impl Parser<In<'a>, Output = char, Error = E> {
   let parse_datum = alt((
     unicode_char(),
     value('\0', char('0')),
@@ -39,7 +39,7 @@ fn escaped_char<'a, E: SyntaxError<'a>>() -> impl Parser<In<'a>, Output = char, 
 }
 
 /// Parses whitespace escaped with a `\`
-fn escaped_eol<'a, E: SyntaxError<'a>>() -> impl Parser<&'a str, Output = (), Error = E> {
+fn escaped_eol<'a, E: TokensError<'a>>() -> impl Parser<&'a str, Output = (), Error = E> {
   value((), preceded(char('\\'), multispace1))
 }
 
@@ -53,7 +53,7 @@ fn escaped_eol<'a, E: SyntaxError<'a>>() -> impl Parser<&'a str, Output = (), Er
 /// '\n';
 /// '\u{fe0e}';
 /// ```
-pub fn enclosed_char<'a, E: SyntaxError<'a>>() -> impl Parser<In<'a>, Output = char, Error = E> {
+pub fn enclosed_char<'a, E: TokensError<'a>>() -> impl Parser<In<'a>, Output = char, Error = E> {
   let parse_contents = delimited(
     many0(escaped_eol()),
     alt((
@@ -79,7 +79,7 @@ pub fn enclosed_char<'a, E: SyntaxError<'a>>() -> impl Parser<In<'a>, Output = c
 /// assert "\"hi\" \"hey\"" == ['"','h','i','"',' ','"','h','e','y','"',];
 /// assert "snowman:\u{fe0e}" == ['s','n','o','w','m','a','n',':','\u{fe0e}',];
 /// ```
-pub fn parse_string<'a, E: SyntaxError<'a>>() -> impl Parser<In<'a>, Output = Vec<char>, Error = E>
+pub fn parse_string<'a, E: TokensError<'a>>() -> impl Parser<In<'a>, Output = Vec<char>, Error = E>
 {
   let parse_single = alt((
     escaped_char(),
@@ -97,7 +97,7 @@ pub fn parse_string<'a, E: SyntaxError<'a>>() -> impl Parser<In<'a>, Output = Ve
   delimited(char('"'), parse_content, char('"'))
 }
 
-pub fn parse_span_string<'a, E: SyntaxError<'a>>(
+pub fn parse_span_string<'a, E: TokensError<'a>>(
 ) -> impl Parser<In<'a>, Output = Vec<SpanToken<'a>>, Error = E> {
   let parse_single = consumed(alt((
     escaped_char(),
