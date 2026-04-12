@@ -43,6 +43,12 @@ impl<'a, T: AsRef<[SpanToken<'a>]> + ?Sized> From<(&'a T, &'a str)> for SpanToke
   }
 }
 
+impl<'a> AsRef<str> for SpanTokens<'a> {
+  fn as_ref(&self) -> &str {
+    &self.origin
+  }
+}
+
 impl SpanTokens<'_> {
   /// Splits off the first token, returning the remaining section of the tokens
   pub fn split_first<'a>(&'a self) -> Option<(&'a SpanToken<'a>, SpanTokens<'a>)> {
