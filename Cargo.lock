@@ -219,6 +219,7 @@ dependencies = [
  "insta",
  "nom",
  "nom-language",
+ "nom-yuck",
  "proptest",
 ]
 
