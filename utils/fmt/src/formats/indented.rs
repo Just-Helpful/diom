@@ -68,7 +68,7 @@ pub struct IndentWriter<W> {
 
 impl<W: Write> Write for IndentWriter<W> {
   fn write_str(&mut self, s: &str) -> std::fmt::Result {
-    let mut lines = s.lines();
+    let mut lines = s.split('\n'); // like `.lines()`, but includes line after last newline
     let Some(line) = lines.next() else {
       return Ok(());
     };
