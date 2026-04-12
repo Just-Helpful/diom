@@ -9,7 +9,7 @@ use std::{
   ops::Range,
 };
 
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct Array<I> {
   pub contents: Vec<Expression<I>>,
   pub info: I,

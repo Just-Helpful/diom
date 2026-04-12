@@ -24,7 +24,7 @@ use super::Type;
 /// let vec2: Vec2 = Vec2 { x: 1.2, y: 3.0 };
 /// let bobs_email: Email = { name: "bob.jones", domain: "hotmail.com" };
 /// ```
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct Struct<I> {
   pub fields: Vec<(Method<I>, Type<I>)>,
   pub info: I,

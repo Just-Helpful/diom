@@ -8,7 +8,7 @@ use std::{
   ops::Range,
 };
 
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct StructField<I> {
   pub name: Method<I>,
   pub pattern: Pattern<I>,
@@ -42,7 +42,7 @@ impl StructField<()> {
   }
 }
 
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub enum StructItem<I> {
   Field(StructField<I>),
   Rest(Rest<I>),
@@ -76,7 +76,7 @@ impl StructItem<()> {
   }
 }
 
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct Struct<I> {
   pub fields: Vec<StructItem<I>>,
   pub info: I,

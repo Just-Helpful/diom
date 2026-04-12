@@ -8,7 +8,7 @@ use std::{
   ops::Range,
 };
 
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct Parameter<I> {
   pub name: Ident<I>,
   pub annotation: Type<I>,
@@ -42,7 +42,7 @@ impl Parameter<()> {
   }
 }
 
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct Parameters<I> {
   pub parameters: Vec<Parameter<I>>,
   pub info: I,
@@ -84,7 +84,7 @@ impl Parameters<()> {
 /// let add: Binary = (x)(y) => x + y;
 /// let add: Binary = (x) => {(y) => {x + y}};
 /// ```
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct Function<I> {
   pub parameters: Parameters<I>,
   pub returned: Box<Type<I>>,

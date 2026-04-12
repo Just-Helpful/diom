@@ -8,7 +8,7 @@ use std::{
   ops::Range,
 };
 
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub enum TupleItem<I> {
   Field(Pattern<I>),
   Rest(Rest<I>),
@@ -39,7 +39,7 @@ impl TupleItem<()> {
   }
 }
 
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct Tuple<I> {
   pub fields: Vec<TupleItem<I>>,
   pub info: I,

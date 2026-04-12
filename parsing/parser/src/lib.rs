@@ -23,6 +23,7 @@ pub mod types;
 mod utils;
 
 /// Top level syntax nodes
+#[derive(PartialEq)]
 pub enum SyntaxNode<I> {
   Expression(Expression<I>),
 }

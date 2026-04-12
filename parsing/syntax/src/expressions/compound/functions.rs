@@ -12,7 +12,7 @@ use std::{
   ops::Range,
 };
 
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct Parameter<I> {
   pub pattern: Pattern<I>,
   pub annotation: Option<Type<I>>,
@@ -58,7 +58,7 @@ impl Parameter<()> {
   }
 }
 
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct Parameters<I> {
   pub parameters: Vec<Parameter<I>>,
   pub info: I,
@@ -108,7 +108,7 @@ impl Parameters<()> {
   }
 }
 
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct FunctionArm<I> {
   pub parameters: Parameters<I>,
   pub annotation: Option<Type<I>>,
@@ -154,7 +154,7 @@ impl FunctionArm<()> {
   }
 }
 
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct Function<I> {
   pub arms: Vec<FunctionArm<I>>,
   pub info: I,

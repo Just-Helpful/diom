@@ -20,7 +20,7 @@ use std::{
 /// type Vec3_0 = [Float, Float, Float];
 /// type VecN_0 = [Float; _];
 /// ```
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct Alias<I> {
   pub name: Ident<I>,
   pub value: Box<Type<I>>,
@@ -61,7 +61,7 @@ impl Alias<()> {
 /// type Vec3_1 [Float, Float, Float];
 /// type VecN_1 [Float; _];
 /// ```
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct NewType<I> {
   pub tag: Tagged<I>,
   pub info: I,
@@ -102,7 +102,7 @@ impl NewType<()> {
 /// type VecN_0 = [Float; _];
 /// type VecN_1 [Float; _];
 /// ```
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub enum TypeDef<I> {
   Alias(Alias<I>),
   New(NewType<I>),

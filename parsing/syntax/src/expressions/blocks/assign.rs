@@ -7,7 +7,7 @@ use std::{
   ops::Range,
 };
 
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct Assign<I> {
   pub reference: Box<Expression<I>>,
   pub value: Box<Expression<I>>,

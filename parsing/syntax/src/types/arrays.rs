@@ -16,7 +16,7 @@ use std::{
 /// let greeting: String = "Hello!";
 /// let xs: Nums = [1, 2, 3];
 /// ```
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct Array<I> {
   pub item: Box<Type<I>>,
   pub info: I,

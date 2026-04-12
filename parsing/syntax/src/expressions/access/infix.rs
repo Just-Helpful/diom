@@ -14,7 +14,7 @@ use std::{
   ops::Range,
 };
 
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct Infix<I> {
   pub value: Box<Expression<I>>,
   pub name: Method<I>,

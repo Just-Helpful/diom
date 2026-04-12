@@ -11,7 +11,7 @@ use std::{
   ops::Range,
 };
 
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub enum Statement<I> {
   Expression(Expression<I>),
   TypeDef(TypeDef<I>),
@@ -48,7 +48,7 @@ impl Statement<()> {
   }
 }
 
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct Block<I> {
   pub statements: Vec<Statement<I>>,
   pub info: I,

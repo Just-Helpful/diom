@@ -46,7 +46,7 @@ use std::{
 /// };
 /// assert optn_x == None;
 /// ```
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct MonadThen<I> {
   pub value: Box<Expression<I>>,
   pub info: I,
@@ -108,7 +108,7 @@ impl MonadThen<()> {
 /// };
 /// assert optn_x == Some [5];
 /// ```
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct MonadResult<I> {
   pub value: Box<Expression<I>>,
   pub info: I,

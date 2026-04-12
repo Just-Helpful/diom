@@ -26,7 +26,7 @@ pub use tags::Tagged;
 pub mod tuples;
 use tuples::Tuple;
 
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub enum Pattern<I> {
   Array(Array<I>),
   Struct(Struct<I>),

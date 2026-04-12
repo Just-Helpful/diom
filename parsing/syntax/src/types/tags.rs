@@ -9,7 +9,7 @@ use std::{
 
 /// A type with a unique tag attached.\
 /// This effectively converts duck typing into static typing.
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct Tagged<I> {
   pub name: Ident<I>,
   pub value: Box<Type<I>>,

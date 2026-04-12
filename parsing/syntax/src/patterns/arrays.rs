@@ -8,7 +8,7 @@ use std::{
   ops::Range,
 };
 
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub enum ArrayItem<I> {
   Item(Pattern<I>),
   Rest(Rest<I>),
@@ -39,7 +39,7 @@ impl ArrayItem<()> {
   }
 }
 
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct Array<I> {
   pub items: Vec<ArrayItem<I>>,
   pub info: I,

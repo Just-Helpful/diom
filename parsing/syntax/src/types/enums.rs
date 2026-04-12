@@ -29,7 +29,7 @@ use super::{Tagged, Type};
 /// let bool = Boolean.True;
 /// let bool = Boolean.False;
 /// ```
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct Enum<I> {
   pub variants: Vec<Tagged<I>>,
   pub info: I,

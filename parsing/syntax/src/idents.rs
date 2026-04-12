@@ -11,7 +11,7 @@ use std::{
 };
 
 /// An alphanumeric identifier for use in variable definitions and tags
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct Ident<I> {
   #[map_ignore]
   pub name: Box<str>,
@@ -126,7 +126,7 @@ impl Arbitrary for Symbol {
   }
 }
 
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct Op<I> {
   #[map_ignore]
   pub sym: Symbol,

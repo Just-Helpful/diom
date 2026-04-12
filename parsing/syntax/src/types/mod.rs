@@ -34,7 +34,7 @@ pub use typedef::{Alias, NewType, TypeDef};
 mod tags;
 pub use tags::Tagged;
 
-#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
+#[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub enum Type<I> {
   /* type variables */
   Var(Ident<I>),
