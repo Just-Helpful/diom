@@ -30,6 +30,8 @@ This is mostly a language written because:
     if we support string conversion on these, we can solve most\
     of the standard string injection attacks by not converting to\
     strings until the last possible second.
+- [ ] fix **all** bugs uncovered by property testing (3 so far)\
+      and add equivalent regression tests for each encountered issue.
 - [x] property testing on AST -> code -> AST round trip
   - [x] implement `Display` for AST
   - [x] implement generators for ASTs
