@@ -48,13 +48,11 @@ pub fn parse_typedef<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, TypeD
 
 #[cfg(test)]
 mod tests {
+  use crate::assert_parses;
   use diom_syntax::{
     idents::Ident,
     types::{Alias, Type, TypeDef},
   };
-  use diom_tokens::SpanTokens;
-
-  use crate::tests::utils::{quick_lex, quick_parse};
 
   /// Tests that `Typedef("!", "!")` formats and parses correctly
   #[test]
@@ -72,15 +70,13 @@ mod tests {
     });
 
     let code = format!("({def})");
-    let tokens = quick_lex(&code);
-    quick_parse(&code, SpanTokens::new(&tokens, &code));
+    assert_parses!(code);
   }
 
   /// Tests that a typedef with a tuple type parses
   #[test]
   fn typedef_tuple() {
-    let code = "(type ! = [!,!])";
-    let tokens = quick_lex(code);
-    quick_parse(code, SpanTokens::new(&tokens, &code));
+    const CODE: &str = "(type ! = [!,!])";
+    assert_parses!(CODE);
   }
 }

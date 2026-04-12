@@ -1,6 +1,6 @@
-use crate::tests::utils::assert_parses;
+use crate::assert_parses;
 
 #[test]
 fn assignment() {
-  assert_parses("'!'=''");
+  assert_parses!("'!'=''");
 }
