@@ -48,6 +48,7 @@ This is mostly a language written because:
 ### Interpreter
 
 - [ ] add function calls
+- [ ] add regression tests for bugs encountered during use (0 so far)
 
 ### Documentation
 
