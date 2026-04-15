@@ -1,4 +1,4 @@
-use crate::Ptr;
+use crate::{from_box, into_box, Ptr};
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use diom_tokens::Token;
@@ -180,7 +180,7 @@ impl TryFrom<Token> for Name {
   type Error = ();
   fn try_from(value: Token) -> Result<Self, Self::Error> {
     match value {
-      Token::StringIdent(name) => Ok(Self::Literal(name.into())),
+      Token::StringIdent(name) => Ok(Self::Literal(from_box(name))),
       tok => tok.try_into().map(Self::Symbol),
     }
   }
@@ -188,7 +188,7 @@ impl TryFrom<Token> for Name {
 impl From<Name> for Token {
   fn from(value: Name) -> Self {
     match value {
-      Name::Literal(name) => Token::StringIdent(name),
+      Name::Literal(name) => Token::StringIdent(into_box(name)),
       Name::Symbol(sym) => sym.into(),
     }
   }
@@ -233,6 +233,7 @@ impl Name {
   pub fn any() -> impl Strategy<Value = Self> {
     let lit = r"[_a-zA-Z][_a-zA-Z0-9]*"
       .prop_map(|s| s.into_boxed_str())
+      .prop_map(from_box)
       .prop_map(Name::Literal);
     prop_oneof![Symbol::any().prop_map(Self::Symbol), lit]
   }
