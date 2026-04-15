@@ -19,3 +19,9 @@ license.workspace = true
 
 [dependencies]
 diom-syntax = { version = "0.1.0", path = "../../parsing/syntax" }
+
+[dev-dependencies]
+diom-lexer = { path = "../../lexing/lexer" }
+diom-parser = { path = "../../parsing/parser" }
+diom-tokens = { path = "../../lexing/tokens" }
+nom = "8.0.0"
