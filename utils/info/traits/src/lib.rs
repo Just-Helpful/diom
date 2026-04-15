@@ -2,6 +2,7 @@ pub use diom_info_derive::{InfoMap, InfoRef, InfoSource};
 
 pub mod boxes;
 pub mod options;
+pub mod rc_ptrs;
 pub mod tuples;
 pub mod vecs;
 
