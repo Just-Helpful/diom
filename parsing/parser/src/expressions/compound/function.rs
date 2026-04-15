@@ -8,7 +8,10 @@ use crate::{
 };
 
 use diom_info_traits::InfoRef;
-use diom_syntax::expressions::{Function, FunctionArm, Parameter, Parameters};
+use diom_syntax::{
+  expressions::{Function, FunctionArm, Parameter, Parameters},
+  Ptr,
+};
 use diom_tokens::Token;
 use nom::{
   branch::alt,
@@ -50,7 +53,7 @@ pub fn parse_arm<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, FunctionA
   let parse_function = separated_pair(
     parse_parameters.and(parse_annotation), // parameters `(...): ...`
     matches(Token::Function),               // arrow      `=>`
-    parse_expression().map(Box::new),       // expression `...`
+    parse_expression().map(Ptr::new),       // expression `...`
   );
 
   let (input, (info, ((parameters, annotation), returned))) =

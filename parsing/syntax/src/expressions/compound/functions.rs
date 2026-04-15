@@ -3,7 +3,7 @@ use crate::{
   display::Sep,
   patterns::{Pattern, PatternConfig},
   types::{Type, TypeConfig},
-  Seq,
+  Ptr, Seq,
 };
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
@@ -115,7 +115,7 @@ impl Parameters<()> {
 pub struct FunctionArm<I> {
   pub parameters: Parameters<I>,
   pub annotation: Option<Type<I>>,
-  pub returned: Box<Expression<I>>,
+  pub returned: Ptr<Expression<I>>,
   pub info: I,
 }
 
@@ -150,7 +150,7 @@ impl FunctionArm<()> {
       |(parameters, annotation, returned)| FunctionArm {
         parameters,
         annotation,
-        returned: Box::new(returned),
+        returned: Ptr::new(returned),
         info: (),
       },
     )
