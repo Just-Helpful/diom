@@ -7,6 +7,7 @@ use diom_syntax::{
   expressions::{Declare, Expression},
   patterns::Pattern,
   types::Type,
+  Ptr,
 };
 use diom_tokens::Token;
 use nom::{
@@ -29,7 +30,7 @@ impl<'a> PartialDeclare<In<'a>> {
     Declare {
       pattern: self.pattern,
       annotation: self.annotation,
-      value: Box::new(value),
+      value: Ptr::new(value),
       info: unsafe { merge_spans(self.info, info) },
     }
   }

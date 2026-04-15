@@ -4,7 +4,7 @@ use crate::{
   parsers::matches,
   In,
 };
-use diom_syntax::expressions::Return;
+use diom_syntax::{expressions::Return, Ptr};
 use diom_tokens::Token;
 use nom::{combinator::consumed, sequence::preceded, Parser};
 
@@ -18,7 +18,7 @@ pub fn parse_return<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Return
   Ok((
     input,
     Return {
-      value: Box::new(value),
+      value: Ptr::new(value),
       info,
     },
   ))

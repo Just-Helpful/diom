@@ -1,6 +1,9 @@
 use crate::{errors::SyntaxError, parsers::matches, utils::merge_spans, In};
 use diom_info_traits::InfoRef;
-use diom_syntax::expressions::{Expression, Return};
+use diom_syntax::{
+  expressions::{Expression, Return},
+  Ptr,
+};
 use diom_tokens::Token;
 use nom::{combinator::recognize, IResult, Parser};
 
@@ -14,7 +17,7 @@ impl<'a> PartialReturn<In<'a>> {
   pub unsafe fn apply(self, value: Expression<In<'a>>) -> Return<In<'a>> {
     let info = *value.info();
     Return {
-      value: Box::new(value),
+      value: Ptr::new(value),
       info: unsafe { merge_spans(self.info, info) },
     }
   }

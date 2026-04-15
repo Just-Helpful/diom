@@ -6,6 +6,7 @@ use diom_info_traits::InfoRef as _;
 use diom_syntax::{
   expressions::{Expression, Field},
   idents::Method,
+  Ptr,
 };
 use diom_tokens::Token;
 use nom::{combinator::consumed, error::context, sequence::preceded, Parser};
@@ -21,7 +22,7 @@ impl<'a> PostFixField<In<'a>> {
   pub unsafe fn apply(self, value: Expression<In<'a>>) -> Field<In<'a>> {
     let info = unsafe { merge_spans(*value.info(), self.info) };
     Field {
-      value: Box::new(value),
+      value: Ptr::new(value),
       name: self.name,
       info,
     }

@@ -7,7 +7,10 @@ use crate::{
   In,
 };
 use diom_info_traits::InfoRef as _;
-use diom_syntax::expressions::{Call, Expression};
+use diom_syntax::{
+  expressions::{Call, Expression},
+  Ptr,
+};
 use diom_tokens::Token;
 use nom::{combinator::consumed, error::context, Parser};
 
@@ -22,7 +25,7 @@ impl<'a> PostFixCall<In<'a>> {
   pub unsafe fn apply(self, value: Expression<In<'a>>) -> Call<In<'a>> {
     let info = unsafe { merge_spans(*value.info(), self.info) };
     Call {
-      value: Box::new(value),
+      value: Ptr::new(value),
       args: self.args,
       info,
     }

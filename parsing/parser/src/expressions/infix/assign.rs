@@ -5,7 +5,10 @@ use crate::{
   In,
 };
 use diom_info_traits::InfoRef as _;
-use diom_syntax::expressions::{Assign, Expression};
+use diom_syntax::{
+  expressions::{Assign, Expression},
+  Ptr,
+};
 use diom_tokens::Token;
 use nom::Parser;
 
@@ -22,8 +25,8 @@ impl PartialAssign {
     let v_info = *value.info();
     let o_info = *other.info();
     Assign {
-      reference: Box::new(value),
-      value: Box::new(other),
+      reference: Ptr::new(value),
+      value: Ptr::new(other),
       info: unsafe { merge_spans(v_info, o_info) },
     }
   }

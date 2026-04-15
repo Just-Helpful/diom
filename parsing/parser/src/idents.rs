@@ -2,14 +2,20 @@ use crate::common::PResult;
 use crate::errors::SyntaxError;
 use crate::parsers::{single_item, IsExact};
 use crate::In;
-use diom_syntax::idents::{Ident, Method, Op};
+use diom_syntax::{
+  from_box,
+  idents::{Ident, Method, Op},
+};
 use diom_tokens::Token;
 use nom::combinator::consumed;
 use nom::Parser;
 
 pub fn parse_ident<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Ident<In<'a>>, E> {
   let mut parser = consumed(single_item()).map_res(|(info, tok)| match tok.token {
-    Token::StringIdent(name) => Ok(Ident { name, info }),
+    Token::StringIdent(name) => Ok(Ident {
+      name: from_box(name),
+      info,
+    }),
     _ => Err(IsExact("Ident".into())),
   });
 

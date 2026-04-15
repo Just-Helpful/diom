@@ -1,6 +1,7 @@
 use diom_info_traits::InfoRef as _;
 use diom_syntax::expressions::{Expression, Infix};
 use diom_syntax::idents::Method;
+use diom_syntax::Ptr;
 use nom::combinator::recognize;
 use nom::Parser;
 
@@ -36,9 +37,9 @@ impl<'a> PartialMethod<In<'a>> {
     let v_info = *value.info();
     let o_info = *other.info();
     Infix {
-      value: Box::new(value),
+      value: Ptr::new(value),
       name: self.name,
-      other: Box::new(other),
+      other: Ptr::new(other),
       info: unsafe { merge_spans(v_info, o_info) },
     }
   }

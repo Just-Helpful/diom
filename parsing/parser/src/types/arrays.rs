@@ -4,7 +4,7 @@ use crate::{
   parsers::group,
   In,
 };
-use diom_syntax::types::Array;
+use diom_syntax::{types::Array, Ptr};
 use nom::{
   combinator::{consumed, eof},
   sequence::terminated,
@@ -21,7 +21,7 @@ pub fn parse_array<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Array<I
   Ok((
     input,
     Array {
-      item: Box::new(item),
+      item: Ptr::new(item),
       info,
     },
   ))

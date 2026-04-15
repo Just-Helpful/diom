@@ -6,7 +6,7 @@ use crate::{
   types::parse_type,
   In,
 };
-use diom_syntax::expressions::Declare;
+use diom_syntax::{expressions::Declare, Ptr};
 use diom_tokens::Token;
 use nom::{
   combinator::{consumed, opt},
@@ -60,7 +60,7 @@ pub fn parse_let<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Declare<I
       info,
       pattern,
       annotation,
-      value: Box::new(value),
+      value: Ptr::new(value),
     },
   ))
 }

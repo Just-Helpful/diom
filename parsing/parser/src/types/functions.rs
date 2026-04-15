@@ -5,7 +5,10 @@ use crate::{
   parsers::{group, matches},
   In,
 };
-use diom_syntax::types::{Function, Parameter, Parameters};
+use diom_syntax::{
+  types::{Function, Parameter, Parameters},
+  Ptr,
+};
 use nom::{
   combinator::{consumed, eof},
   multi::separated_list0,
@@ -45,7 +48,7 @@ pub fn parse_function<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Func
     input,
     Function {
       parameters,
-      returned: Box::new(returned),
+      returned: Ptr::new(returned),
       info,
     },
   ))

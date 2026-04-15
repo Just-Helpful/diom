@@ -3,6 +3,7 @@ use diom_info_traits::InfoRef;
 use diom_syntax::{
   expressions::{Expression, Prefix},
   idents::Op,
+  Ptr,
 };
 use nom::{combinator::recognize, Parser};
 
@@ -24,7 +25,7 @@ impl<'a> PartialPrefixOp<In<'a>> {
     let info = /*unsafe*/ { merge_spans(self.name.info, info) };
     Prefix {
       name: self.name,
-      value: Box::new(value),
+      value: Ptr::new(value),
       info,
     }
   }

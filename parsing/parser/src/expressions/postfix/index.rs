@@ -7,7 +7,10 @@ use crate::{
   In,
 };
 use diom_info_traits::InfoRef as _;
-use diom_syntax::expressions::{Expression, Index};
+use diom_syntax::{
+  expressions::{Expression, Index},
+  Ptr,
+};
 use diom_tokens::Token;
 use nom::{combinator::consumed, error::context, sequence::delimited, Parser};
 
@@ -22,7 +25,7 @@ impl<'a> PostFixIndex<In<'a>> {
   pub unsafe fn apply(self, value: Expression<In<'a>>) -> Index<In<'a>> {
     let info = unsafe { merge_spans(*value.info(), self.info) };
     Index {
-      value: Box::new(value),
+      value: Ptr::new(value),
       keys: self.keys,
       info,
     }
