@@ -1,5 +1,5 @@
 use super::{Pattern, Rest};
-use crate::display::Sep;
+use crate::{display::Sep, Slice};
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use proptest::{collection::vec, prelude::Strategy, prop_oneof};
@@ -41,7 +41,7 @@ impl ArrayItem<()> {
 
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct Array<I> {
-  pub items: Vec<ArrayItem<I>>,
+  pub items: Slice<ArrayItem<I>>,
   pub info: I,
 }
 
@@ -76,6 +76,8 @@ impl Array<()> {
     item: impl Strategy<Value = Pattern<()>>,
     args: ArrayConfig,
   ) -> impl Strategy<Value = Self> {
-    vec(ArrayItem::any(item), 0..args.0).prop_map(|items| Array { items, info: () })
+    vec(ArrayItem::any(item), 0..args.0)
+      .prop_map(Slice::from_iter)
+      .prop_map(|items| Array { items, info: () })
   }
 }

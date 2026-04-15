@@ -1,6 +1,5 @@
-use crate::display::Sep;
-
 use super::Expression;
+use crate::{display::Sep, Ptr, Slice};
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use proptest::{collection::vec, prelude::Strategy};
@@ -11,8 +10,8 @@ use std::{
 
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct Index<I> {
-  pub value: Box<Expression<I>>,
-  pub keys: Vec<Expression<I>>,
+  pub value: Ptr<Expression<I>>,
+  pub keys: Slice<Expression<I>>,
   pub info: I,
 }
 
@@ -50,7 +49,7 @@ impl Index<()> {
     args: IndexConfig,
   ) -> impl Strategy<Value = Self> {
     (item.clone(), vec(item, 0..args.0)).prop_map(|(value, keys)| Index {
-      value: Box::new(value),
+      value: Ptr::new(value),
       keys,
       info: (),
     })

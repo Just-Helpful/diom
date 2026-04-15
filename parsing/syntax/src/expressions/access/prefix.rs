@@ -1,5 +1,5 @@
 use super::Expression;
-use crate::idents::Op;
+use crate::{idents::Op, Ptr};
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use proptest::prelude::Strategy;
@@ -11,7 +11,7 @@ use std::{
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct Prefix<I> {
   pub name: Op<I>,
-  pub value: Box<Expression<I>>,
+  pub value: Ptr<Expression<I>>,
   pub info: I,
 }
 
@@ -36,7 +36,7 @@ impl Prefix<()> {
   pub fn any(item: impl Strategy<Value = Expression<()>> + Clone) -> impl Strategy<Value = Self> {
     (Op::any(), item).prop_map(|(name, value)| Prefix {
       name,
-      value: Box::new(value),
+      value: Ptr::new(value),
       info: (),
     })
   }

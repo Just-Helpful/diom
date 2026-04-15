@@ -3,6 +3,7 @@ use crate::{
   display::Sep,
   patterns::{Pattern, PatternConfig},
   types::{Type, TypeConfig},
+  Slice,
 };
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
@@ -60,7 +61,7 @@ impl Parameter<()> {
 
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct Parameters<I> {
-  pub parameters: Vec<Parameter<I>>,
+  pub parameters: Slice<Parameter<I>>,
   pub info: I,
 }
 
@@ -101,10 +102,12 @@ impl From<ParametersConfig> for ParameterConfig {
 impl Parameters<()> {
   /// Generates a generic strategy for generating `Parameter` nodes
   pub fn any(args: ParametersConfig) -> impl Strategy<Value = Self> {
-    vec(Parameter::any(args.into()), 0..args.2).prop_map(|parameters| Parameters {
-      parameters,
-      info: (),
-    })
+    vec(Parameter::any(args.into()), 0..args.2)
+      .prop_map(Slice::from_iter)
+      .prop_map(|parameters| Parameters {
+        parameters,
+        info: (),
+      })
   }
 }
 

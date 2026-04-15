@@ -1,4 +1,5 @@
 use super::Expression;
+use crate::Ptr;
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use proptest::prelude::Strategy;
@@ -9,8 +10,8 @@ use std::{
 
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct Assign<I> {
-  pub reference: Box<Expression<I>>,
-  pub value: Box<Expression<I>>,
+  pub reference: Ptr<Expression<I>>,
+  pub value: Ptr<Expression<I>>,
   pub info: I,
 }
 
@@ -34,8 +35,8 @@ impl Assign<()> {
   /// Generates a generic strategy for generating `Assign` expressions
   pub fn any(item: impl Strategy<Value = Expression<()>> + Clone) -> impl Strategy<Value = Self> {
     (item.clone(), item).prop_map(|(reference, value)| Assign {
-      reference: Box::new(reference),
-      value: Box::new(value),
+      reference: Ptr::new(reference),
+      value: Ptr::new(value),
       info: (),
     })
   }

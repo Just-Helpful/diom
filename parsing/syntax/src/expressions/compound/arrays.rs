@@ -1,4 +1,4 @@
-use crate::display::Sep;
+use crate::{display::Sep, Slice};
 
 use super::Expression;
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
@@ -11,7 +11,7 @@ use std::{
 
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct Array<I> {
-  pub contents: Vec<Expression<I>>,
+  pub contents: Slice<Expression<I>>,
   pub info: I,
 }
 
@@ -46,6 +46,8 @@ impl Array<()> {
     item: impl Strategy<Value = Expression<()>>,
     args: ArrayConfig,
   ) -> impl Strategy<Value = Self> {
-    vec(item, args.0).prop_map(|contents| Array { contents, info: () })
+    vec(item, args.0)
+      .prop_map(Slice::from_iter)
+      .prop_map(|contents| Array { contents, info: () })
   }
 }

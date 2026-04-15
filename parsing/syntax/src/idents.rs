@@ -1,3 +1,4 @@
+use crate::Ptr;
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use diom_tokens::Token;
@@ -10,11 +11,14 @@ use std::{
   ops::Range,
 };
 
+/// A literal alphanumeric name
+pub type LitName = Ptr<str>;
+
 /// An alphanumeric identifier for use in variable definitions and tags
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct Ident<I> {
   #[map_ignore]
-  pub name: Box<str>,
+  pub name: LitName,
   pub info: I,
 }
 
@@ -151,9 +155,10 @@ impl Op<()> {
   }
 }
 
+/// A method name that can be either a literal name or a symbol
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Name {
-  Literal(Box<str>),
+  Literal(LitName),
   Symbol(Symbol),
 }
 
@@ -161,7 +166,7 @@ impl TryFrom<Token> for Name {
   type Error = ();
   fn try_from(value: Token) -> Result<Self, Self::Error> {
     match value {
-      Token::StringIdent(name) => Ok(Self::Literal(name)),
+      Token::StringIdent(name) => Ok(Self::Literal(name.into())),
       tok => tok.try_into().map(Self::Symbol),
     }
   }
@@ -174,12 +179,12 @@ impl From<Name> for Token {
     }
   }
 }
-impl From<Box<str>> for Name {
-  fn from(value: Box<str>) -> Self {
+impl From<LitName> for Name {
+  fn from(value: LitName) -> Self {
     Self::Literal(value)
   }
 }
-impl TryFrom<Name> for Box<str> {
+impl TryFrom<Name> for LitName {
   type Error = ();
   fn try_from(value: Name) -> Result<Self, Self::Error> {
     match value {

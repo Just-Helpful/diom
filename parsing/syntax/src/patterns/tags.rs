@@ -1,4 +1,4 @@
-use crate::{display::Seq, idents::Ident, patterns::Pattern};
+use crate::{display::Seq, idents::Ident, patterns::Pattern, Ptr};
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use proptest::prelude::Strategy;
@@ -12,7 +12,7 @@ use std::{
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct Tagged<I> {
   pub name: Ident<I>,
-  pub value: Box<Pattern<I>>,
+  pub value: Ptr<Pattern<I>>,
   pub info: I,
 }
 
@@ -34,7 +34,7 @@ impl Tagged<()> {
   pub fn any(item: impl Strategy<Value = Pattern<()>>) -> impl Strategy<Value = Self> {
     (Ident::any(), item).prop_map(|(name, value)| Tagged {
       name,
-      value: Box::new(value),
+      value: Ptr::new(value),
       info: (),
     })
   }

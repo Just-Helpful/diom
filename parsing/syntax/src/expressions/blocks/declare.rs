@@ -2,6 +2,7 @@ use super::Expression;
 use crate::{
   patterns::{Pattern, PatternConfig},
   types::{Type, TypeConfig},
+  Ptr,
 };
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
@@ -35,7 +36,7 @@ use std::{
 pub struct Declare<I> {
   pub pattern: Pattern<I>,
   pub annotation: Option<Type<I>>,
-  pub value: Box<Expression<I>>,
+  pub value: Ptr<Expression<I>>,
   pub info: I,
 }
 
@@ -78,7 +79,7 @@ impl Declare<()> {
       |(pattern, annotation, value)| Declare {
         pattern,
         annotation,
-        value: Box::new(value),
+        value: Ptr::new(value),
         info: (),
       },
     )

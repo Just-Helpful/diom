@@ -10,3 +10,8 @@ pub mod path;
 pub mod patterns;
 pub mod types;
 pub mod var;
+
+/// The ptr type used for indirection in syntax nodes
+pub type Ptr<T> = Box<T>;
+/// The owned slice used for indirection in syntax nodes
+pub type Slice<T> = Vec<T>;

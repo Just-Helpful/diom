@@ -1,5 +1,5 @@
 use super::Type;
-use crate::{display::Sep, idents::Ident};
+use crate::{display::Sep, idents::Ident, Ptr, Slice};
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use proptest::{collection::vec, prelude::Strategy};
@@ -44,7 +44,7 @@ impl Parameter<()> {
 
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct Parameters<I> {
-  pub parameters: Vec<Parameter<I>>,
+  pub parameters: Slice<Parameter<I>>,
   pub info: I,
 }
 
@@ -67,10 +67,12 @@ impl Parameters<()> {
     item: impl Strategy<Value = Type<()>>,
     args: FunctionConfig,
   ) -> impl Strategy<Value = Self> {
-    vec(Parameter::any(item), 0..args.0).prop_map(|parameters| Parameters {
-      parameters,
-      info: (),
-    })
+    vec(Parameter::any(item), 0..args.0)
+      .prop_map(Slice::from_iter)
+      .prop_map(|parameters| Parameters {
+        parameters,
+        info: (),
+      })
   }
 }
 
@@ -87,7 +89,7 @@ impl Parameters<()> {
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct Function<I> {
   pub parameters: Parameters<I>,
-  pub returned: Box<Type<I>>,
+  pub returned: Ptr<Type<I>>,
   pub info: I,
 }
 
@@ -126,7 +128,7 @@ impl Function<()> {
   ) -> impl Strategy<Value = Self> {
     (Parameters::any(item.clone(), args), item).prop_map(|(parameters, returned)| Function {
       parameters,
-      returned: Box::new(returned),
+      returned: Ptr::new(returned),
       info: (),
     })
   }

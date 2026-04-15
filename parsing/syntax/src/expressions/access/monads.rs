@@ -1,4 +1,5 @@
 use super::Expression;
+use crate::Ptr;
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use proptest::prelude::Strategy;
@@ -48,7 +49,7 @@ use std::{
 /// ```
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct MonadThen<I> {
-  pub value: Box<Expression<I>>,
+  pub value: Ptr<Expression<I>>,
   pub info: I,
 }
 
@@ -70,7 +71,7 @@ impl MonadThen<()> {
   /// Generates a generic strategy for generating `MonadThen` expressions
   pub fn any(item: impl Strategy<Value = Expression<()>>) -> impl Strategy<Value = Self> {
     item.prop_map(|value| MonadThen {
-      value: Box::new(value),
+      value: Ptr::new(value),
       info: (),
     })
   }
@@ -110,7 +111,7 @@ impl MonadThen<()> {
 /// ```
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct MonadResult<I> {
-  pub value: Box<Expression<I>>,
+  pub value: Ptr<Expression<I>>,
   pub info: I,
 }
 
@@ -132,7 +133,7 @@ impl MonadResult<()> {
   /// Generates a generic strategy for generating `MonadResult` expressions
   pub fn any(item: impl Strategy<Value = Expression<()>>) -> impl Strategy<Value = Self> {
     item.prop_map(|value| MonadResult {
-      value: Box::new(value),
+      value: Ptr::new(value),
       info: (),
     })
   }

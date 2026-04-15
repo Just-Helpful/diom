@@ -5,7 +5,7 @@
 //! These are only used during parsing!<br>
 //! They will be translated into field calls.
 use super::Expression;
-use crate::idents::Method;
+use crate::{idents::Method, Ptr};
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use proptest::prelude::Strategy;
@@ -16,9 +16,9 @@ use std::{
 
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct Infix<I> {
-  pub value: Box<Expression<I>>,
+  pub value: Ptr<Expression<I>>,
   pub name: Method<I>,
-  pub other: Box<Expression<I>>,
+  pub other: Ptr<Expression<I>>,
   pub info: I,
 }
 
@@ -45,9 +45,9 @@ impl Infix<()> {
   /// Generates a generic strategy for generating `Infix` expressions
   pub fn any(item: impl Strategy<Value = Expression<()>> + Clone) -> impl Strategy<Value = Self> {
     (item.clone(), Method::any(), item).prop_map(|(value, name, other)| Infix {
-      value: Box::new(value),
+      value: Ptr::new(value),
       name,
-      other: Box::new(other),
+      other: Ptr::new(other),
       info: (),
     })
   }

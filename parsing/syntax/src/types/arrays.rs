@@ -1,4 +1,5 @@
 use super::Type;
+use crate::Ptr;
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use proptest::prelude::Strategy;
@@ -18,7 +19,7 @@ use std::{
 /// ```
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct Array<I> {
-  pub item: Box<Type<I>>,
+  pub item: Ptr<Type<I>>,
   pub info: I,
 }
 
@@ -41,7 +42,7 @@ impl Array<()> {
   /// Generates a generic strategy for generating `Array` types
   pub fn any(item: impl Strategy<Value = Type<()>>) -> impl Strategy<Value = Self> {
     item.prop_map(|item| Array {
-      item: Box::new(item),
+      item: Ptr::new(item),
       info: (),
     })
   }

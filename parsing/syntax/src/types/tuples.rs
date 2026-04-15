@@ -1,4 +1,5 @@
-use crate::display::Sep;
+use super::Type;
+use crate::{display::Sep, Slice};
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use proptest::{collection::vec, prelude::Strategy};
@@ -6,8 +7,6 @@ use std::{
   fmt::{Display, Write},
   ops::Range,
 };
-
-use super::Type;
 
 /// The type for a combination of indexed fields
 ///
@@ -20,7 +19,7 @@ use super::Type;
 /// ```
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct Tuple<I> {
-  pub fields: Vec<Type<I>>,
+  pub fields: Slice<Type<I>>,
   pub info: I,
 }
 
@@ -55,6 +54,8 @@ impl Tuple<()> {
     item: impl Strategy<Value = Type<()>>,
     args: TupleConfig,
   ) -> impl Strategy<Value = Self> {
-    vec(item, 0..args.0).prop_map(|fields| Tuple { fields, info: () })
+    vec(item, 0..args.0)
+      .prop_map(Slice::from_iter)
+      .prop_map(|fields| Tuple { fields, info: () })
   }
 }

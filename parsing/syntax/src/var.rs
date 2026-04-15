@@ -1,3 +1,4 @@
+use crate::idents::LitName;
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use proptest::prelude::Strategy;
@@ -9,7 +10,7 @@ use std::{
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
 pub struct Var<I> {
   #[map_ignore]
-  pub name: Box<str>,
+  pub name: LitName,
   pub info: I,
 }
 
