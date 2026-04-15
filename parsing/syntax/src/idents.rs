@@ -1,4 +1,4 @@
-use crate::{from_box, into_box, Ptr};
+use crate::{from_box, Ptr};
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use diom_tokens::Token;
@@ -13,6 +13,12 @@ use std::{
 
 /// A literal alphanumeric name
 pub type LitName = Ptr<str>;
+
+/// Helper to convert a literal name to a `Box<str>`\
+/// Should work under most normal circumstances
+fn into_box_str(lit: LitName) -> Box<str> {
+  lit.to_string().into_boxed_str()
+}
 
 /// An alphanumeric identifier for use in variable definitions and tags
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
@@ -188,7 +194,7 @@ impl TryFrom<Token> for Name {
 impl From<Name> for Token {
   fn from(value: Name) -> Self {
     match value {
-      Name::Literal(name) => Token::StringIdent(into_box(name)),
+      Name::Literal(name) => Token::StringIdent(into_box_str(name)),
       Name::Symbol(sym) => sym.into(),
     }
   }
