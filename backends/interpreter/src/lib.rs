@@ -365,7 +365,7 @@ impl<I: Clone> Eval<Scope<I>> for Expression<I> {
         let mut scope = scope.clone();
         scope.extend(names.into_iter().cloned().zip(values));
 
-        returned.eval_with(state)
+        returned.eval_with(&mut scope)
       }
       Self::Field(field) => {
         let value = field.value.eval_with(state)?;
