@@ -43,20 +43,34 @@ impl Ident<()> {
   }
 }
 
+/// Possible symbol types in diom, i.e. `!`, `+`, `>=`
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum Symbol {
+  /// `!`
   Not,
+  /// `&`
   And,
+  /// `|`
   Or,
+  /// `+`
   Plus,
+  /// `-`
   Minus,
+  /// `*`
   Times,
+  /// `/`
   Divide,
+  /// `==`
   Eq,
+  /// `!=`
   Ne,
+  /// `<`
   Lt,
+  /// `>`
   Gt,
+  /// `<=`
   LtEq,
+  /// `>=`
   GtEq,
 }
 
