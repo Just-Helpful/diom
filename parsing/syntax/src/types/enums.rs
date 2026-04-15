@@ -3,7 +3,7 @@ use std::{
   ops::Range,
 };
 
-use crate::{display::Sep, Slice};
+use crate::{display::Sep, Seq};
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use proptest::{collection::vec, prelude::Strategy};
@@ -31,7 +31,7 @@ use super::{Tagged, Type};
 /// ```
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct Enum<I> {
-  pub variants: Slice<Tagged<I>>,
+  pub variants: Seq<Tagged<I>>,
   pub info: I,
 }
 
@@ -67,7 +67,7 @@ impl Enum<()> {
     args: EnumConfig,
   ) -> impl Strategy<Value = Self> {
     vec(Tagged::any(item), 0..args.0)
-      .prop_map(Slice::from_iter)
+      .prop_map(Seq::from_iter)
       .prop_map(|variants| Enum { variants, info: () })
   }
 }

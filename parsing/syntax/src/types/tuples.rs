@@ -1,5 +1,5 @@
 use super::Type;
-use crate::{display::Sep, Slice};
+use crate::{display::Sep, Seq};
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use proptest::{collection::vec, prelude::Strategy};
@@ -19,7 +19,7 @@ use std::{
 /// ```
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct Tuple<I> {
-  pub fields: Slice<Type<I>>,
+  pub fields: Seq<Type<I>>,
   pub info: I,
 }
 
@@ -55,7 +55,7 @@ impl Tuple<()> {
     args: TupleConfig,
   ) -> impl Strategy<Value = Self> {
     vec(item, 0..args.0)
-      .prop_map(Slice::from_iter)
+      .prop_map(Seq::from_iter)
       .prop_map(|fields| Tuple { fields, info: () })
   }
 }

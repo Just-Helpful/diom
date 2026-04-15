@@ -1,4 +1,4 @@
-use crate::{display::Sep, idents::Ident, Slice};
+use crate::{display::Sep, idents::Ident, Seq};
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use proptest::{
@@ -12,7 +12,7 @@ use std::{
 
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug)]
 pub struct Path<I> {
-  pub segments: Slice<Ident<I>>,
+  pub segments: Seq<Ident<I>>,
   pub info: I,
 }
 
@@ -43,7 +43,7 @@ impl Path<()> {
   /// Generates a generic strategy for generating `Path`s
   pub fn any(args: PathConfig) -> impl Strategy<Value = Self> {
     vec(Ident::any(), 0..args.0)
-      .prop_map(Slice::from_iter)
+      .prop_map(Seq::from_iter)
       .prop_map(|segments| Path { segments, info: () })
   }
 }

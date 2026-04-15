@@ -1,5 +1,5 @@
 use super::Type;
-use crate::{display::Sep, idents::Ident, Ptr, Slice};
+use crate::{display::Sep, idents::Ident, Ptr, Seq};
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use proptest::{collection::vec, prelude::Strategy};
@@ -44,7 +44,7 @@ impl Parameter<()> {
 
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct Parameters<I> {
-  pub parameters: Slice<Parameter<I>>,
+  pub parameters: Seq<Parameter<I>>,
   pub info: I,
 }
 
@@ -68,7 +68,7 @@ impl Parameters<()> {
     args: FunctionConfig,
   ) -> impl Strategy<Value = Self> {
     vec(Parameter::any(item), 0..args.0)
-      .prop_map(Slice::from_iter)
+      .prop_map(Seq::from_iter)
       .prop_map(|parameters| Parameters {
         parameters,
         info: (),

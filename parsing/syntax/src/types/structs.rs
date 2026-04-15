@@ -1,4 +1,4 @@
-use crate::{display::Sep, idents::Method, Slice};
+use crate::{display::Sep, idents::Method, Seq};
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use proptest::{collection::vec, prelude::Strategy};
@@ -26,7 +26,7 @@ use super::Type;
 /// ```
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct Struct<I> {
-  pub fields: Slice<(Method<I>, Type<I>)>,
+  pub fields: Seq<(Method<I>, Type<I>)>,
   pub info: I,
 }
 
@@ -67,7 +67,7 @@ impl Struct<()> {
     args: StructConfig,
   ) -> impl Strategy<Value = Self> {
     vec((Method::any(), item), 0..args.0)
-      .prop_map(Slice::from_iter)
+      .prop_map(Seq::from_iter)
       .prop_map(|fields| Struct { fields, info: () })
   }
 }

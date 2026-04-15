@@ -1,5 +1,5 @@
 use super::Expression;
-use crate::{display::Sep, Ptr, Slice};
+use crate::{display::Sep, Ptr, Seq};
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use proptest::{collection::vec, prelude::Strategy};
@@ -11,7 +11,7 @@ use std::{
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct Call<I> {
   pub value: Ptr<Expression<I>>,
-  pub args: Slice<Expression<I>>,
+  pub args: Seq<Expression<I>>,
   pub info: I,
 }
 

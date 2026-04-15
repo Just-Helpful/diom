@@ -2,7 +2,7 @@ use super::Expression;
 use crate::{
   display::Sep,
   types::{TypeConfig, TypeDef},
-  Slice,
+  Seq,
 };
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
@@ -51,7 +51,7 @@ impl Statement<()> {
 
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct Block<I> {
-  pub statements: Slice<Statement<I>>,
+  pub statements: Seq<Statement<I>>,
   pub info: I,
 }
 
@@ -89,7 +89,7 @@ impl Block<()> {
     args: BlockConfig,
   ) -> impl Strategy<Value = Self> {
     vec(Statement::any(item, args.0), 0..args.1)
-      .prop_map(Slice::from_iter)
+      .prop_map(Seq::from_iter)
       .prop_map(|statements| Block {
         statements,
         info: (),

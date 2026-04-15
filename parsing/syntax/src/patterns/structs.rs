@@ -1,5 +1,5 @@
 use super::{Pattern, Rest};
-use crate::{display::Sep, idents::Method, Slice};
+use crate::{display::Sep, idents::Method, Seq};
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use proptest::{collection::vec, prelude::Strategy, prop_oneof};
@@ -78,7 +78,7 @@ impl StructItem<()> {
 
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct Struct<I> {
-  pub fields: Slice<StructItem<I>>,
+  pub fields: Seq<StructItem<I>>,
   pub info: I,
 }
 
@@ -112,7 +112,7 @@ impl Struct<()> {
     args: StructConfig,
   ) -> impl Strategy<Value = Self> {
     vec(StructItem::any(item), 0..args.0)
-      .prop_map(Slice::from_iter)
+      .prop_map(Seq::from_iter)
       .prop_map(|fields| Struct { fields, info: () })
   }
 }
