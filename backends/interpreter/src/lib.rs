@@ -1,37 +1,83 @@
 use diom_syntax::{
-  expressions::{Expression, Infix, Prefix, Statement},
+  expressions::{Call, Expression, Function, FunctionArm, Infix, Prefix, Statement},
   idents::{LitName, Method, Name, Op, Symbol},
   patterns::Pattern,
+  Ptr,
 };
-use std::{collections::HashMap, ops::Deref};
+use std::{collections::HashMap, ops::Deref, rc::Rc};
 
-#[derive(Debug, Clone, PartialEq)]
-pub enum Value {
+#[derive(Debug)]
+pub struct FunctionValue<I> {
+  scope: Scope<I>,
+  names: Vec<LitName>,
+  returned: Ptr<Expression<I>>,
+}
+
+#[derive(Debug, Clone)]
+pub struct FunctionPtr<I>(Rc<FunctionValue<I>>);
+
+impl<I> From<FunctionValue<I>> for FunctionPtr<I> {
+  fn from(value: FunctionValue<I>) -> Self {
+    Self(Rc::new(value))
+  }
+}
+impl<I> Deref for FunctionPtr<I> {
+  type Target = FunctionValue<I>;
+  fn deref(&self) -> &Self::Target {
+    self.0.deref()
+  }
+}
+impl<I> PartialEq for FunctionPtr<I> {
+  fn eq(&self, other: &Self) -> bool {
+    Rc::ptr_eq(&self.0, &other.0)
+  }
+}
+
+#[derive(Debug, Clone)]
+pub enum Value<I> {
   Unit,
   Float(f64),
   Bool(bool),
   Char(char),
-  Array(Array),
-  Struct(Struct),
+  Array(Array<I>),
+  Struct(Struct<I>),
+  Function(FunctionPtr<I>),
 }
 
-type Array = Vec<Value>;
-type Struct = HashMap<Name, Value>;
+impl<I> PartialEq for Value<I> {
+  fn eq(&self, other: &Self) -> bool {
+    match (self, other) {
+      (Self::Unit, Self::Unit) => true,
+      (Self::Float(v0), Self::Float(v1)) => v0 == v1,
+      (Self::Bool(v0), Self::Bool(v1)) => v0 == v1,
+      (Self::Char(v0), Self::Char(v1)) => v0 == v1,
+      (Self::Array(v0), Self::Array(v1)) => v0 == v1,
+      (Self::Struct(v0), Self::Struct(v1)) => v0 == v1,
+      (Self::Function(v0), Self::Function(v1)) => v0 == v1,
+      _ => false,
+    }
+  }
+}
 
-type Scope = HashMap<LitName, Value>;
+type Array<I> = Vec<Value<I>>;
+type Struct<I> = HashMap<Name, Value<I>>;
+
+type Scope<I> = HashMap<LitName, Value<I>>;
 
 #[derive(Debug)]
 pub enum Error<I> {
   Unsupported(&'static str),
   Type(&'static str),
   MissingVar(Method<I>),
-  NotStruct(Value, Method<I>),
-  MissingField(Struct, Method<I>),
-  NotArray(Value, Vec<Expression<I>>),
-  TooManyKeys(Vec<Value>, Vec<Expression<I>>),
-  IndexMissing(Vec<Value>),
-  IndexNotInt(Vec<Value>, Value),
-  IndexOutsideBounds(Vec<Value>, usize, usize),
+  NotStruct(Value<I>, Method<I>),
+  MissingField(Struct<I>, Method<I>),
+  NotArray(Value<I>, Vec<Expression<I>>),
+  TooManyKeys(Vec<Value<I>>, Vec<Expression<I>>),
+  IndexMissing(Vec<Value<I>>),
+  IndexNotInt(Vec<Value<I>>, Value<I>),
+  IndexOutsideBounds(Vec<Value<I>>, usize, usize),
+  TooFewArgs(Vec<LitName>, Vec<Expression<I>>),
+  TooManyArgs(Vec<LitName>, Vec<Expression<I>>),
 }
 
 /// A type that can be evaluated to a given value when given a starting state
@@ -50,11 +96,11 @@ pub trait Eval<S: Default = ()> {
   }
 }
 
-impl<I: Clone> Eval<Scope> for Prefix<I> {
-  type Output = Value;
+impl<I: Clone> Eval<Scope<I>> for Prefix<I> {
+  type Output = Value<I>;
   type Error = Error<I>;
 
-  fn eval_with(&self, state: &mut Scope) -> Result<Self::Output, Self::Error> {
+  fn eval_with(&self, state: &mut Scope<I>) -> Result<Self::Output, Self::Error> {
     use Value::*;
     let Prefix {
       name: Op { sym, .. },
@@ -95,11 +141,11 @@ impl<I: Clone> Eval<Scope> for Prefix<I> {
   }
 }
 
-impl<I: Clone> Eval<Scope> for Infix<I> {
-  type Output = Value;
+impl<I: Clone> Eval<Scope<I>> for Infix<I> {
+  type Output = Value<I>;
   type Error = Error<I>;
 
-  fn eval_with(&self, state: &mut Scope) -> Result<Self::Output, Self::Error> {
+  fn eval_with(&self, state: &mut Scope<I>) -> Result<Self::Output, Self::Error> {
     use Value::*;
     let Infix {
       value,
@@ -178,11 +224,11 @@ impl<I: Clone> Eval<Scope> for Infix<I> {
   }
 }
 
-impl<I: Clone> Eval<Scope> for Statement<I> {
-  type Output = Value;
+impl<I: Clone> Eval<Scope<I>> for Statement<I> {
+  type Output = Value<I>;
   type Error = Error<I>;
 
-  fn eval_with(&self, state: &mut Scope) -> Result<Self::Output, Self::Error> {
+  fn eval_with(&self, state: &mut Scope<I>) -> Result<Self::Output, Self::Error> {
     use Statement::*;
     match self {
       TypeDef(_) => Err(Error::Unsupported("Types")),
@@ -191,11 +237,11 @@ impl<I: Clone> Eval<Scope> for Statement<I> {
   }
 }
 
-impl<I: Clone> Eval<Scope> for Expression<I> {
-  type Output = Value;
+impl<I: Clone> Eval<Scope<I>> for Expression<I> {
+  type Output = Value<I>;
   type Error = Error<I>;
 
-  fn eval_with(&self, state: &mut Scope) -> Result<Self::Output, Self::Error> {
+  fn eval_with(&self, state: &mut Scope<I>) -> Result<Self::Output, Self::Error> {
     match self {
       Self::Char(c) => Ok(Value::Char(c.value)),
       Self::Float(f) => Ok(Value::Float(f.value)),
@@ -250,16 +296,77 @@ impl<I: Clone> Eval<Scope> for Expression<I> {
         .contents
         .iter()
         .map(|e| e.eval_with(state))
-        .collect::<Result<Vec<Value>, _>>()
+        .collect::<Result<Vec<Value<I>>, _>>()
         .map(Value::Array),
-      Self::Function(_) => Err(Error::Unsupported("Functions")),
+      Self::Function(Function { arms, .. }) => {
+        if arms.len() == 0 {
+          unreachable!("0 arms corresponds to a struct, not a function")
+        }
+        if arms.len() > 1 {
+          return Err(Error::Unsupported("Multi arm functions"));
+        }
+        let FunctionArm {
+          parameters,
+          returned,
+          ..
+        } = &arms[0];
+
+        let optn_names: Option<Vec<_>> = parameters
+          .parameters
+          .iter()
+          .map(|param| match &param.pattern {
+            Pattern::Var(ident) => Some(ident.name.clone()),
+            _ => None,
+          })
+          .collect();
+
+        let Some(names) = optn_names else {
+          return Err(Error::Unsupported("Non-name parameters"));
+        };
+
+        // @todo Clone the scope and a expression reference
+        // Err(Error::Unsupported("Functions"))
+        Ok(Value::Function(
+          FunctionValue {
+            scope: state.clone(),
+            names,
+            returned: returned.clone(),
+          }
+          .into(),
+        ))
+      }
       Self::Struct(data) => data
         .fields
         .iter()
         .map(|(ident, item)| item.eval_with(state).map(|val| (ident.name.clone(), val)))
-        .collect::<Result<HashMap<Name, Value>, _>>()
+        .collect::<Result<HashMap<Name, Value<I>>, _>>()
         .map(Value::Struct),
-      Self::Call(_) => Err(Error::Unsupported("Functions")),
+      Self::Call(Call { value, args, .. }) => {
+        let Value::Function(func) = value.eval_with(state)? else {
+          return Err(Error::Type("Non functions cannot be called"));
+        };
+
+        let FunctionValue {
+          scope,
+          names,
+          returned,
+        } = func.deref();
+        if names.len() > args.len() {
+          return Err(Error::TooFewArgs(names.clone(), args.clone()));
+        }
+        if names.len() < args.len() {
+          return Err(Error::TooManyArgs(names.clone(), args.clone()));
+        }
+
+        let values = args
+          .into_iter()
+          .map(|arg| arg.eval_with(state))
+          .collect::<Result<Vec<_>, _>>()?;
+        let mut scope = scope.clone();
+        scope.extend(names.into_iter().cloned().zip(values));
+
+        returned.eval_with(state)
+      }
       Self::Field(field) => {
         let value = field.value.eval_with(state)?;
         let Value::Struct(value) = value else {
