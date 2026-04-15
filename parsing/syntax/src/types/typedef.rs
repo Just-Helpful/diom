@@ -23,7 +23,7 @@ use std::{
 #[derive(Clone, InfoSource, InfoRef, InfoMap, Debug, PartialEq)]
 pub struct Alias<I> {
   pub name: Ident<I>,
-  pub value: Box<Type<I>>,
+  pub value: Type<I>,
   pub info: I,
 }
 
@@ -48,7 +48,7 @@ impl Alias<()> {
   pub fn any(args: TypeConfig) -> impl Strategy<Value = Self> {
     (Ident::any(), Type::any(args)).prop_map(|(name, value)| Alias {
       name,
-      value: Box::new(value),
+      value,
       info: (),
     })
   }

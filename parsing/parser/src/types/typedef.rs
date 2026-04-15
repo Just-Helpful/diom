@@ -21,14 +21,7 @@ pub fn parse_alias<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, Alias<I
     delimited(matches(Token::Type), parse_ident, matches(Token::Assign)).and(cut(parse_type));
   let parser = context("type alias", parser);
   let (input, (info, (name, value))) = consumed(parser).parse(input)?;
-  Ok((
-    input,
-    Alias {
-      name,
-      value: Box::new(value),
-      info,
-    },
-  ))
+  Ok((input, Alias { name, value, info }))
 }
 
 pub fn parse_newtype<'a, E: SyntaxError<'a>>(input: In<'a>) -> PResult<'a, NewType<In<'a>>, E> {
@@ -62,10 +55,10 @@ mod tests {
         name: "_".into(),
         info: (),
       },
-      value: Box::new(Type::Var(Ident {
+      value: Type::Var(Ident {
         name: "_".into(),
         info: (),
-      })),
+      }),
       info: (),
     });
 
