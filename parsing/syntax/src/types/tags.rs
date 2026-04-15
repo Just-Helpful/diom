@@ -1,4 +1,4 @@
-use crate::{display::Seq, idents::Ident, types::Type, Ptr};
+use crate::{idents::Ident, types::Type, Ptr};
 use diom_fmt::{DisplayAs, SpanWriter, Spans};
 use diom_info_traits::{InfoMap, InfoRef, InfoSource};
 use proptest::prelude::Strategy;
@@ -18,7 +18,7 @@ pub struct Tagged<I> {
 
 impl<I> Display for Tagged<I> {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    Seq(&(&self.name, &self.value)).fmt(f)
+    write!(f, "{} {}", self.name, self.value)
   }
 }
 

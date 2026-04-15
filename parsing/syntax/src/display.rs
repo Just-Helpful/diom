@@ -27,13 +27,3 @@ impl<T: Display> Display for Optn<'_, T> {
     self.0.as_ref().map_or(Ok(()), |v| v.fmt(f))
   }
 }
-
-/// Displays a tuple of items without a separator
-pub struct Seq<T>(pub T);
-
-impl<'a, T0: Display, T1: Display> Display for Seq<&'a (T0, T1)> {
-  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    let (fst, snd) = self.0;
-    write!(f, "{fst} {snd}")
-  }
-}
