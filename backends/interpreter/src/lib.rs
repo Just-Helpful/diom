@@ -1,6 +1,6 @@
 use diom_syntax::{
   expressions::{Expression, Infix, Prefix, Statement},
-  idents::{Method, Name, Op, Symbol},
+  idents::{LitName, Method, Name, Op, Symbol},
   patterns::Pattern,
 };
 use std::{collections::HashMap, ops::Deref};
@@ -18,7 +18,7 @@ pub enum Value {
 type Array = Vec<Value>;
 type Struct = HashMap<Name, Value>;
 
-type Scope = HashMap<Box<str>, Value>;
+type Scope = HashMap<LitName, Value>;
 
 #[derive(Debug)]
 pub enum Error<I> {
